@@ -1,9 +1,9 @@
 name: Build (reusable)
 
-# PLACEHOLDER. This workflow does not know how this project is built, or whether
-# it needs building at all. Replace the step marked CUSTOMIZE with a real build
-# command — or delete this workflow and its call site if the project has no
-# build step (see docs/CUSTOMIZATION.md).
+# Builds the Next.js application. This gate is kept rather than deleted because
+# the project has a real build, and because the build is where a server-only
+# module leaking into a client component surfaces as an error rather than as a
+# runtime price the browser can edit.
 #
 # Reusable workflow: it is called by another workflow, never triggered directly.
 # Called by: .github/workflows/pr-checks.yml
@@ -32,6 +32,10 @@ jobs:
     name: Build
     runs-on: ${{ inputs.runner }}
     timeout-minutes: 30
+    env:
+      # Corepack otherwise prompts for confirmation before it downloads
+      # the pinned pnpm, which would hang a non-interactive runner.
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
     permissions:
       contents: read # required only so actions/checkout can read the repository
     defaults:
@@ -46,23 +50,34 @@ jobs:
           ref: ${{ inputs.ref }}
           persist-credentials: false
 
-      # ── CUSTOMIZE ─────────────────────────────────────────────────────────
-      # Replace this entire step with the build command for this project.
-      # Per-stack guidance: docs/CUSTOMIZATION.md
+      # ── Toolchain ─────────────────────────────────────────────────────────
+      # No `setup-*` action. docs/RECOMMENDED_ACTIONS.md prefers the runner's
+      # preinstalled runtime and a plain command, and GitHub-hosted images ship
+      # Node. Corepack is bundled with Node and resolves pnpm to the exact
+      # version pinned by `packageManager` in package.json, so the package
+      # manager is pinned by the manifest rather than by anything in here.
       #
-      # Build-time configuration: pass non-secret values as inputs, and secrets
-      # via `workflow_call.secrets`. Do not read production secrets in a build
-      # that also runs on pull requests from forks.
-      #
-      # If the deploy workflows should consume this build's output rather than
-      # rebuilding, add an artifact upload here (actions/upload-artifact) and a
-      # matching download in the deploy workflow. That is left unwired until you
-      # know what the build produces — see docs/RECOMMENDED_ACTIONS.md.
-      - name: Build
+      # `corepack pnpm ...` is used rather than `corepack enable`, because
+      # enabling writes a shim into the Node installation directory and that
+      # needs privileges the runner does not reliably have.
+      - name: Verify the runner's Node matches .nvmrc
+        # A deliberate hard failure. If the runner image moves to a different
+        # Node major than this project pins, the job stops with a clear message
+        # instead of quietly running against a runtime nobody tested against.
         run: |
-          echo "::error title=Template not configured::.github/workflows/build.yml is still a placeholder."
-          echo "Replace the 'Build' step with this project's build command,"
-          echo "or delete this workflow if the project has no build step."
-          echo "See docs/CUSTOMIZATION.md for the section matching your stack."
-          exit 1
-      # ──────────────────────────────────────────────────────────────────────
+          actual="$(node -p 'process.versions.node.split(".")[0]')"
+          expected="$(tr -d '[:space:]' < .nvmrc)"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error title=Node version mismatch::Runner provides Node ${actual}; .nvmrc pins ${expected}. Update .nvmrc and package.json engines together, or pin the runner image."
+            exit 1
+          fi
+          echo "node $(node --version), pnpm $(corepack pnpm --version)"
+
+      - name: Install dependencies
+        # --frozen-lockfile is the CI-oriented install: it fails rather than
+        # silently updating pnpm-lock.yaml, so CI cannot resolve a different
+        # dependency tree than the one that was reviewed.
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Build
+        run: corepack pnpm run build
