@@ -1,0 +1,44 @@
+{
+  "name": "smoke-show-labs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Smoke Show Labs \u2014 B2B wholesale storefront for licensed cannabis operators",
+  "packageManager": "pnpm@12.3.4",
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint:es": "eslint .",
+    "lint:css": "stylelint \"src/**/*.css\" --allow-empty-input",
+    "lint:format": "prettier --check .",
+    "lint": "pnpm typecheck && pnpm lint:es && pnpm lint:css && pnpm lint:format",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "next": "^16.3.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "server-only": "^0.0.1",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.4",
+    "prettier": "^3.9.6",
+    "stylelint": "^17.15.0",
+    "stylelint-config-standard": "^40.0.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.0",
+    "vitest": "^5.0.0"
+  }
+}

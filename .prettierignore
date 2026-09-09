@@ -1,0 +1,19 @@
+# Reference material from the design handoff — generated and hand-authored
+# prototype files that must survive byte-for-byte so they stay comparable to
+# what the designer shipped.
+design_handoff_wholesale_b2b/
+
+.next/
+node_modules/
+pnpm-lock.yaml
+
+# Prose is hard-wrapped by hand in this repository and Prettier would reflow it,
+# producing a large diff that hides the actual edit. Markdown formatting stays a
+# human decision.
+*.md
+
+# Workflow YAML is deliberately out of scope. CLAUDE.md rule 5 forbids editing
+# .github/workflows/ as a side effect of another change, and a formatter that
+# rewrites them on every run is exactly that side effect.
+.github/
+.claude/

@@ -1,0 +1,13 @@
+# pnpm settings. As of pnpm 12 these live here rather than in package.json.
+#
+# Dependency install scripts are a supply-chain surface: a postinstall runs
+# arbitrary code with the developer's and the CI runner's privileges. Nothing in
+# this project is allowed to run one.
+# `unrs-resolver` (a transitive dependency of the Next.js ESLint config) ships a
+# postinstall that fetches or builds its native resolver binary. It is not
+# needed here: the prebuilt @unrs/resolver-binding-linux-x64-gnu package is
+# already installed as an optional dependency and ESLint resolves fine without
+# the script. Declining it explicitly, rather than approving it, keeps
+# `pnpm install --frozen-lockfile` reproducible in CI with no build step.
+allowBuilds:
+  unrs-resolver: false

@@ -1,3 +1,30 @@
 # Local Claude Code settings. Machine-specific (enabled MCP servers, local
 # permissions) and must not propagate to projects copied from this template.
 .claude/settings.local.json
+
+# --- Node / Next.js ---------------------------------------------------------
+node_modules/
+.next/
+next-env.d.ts
+*.tsbuildinfo
+
+# Test and tooling output
+coverage/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# Local environment. Never commit these — see docs/CUSTOMIZATION.md step 8 on
+# where deploy credentials actually belong (Environment secrets, not files).
+.env
+.env.local
+.env.*.local
+
+# Fixture-mode upload store. Holds resale certificates, which carry a state
+# licence number and an EIN. Must never reach the repository.
+.uploads/
+
+# OS noise
+.DS_Store
+Thumbs.db
