@@ -1,0 +1,15 @@
+# Review routing for this repository. The default rule below is ACTIVE.
+#
+# @House-of-Helix-CMD/technical-admins holds Admin access here, so the rule resolves.
+#
+# THIS FILE IS COPIED INTO EVERY PROJECT GENERATED FROM THIS TEMPLATE. Repository settings
+# are NOT copied — a generated repository starts with no ruleset, and the team below has no
+# access to it until granted. So in a new project this rule resolves to nobody until you:
+#   1. grant @House-of-Helix-CMD/technical-admins Admin on the new repository, then
+#   2. apply the "Protect main" ruleset (require code-owner review) to its default branch.
+# Do those in that order. Applying the ruleset first blocks every PR.
+#
+# Policy lives in helix-engineering. See policies/pull-request-policy.md there.
+
+# Everything scaffolded from this template is owned by technical admins by default.
+* @House-of-Helix-CMD/technical-admins

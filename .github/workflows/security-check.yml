@@ -1,0 +1,78 @@
+name: Security check (reusable)
+
+# PLACEHOLDER. This workflow does not know this project's package manager, so it
+# cannot run a real dependency audit or secret scan. Replace the step marked
+# CUSTOMIZE with real commands.
+#
+# Reusable workflow: it is called by another workflow, never triggered directly.
+# Called by: .github/workflows/pr-checks.yml
+#
+# The release-metadata field `security_review_status` is set from this job's
+# conclusion together with the AI review. See docs/RELEASE_METADATA.md.
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: Runner label to execute on.
+        type: string
+        default: ubuntu-latest
+      working-directory:
+        description: Directory to run the security commands in.
+        type: string
+        default: "."
+      ref:
+        description: Git ref or SHA to check out. Defaults to the caller's ref.
+        type: string
+        default: ""
+
+# Least privilege: deny everything here, grant the minimum per job.
+permissions: {}
+
+jobs:
+  security-check:
+    name: Security check
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 20
+    permissions:
+      contents: read # required only so actions/checkout can read the repository
+      # security-events: write  # ONLY if you add a step that uploads SARIF to
+      #   code scanning. It lets the job write to the repository's security tab,
+      #   so do not enable it speculatively. The caller must grant it too — a
+      #   reusable workflow can narrow the caller's token but never widen it.
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout v7.0.1
+        # Pinned to a full commit SHA, not the mutable @v7 tag. Published by
+        # GitHub; see docs/RECOMMENDED_ACTIONS.md.
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+
+      # ── CUSTOMIZE ─────────────────────────────────────────────────────────
+      # Replace this step with the security checks for this project. Typically:
+      #
+      #   1. Dependency vulnerability audit — the package manager almost always
+      #      ships one, so this needs no third-party action. See
+      #      docs/CUSTOMIZATION.md for the command per stack.
+      #   2. Static analysis / SAST — GitHub CodeQL covers several languages and
+      #      can be enabled in repository settings with no workflow changes at
+      #      all. Prefer that over adding an action here.
+      #   3. Secret scanning — enable GitHub secret scanning and push protection
+      #      in repository settings rather than scripting it.
+      #
+      # Decide deliberately whether a finding fails the build. A check that
+      # always passes is not a gate. If you must allow known-accepted findings,
+      # use the tool's own ignore file and commit it, so the exception is
+      # reviewable — do not add `|| true`.
+      - name: Security check
+        run: |
+          echo "::error title=Template not configured::.github/workflows/security-check.yml is still a placeholder."
+          echo "Replace the 'Security check' step with this project's dependency audit"
+          echo "and static analysis commands."
+          echo "See docs/CUSTOMIZATION.md for the section matching your stack."
+          exit 1
+      # ──────────────────────────────────────────────────────────────────────

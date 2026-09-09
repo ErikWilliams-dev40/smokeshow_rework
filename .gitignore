@@ -1,0 +1,3 @@
+# Local Claude Code settings. Machine-specific (enabled MCP servers, local
+# permissions) and must not propagate to projects copied from this template.
+.claude/settings.local.json

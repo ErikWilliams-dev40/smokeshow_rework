@@ -1,0 +1,69 @@
+name: Test (reusable)
+
+# PLACEHOLDER. This workflow does not know the test runner of this project.
+# Replace the step marked CUSTOMIZE with a real test command.
+#
+# Reusable workflow: it is called by another workflow, never triggered directly.
+# Called by: .github/workflows/pr-checks.yml
+#
+# The release-metadata field `test_status` is derived from this job's
+# conclusion, not from a workflow output — a failing job cannot be trusted to
+# report its own result. See docs/RELEASE_METADATA.md.
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: Runner label to execute on.
+        type: string
+        default: ubuntu-latest
+      working-directory:
+        description: Directory to run the test command in.
+        type: string
+        default: "."
+      ref:
+        description: Git ref or SHA to check out. Defaults to the caller's ref.
+        type: string
+        default: ""
+
+# Least privilege: deny everything here, grant the minimum per job.
+permissions: {}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 30
+    permissions:
+      contents: read # required only so actions/checkout can read the repository
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout v7.0.1
+        # Pinned to a full commit SHA, not the mutable @v7 tag. Published by
+        # GitHub; see docs/RECOMMENDED_ACTIONS.md.
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+
+      # ── CUSTOMIZE ─────────────────────────────────────────────────────────
+      # Replace this entire step with the test command for this project.
+      # Per-stack guidance: docs/CUSTOMIZATION.md
+      #
+      # If tests need a service (database, cache, queue), declare it under a
+      # `services:` block on this job rather than starting it by hand.
+      #
+      # If you need a build matrix (multiple runtime versions), add a
+      # `strategy.matrix` to this job.
+      - name: Test
+        run: |
+          echo "::error title=Template not configured::.github/workflows/test.yml is still a placeholder."
+          echo "Replace the 'Test' step with this project's test command."
+          echo "See docs/CUSTOMIZATION.md for the section matching your stack."
+          exit 1
+      # ──────────────────────────────────────────────────────────────────────
+
+      # Coverage and test-report publishing usually pull in a third-party
+      # action. Do not add one here without reading docs/RECOMMENDED_ACTIONS.md.

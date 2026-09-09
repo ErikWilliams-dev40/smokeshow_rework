@@ -1,0 +1,60 @@
+name: Lint (reusable)
+
+# PLACEHOLDER. This workflow does not know the language or linter of this
+# project. Replace the step marked CUSTOMIZE with a real lint command.
+#
+# Reusable workflow: it is called by another workflow, never triggered directly.
+# Called by: .github/workflows/pr-checks.yml
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: Runner label to execute on.
+        type: string
+        default: ubuntu-latest
+      working-directory:
+        description: Directory to run the lint command in.
+        type: string
+        default: "."
+      ref:
+        description: Git ref or SHA to check out. Defaults to the caller's ref.
+        type: string
+        default: ""
+
+# Least privilege: deny everything here, grant the minimum per job.
+permissions: {}
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 15
+    permissions:
+      contents: read # required only so actions/checkout can read the repository
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout v7.0.1
+        # Pinned to a full commit SHA, not the mutable @v7 tag. Published by
+        # GitHub; see docs/RECOMMENDED_ACTIONS.md.
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+
+      # ── CUSTOMIZE ─────────────────────────────────────────────────────────
+      # Replace this entire step with the lint command for this project.
+      # Per-stack guidance: docs/CUSTOMIZATION.md
+      #
+      # If the stack needs a toolchain, install it here first. Prefer a runner
+      # preinstalled tool or a version manager already in the image over adding
+      # a third-party setup action.
+      - name: Lint
+        run: |
+          echo "::error title=Template not configured::.github/workflows/lint.yml is still a placeholder."
+          echo "Replace the 'Lint' step with this project's lint command."
+          echo "See docs/CUSTOMIZATION.md for the section matching your stack."
+          exit 1
+      # ──────────────────────────────────────────────────────────────────────

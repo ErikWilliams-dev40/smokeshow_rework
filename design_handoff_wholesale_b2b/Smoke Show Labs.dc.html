@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas">
+<style>
+@font-face{font-family:"Bodoni Moda";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/bodoni-moda-400.woff2") format("woff2")}
+@font-face{font-family:"Bodoni Moda";font-style:italic;font-weight:400;font-display:swap;src:url("fonts/bodoni-moda-400-italic.woff2") format("woff2")}
+@font-face{font-family:Jost;font-style:normal;font-weight:100 900;font-display:swap;src:url("fonts/jost-variable.woff2") format("woff2")}
+:root{--paper:#ffffff;--paper-raised:#ffffff;--paper-tint:#e3f0f7;--paper-well:#eeeeee;--slab:#111111;--ink:#2b2b2b;--faded:#565656;--violet:#006ebc;--violet-light:#78d6f1;--uv:#5f4b8b;--uv-light:#b9a8e0;--uv-haze:rgba(95,75,139,.07);--line:rgba(95,75,139,.16);--line-strong:rgba(95,75,139,.24);--line-card:rgba(95,75,139,.18);--line-slab:rgba(255,255,255,.16);--line-slab-quiet:rgba(255,255,255,.1);--on-slab:rgba(255,255,255,.72);--on-slab-quiet:rgba(255,255,255,.62);--ember:#f48120;--stock:#2e3191;--promo:#f00036;--blush:#ec8ebe;--azure:#3086c8;--pale:#e3f0f7;--coal:#231f20;--inv-fg:#ffffff;--r-card:0px;--r-btn:0px;--r-badge:0px;--r-input:0px;--sh-input:none;--fld-bg:transparent;--fld-pad:0px;--band:96px;--gutter:72px;--gap-col:56px;--gap-card:24px;--pad-card:34px;--serif:"Bodoni Moda",Didot,Baskerville,"Times New Roman",serif;--sans:Jost,"Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:#e9e7e3 radial-gradient(120% 80% at 50% 0%,rgba(95,75,139,.07),rgba(95,75,139,0) 62%) no-repeat;color:var(--ink);font-family:var(--sans);font-size:18px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,p,dl,dd,ul,figure{margin:0}
+h1,h2,h3,h4{font-weight:400}
+ul{padding:0;list-style:none}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+a:hover{color:var(--violet)}
+button,input,textarea,select{font:inherit;color:inherit}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.dv-tid{font:400 10px/1 var(--sans);letter-spacing:.18em;padding:5px 8px;background:var(--slab);color:var(--inv-fg);text-decoration:none}
+.dv-tname{font:400 13px/1.2 var(--sans);letter-spacing:.04em;color:var(--ink)}
+.dv-opts{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:10px;scroll-margin-top:16px}
+.dv-oid{font:400 10.5px/1 var(--sans);letter-spacing:.18em;padding:4px 7px;background:rgba(95,75,139,.11);color:var(--ink);text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:9px;font:400 11px/1.3 var(--sans);letter-spacing:.06em;color:var(--faded)}
+.dv-card{max-width:100%;background:var(--paper);border:1px solid var(--line-card);border-radius:var(--r-card);overflow:hidden;position:relative;isolation:isolate}
+.dv-card::before,.dv-card::after{content:"";position:absolute;inset:-14%;z-index:-1;pointer-events:none;background-repeat:no-repeat;will-change:background-position,opacity}
+.dv-card::before{background-image:radial-gradient(closest-side,var(--uv-haze),rgba(95,75,139,0) 76%),radial-gradient(closest-side,var(--uv-haze),rgba(95,75,139,0) 78%),radial-gradient(closest-side,var(--uv-haze),rgba(95,75,139,0) 74%);background-size:66% 44%,78% 52%,54% 38%;background-position:6% 102%,84% 114%,48% 124%;animation:ss-amb 128s ease-in-out infinite,ss-ambo 43s ease-in-out infinite}
+.dv-card::after{background-image:radial-gradient(closest-side,var(--uv-haze),rgba(95,75,139,0) 78%),radial-gradient(closest-side,var(--uv-haze),rgba(95,75,139,0) 76%);background-size:58% 40%,46% 34%;background-position:72% 108%,22% 118%;animation:ss-amb2 167s ease-in-out infinite,ss-ambo 59s ease-in-out infinite -19s}
+.smoke-soft .dv-card::before,.smoke-soft .dv-card::after{opacity:.5}
+.smoke-off .dv-card::before,.smoke-off .dv-card::after{animation-play-state:paused}
+.dv-opt:target .dv-oid{background:var(--violet);color:var(--inv-fg)}
+.dv-next{margin:22px 0 0;font:400 12px/1.6 var(--sans);color:var(--faded)}
+.ov{font-size:10px;font-weight:600;letter-spacing:.3em;line-height:1;text-transform:uppercase}
+.sl{font-size:9px;font-weight:600;letter-spacing:.2em;text-transform:uppercase}
+.nav a,button,a[style*="letter-spacing:.28em"],a[style*="letter-spacing:.24em"]{font-weight:600}
+.brand{--uv:#8f7ec4;--uv-light:#b9a8e0;--uv-haze:rgba(143,126,196,.1);--paper:#292929;--paper-raised:#343434;--paper-tint:#393939;--paper-well:#252131;--slab:#000000;--ink:#ffffff;--faded:#bdbdbd;--violet:#78d6f1;--violet-light:#78d6f1;--ember:#f7b829;--stock:#78d6f1;--azure:#3086c8;--blush:#ec8ebe;--line:#474252;--line-strong:#645d74;--line-card:#524c60;--line-slab:rgba(255,255,255,.2);--line-slab-quiet:rgba(255,255,255,.12);--on-slab:#c8c8c8;--on-slab-quiet:#b5b5b5;--serif:Jost,"Helvetica Neue",Arial,sans-serif;--r-card:12px;--r-btn:150px;--r-badge:150px;--r-input:6px;--sh-input:none;--fld-bg:#242424;--fld-pad:14px;--band:80px;--gutter:56px;--gap-col:44px;--gap-card:16px;--pad-card:26px;background:#1b1b1b;color:var(--ink);color-scheme:dark}
+.brand h1,.brand h2,.brand h3,.brand [style*="--serif"]{font-weight:650 !important;letter-spacing:-.025em !important}
+.brand h1{line-height:.99 !important}
+.brand h2{line-height:1.04 !important}
+.brand .dv-card{box-shadow:0 20px 70px rgba(0,0,0,.28)}
+.brand header>a{letter-spacing:.025em !important;font-size:25px !important}
+.brand header>a:not(.wm) span{letter-spacing:.12em !important}
+.brand header>a.wm span{letter-spacing:-.005em !important}
+.brand .lab-stage h1{letter-spacing:-.035em !important;line-height:1.08 !important}
+.brand .lab-stage dl dd{font-weight:650 !important}
+.brand button[style*="background:var(--slab)"],.brand a[style*="background:var(--slab)"]{color:#ffffff !important;border-color:var(--violet) !important}
+.brand button[style*="background:var(--ember)"],.brand a[style*="background:var(--ember)"]{color:#232323 !important}
+.brand .sl,.brand .ov{letter-spacing:.2em !important}
+.brand .dv-card{border-color:#555555}
+.brand .dv-tname,.brand .dv-olabel{color:rgba(255,255,255,.72)}
+.brand .dv-oid{background:rgba(255,255,255,.14);color:#ffffff}
+.brand .dv-tid{background:#f7b829;color:#2b2b2b}
+.brand .dv-next{color:rgba(255,255,255,.6)}
+.brand input,.brand textarea{color:#ffffff}
+.brand [style*="--stock"]{outline:1px solid rgba(255,255,255,.55)}
+.brand header>a.wm{font-size:46px !important;letter-spacing:.005em !important}
+.brand header>a.wm.wm-sm{font-size:22px !important}
+.wm.wm-sm{font-size:22px}
+.site-nav.nav-sm{gap:24px}
+.site-nav.nav-sm a{font-size:inherit !important;letter-spacing:.1em !important}
+.wm{display:block;text-align:center;font-family:var(--serif);font-weight:700;text-transform:uppercase;line-height:.92;font-size:46px;letter-spacing:.005em;color:transparent}
+.wm span{display:inline}
+.wm .n-c{-webkit-text-stroke:1.7px #4cc7ef;text-shadow:0 0 3px rgba(120,214,241,.95),0 0 12px rgba(60,180,225,.75),0 0 34px rgba(48,134,200,.5)}
+.wm .n-m{-webkit-text-stroke:1.7px #e0117c;text-shadow:0 0 3px rgba(236,142,190,.95),0 0 12px rgba(224,17,124,.7),0 0 34px rgba(200,0,44,.45)}
+.wm .n-t{-webkit-text-stroke:1.2px #7fd8f2;text-shadow:0 0 3px rgba(127,216,242,.8),0 0 16px rgba(60,180,225,.45);font-weight:500;letter-spacing:.01em}
+.site-nav{display:flex;justify-content:center;align-items:center;gap:36px;font-size:13px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#ffffff}
+.site-nav a{color:#ffffff;font-size:13px !important;font-weight:700 !important;letter-spacing:.13em}
+.site-nav a:hover{color:#78d6f1}
+.nav a::after{content:"";position:absolute;left:0;bottom:-7px;height:1px;width:100%;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform 400ms ease}
+.nav a:hover::after{transform:scaleX(1);transform-origin:left}
+.nav a{position:relative;transition:color 400ms ease}
+@keyframes ss-a{0%{translate:-3% 3%;rotate:0deg;scale:1.1}50%{translate:7% -5%;rotate:9deg;scale:1.28}100%{translate:-3% 3%;rotate:0deg;scale:1.1}}
+@keyframes ss-b{0%{translate:6% -4%;rotate:0deg;scale:1.34}50%{translate:-8% 6%;rotate:-11deg;scale:1.14}100%{translate:6% -4%;rotate:0deg;scale:1.34}}
+@keyframes ss-c{0%{translate:0 18%;scale:.96;opacity:0}18%{opacity:.62}100%{translate:0 -26%;scale:1.4;opacity:0}}
+@keyframes ss-d{0%{translate:0 22%;scale:1.02;opacity:0}22%{opacity:.5}100%{translate:-6% -30%;scale:1.46;opacity:0}}
+@keyframes ss-amb{0%{background-position:6% 102%,84% 114%,48% 124%}34%{background-position:14% 52%,74% 46%,56% 66%}67%{background-position:2% 8%,90% 2%,42% 22%}100%{background-position:6% 102%,84% 114%,48% 124%}}
+@keyframes ss-amb2{0%{background-position:72% 108%,22% 118%}40%{background-position:64% 44%,30% 58%}72%{background-position:78% -4%,16% 12%}100%{background-position:72% 108%,22% 118%}}
+@keyframes ss-ambo{0%,100%{opacity:.72}50%{opacity:1}}
+@keyframes ss-breathe{0%,100%{scale:1;rotate:-1.4deg}50%{scale:1.05;rotate:1.4deg}}
+@keyframes ss-halo{0%,100%{opacity:.5;scale:1}50%{opacity:.95;scale:1.12}}
+@keyframes ss-grain{0%{translate:0 0}25%{translate:-2% 2%}50%{translate:2% -2%}75%{translate:-2% -1%}100%{translate:0 0}}
+@keyframes ss-gummy{0%{translate:0 0;rotate:-2.5deg;scale:1 1}18%{translate:0 -26px;rotate:2deg;scale:.96 1.05}34%{translate:0 0;rotate:-1deg;scale:1.07 .9}44%{translate:0 -9px;rotate:1deg;scale:.98 1.02}58%{translate:0 0;rotate:0deg;scale:1.03 .96}70%{translate:0 0;rotate:0deg;scale:1 1}100%{translate:0 0;rotate:-2.5deg;scale:1 1}}
+@keyframes ss-gummy-shadow{0%{scale:1 1;opacity:.34}18%{scale:.72 1;opacity:.16}34%{scale:1.12 1;opacity:.4}44%{scale:.9 1;opacity:.24}58%{scale:1.06 1;opacity:.36}70%,100%{scale:1 1;opacity:.34}}
+.gummy{animation:ss-gummy 3.6s cubic-bezier(.4,0,.5,1) infinite;transform-origin:50% 100%;will-change:translate,rotate,scale}
+.gummy-shadow{animation:ss-gummy-shadow 3.6s cubic-bezier(.4,0,.5,1) infinite;transform-origin:50% 50%}
+.gummy-stage:hover .gummy,.gummy-stage:hover .gummy-shadow{animation-duration:1.5s}
+@media (prefers-reduced-motion:reduce){.gummy,.gummy-shadow{animation:none}}
+@keyframes ss-drift{0%{translate:-2% 1%;scale:1.06;rotate:0deg}33%{translate:2% -2%;scale:1.14;rotate:.8deg}66%{translate:1% 2%;scale:1.1;rotate:-.6deg}100%{translate:-2% 1%;scale:1.06;rotate:0deg}}
+@keyframes ss-drift-glow{0%,100%{opacity:.18}50%{opacity:.42}}
+.smoke-img{animation:ss-drift 26s ease-in-out infinite;will-change:translate,scale,rotate;filter:saturate(1.15) contrast(1.05)}
+.smoke-glow{animation:ss-drift-glow 13s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.smoke-img,.smoke-glow{animation:none}}
+.plume{position:absolute;background-repeat:no-repeat;background-position:center;background-size:contain;will-change:translate,rotate,scale;pointer-events:none}
+.p1{left:-26%;top:-38%;width:98%;aspect-ratio:1;filter:blur(64px) saturate(1.75) contrast(1.1);opacity:1;mix-blend-mode:screen;animation:ss-a 46s ease-in-out infinite}
+.p2{right:-30%;top:-24%;width:112%;aspect-ratio:1;filter:blur(104px) saturate(1.9);opacity:.92;mix-blend-mode:screen;animation:ss-b 67s ease-in-out infinite}
+.p3{left:14%;bottom:-52%;width:66%;aspect-ratio:1;filter:blur(30px) saturate(1.5);mix-blend-mode:screen;animation:ss-c 34s linear infinite}
+.p4{right:6%;bottom:-58%;width:52%;aspect-ratio:1;filter:blur(46px) saturate(1.4);mix-blend-mode:screen;animation:ss-d 41s linear infinite;animation-delay:-14s}
+.smoke-soft .plume{opacity:.42;filter:blur(96px) saturate(1.2)}
+.smoke-off .plume{animation-play-state:paused;opacity:.5}
+.smoke-off .ss-mark,.smoke-off .ss-halo,.smoke-off .ss-grain{animation-play-state:paused}
+.ss-intro.intro-off{display:none}
+button{cursor:pointer;min-height:42px;transition:background 200ms ease,color 200ms ease,border-color 200ms ease,translate 200ms ease}
+a[style*="background:var(--ember)"],a[style*="background:var(--slab)"]{transition:background 200ms ease,color 200ms ease,translate 200ms ease}
+a[style*="background:var(--ember)"]:hover{background:#ffd363 !important;color:#232323 !important;translate:0 -2px}
+.brand a[style*="background:var(--slab)"]:hover{background:var(--paper-tint) !important;translate:0 -2px}
+.dv-card a[style*="border:1px solid var(--line-card)"]{transition:background 200ms ease,translate 200ms ease}
+.dv-card a[style*="border:1px solid var(--line-card)"]:hover{translate:0 -3px}
+input,textarea{font-size:16px !important;min-height:44px}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--violet);outline-offset:4px;border-radius:2px}
+.lab-stage{position:relative}
+.lab-stage ss-hero-three{position:absolute;inset:0}
+@keyframes ss-veil{0%,46%{opacity:1}100%{opacity:0;visibility:hidden}}
+@keyframes ss-curlA{0%{opacity:0;transform:translate3d(0,16%,0) rotate(0deg) scale(.78)}18%{opacity:1}55%{transform:translate3d(-4%,-2%,0) rotate(9deg) scale(1.1);opacity:.82}100%{opacity:0;transform:translate3d(5%,-26%,0) rotate(21deg) scale(1.52)}}
+@keyframes ss-curlB{0%{opacity:0;transform:translate3d(0,20%,0) rotate(0deg) scale(.84)}22%{opacity:1}58%{transform:translate3d(5%,-4%,0) rotate(-8deg) scale(1.14);opacity:.78}100%{opacity:0;transform:translate3d(-6%,-30%,0) rotate(-19deg) scale(1.58)}}
+@keyframes ss-curlC{0%{opacity:0;transform:translate3d(0,12%,0) rotate(0deg) scale(.9)}20%{opacity:1}60%{transform:translate3d(-2%,-6%,0) rotate(4deg) scale(1.2);opacity:.7}100%{opacity:0;transform:translate3d(2%,-34%,0) rotate(12deg) scale(1.66)}}
+@keyframes ss-fog{0%{opacity:0}22%,46%{opacity:1}100%{opacity:0}}
+@keyframes ss-sway{0%{transform:translate3d(-2%,0,0)}50%{transform:translate3d(2.5%,-1.5%,0)}100%{transform:translate3d(-1%,-3%,0)}}
+@keyframes ss-word{0%,10%{opacity:0;filter:blur(16px);transform:scale(.965)}46%{opacity:1;filter:blur(0);transform:scale(1)}72%{opacity:1;filter:blur(0);transform:scale(1)}100%{opacity:0;filter:blur(5px);transform:scale(1.03)}}
+@keyframes ss-tag{0%,32%{opacity:0}56%,74%{opacity:1}100%{opacity:0}}
+.dv-card h1,.dv-card h2{text-wrap:balance}
+.dv-card p{text-wrap:pretty}
+.dv-card [style*="var(--serif)"]{font-kerning:normal;font-feature-settings:"kern" 1,"liga" 1;font-variant-numeric:tabular-nums lining-nums}
+.dv-card .sl,.dv-card dd,.dv-card dt{font-variant-numeric:tabular-nums lining-nums}
+.dv-card dl>div:last-child{border-bottom:0}
+.dv-card a>div>img,.dv-card a img{transition:scale 700ms cubic-bezier(.2,.6,.2,1)}
+.dv-card a:hover img{scale:1.025}
+::selection{background:var(--violet);color:#ffffff}
+@media (prefers-reduced-motion:reduce){.plume,.ss-mark,.ss-halo,.ss-grain,.dv-card::before,.dv-card::after{animation-play-state:paused}.ss-intro{display:none}}
+</style></helmet>
+
+<section class="dv-turn {{ themeClass }}" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Smoke Show Labs — wholesale journey in order of use: home, licence gate, catalogue, product detail, quote builder, account</span></div>
+<div class="dv-opts" style="flex-direction:column;flex-wrap:nowrap;gap:44px">
+
+<div class="dv-opt" id="2a"><div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a><span class="sl" style="color:var(--violet)">Step 1</span>Home — desktop 1080, countdown band over the editorial hero</div>
+<div class="dv-card" style="width:1080px;position:relative;overflow:hidden">
+
+  <div class="ss-intro {{ introClass }}" style="position:absolute;top:0;left:0;right:0;height:640px;z-index:40;background:rgba(10,10,10,.26);overflow:hidden;pointer-events:none;animation:ss-veil 4.4s cubic-bezier(.4,0,.2,1) forwards">
+    <div style="position:absolute;inset:0;background:radial-gradient(140% 100% at 50% 78%,rgba(226,230,234,.13),rgba(196,204,212,.06) 46%,rgba(10,10,10,0) 80%);animation:ss-fog 4.4s ease-out forwards"></div>
+    <div style="position:absolute;inset:-30%;animation:ss-sway 4.4s ease-in-out forwards;will-change:transform">
+      <div style="position:absolute;left:-8%;top:30%;width:62%;height:70%;border-radius:50%;filter:blur(44px);background:radial-gradient(closest-side,rgba(245,246,247,.2),rgba(206,212,218,.09) 52%,rgba(232,234,236,0) 78%);animation:ss-curlA 4.1s 0s cubic-bezier(.22,.68,.32,1) forwards"></div>
+      <div style="position:absolute;left:22%;top:18%;width:70%;height:76%;border-radius:50%;filter:blur(52px);background:radial-gradient(closest-side,rgba(250,250,250,.17),rgba(210,216,222,.08) 52%,rgba(232,234,236,0) 78%);animation:ss-curlB 4.4s .14s cubic-bezier(.22,.68,.32,1) forwards"></div>
+      <div style="position:absolute;left:52%;top:36%;width:58%;height:62%;border-radius:50%;filter:blur(40px);background:radial-gradient(closest-side,rgba(242,244,246,.18),rgba(200,208,216,.08) 52%,rgba(232,234,236,0) 78%);animation:ss-curlC 4.2s .28s cubic-bezier(.22,.68,.32,1) forwards"></div>
+      <div style="position:absolute;left:4%;top:-6%;width:78%;height:58%;border-radius:50%;filter:blur(62px);background:radial-gradient(closest-side,rgba(252,252,252,.13),rgba(214,220,226,.06) 52%,rgba(232,234,236,0) 78%);animation:ss-curlB 4.6s .42s cubic-bezier(.22,.68,.32,1) forwards"></div>
+      <div style="position:absolute;left:-16%;top:4%;width:54%;height:50%;border-radius:50%;filter:blur(56px);background:radial-gradient(closest-side,rgba(238,240,242,.12),rgba(198,206,214,.05) 52%,rgba(232,234,236,0) 78%);animation:ss-curlA 4.3s .55s cubic-bezier(.22,.68,.32,1) forwards"></div>
+      <div style="position:absolute;left:58%;top:-10%;width:60%;height:54%;border-radius:50%;filter:blur(58px);background:radial-gradient(closest-side,rgba(248,248,250,.12),rgba(206,212,220,.05) 52%,rgba(232,234,236,0) 78%);animation:ss-curlC 4.5s .68s cubic-bezier(.22,.68,.32,1) forwards"></div>
+      <div style="position:absolute;left:12%;top:52%;width:40%;height:44%;border-radius:50%;filter:blur(34px);background:radial-gradient(closest-side,rgba(255,255,255,.14),rgba(216,222,228,.06) 52%,rgba(232,234,236,0) 78%);animation:ss-curlC 3.9s .2s cubic-bezier(.22,.68,.32,1) forwards"></div>
+      <div style="position:absolute;left:70%;top:46%;width:44%;height:48%;border-radius:50%;filter:blur(36px);background:radial-gradient(closest-side,rgba(252,253,254,.13),rgba(208,214,222,.06) 52%,rgba(232,234,236,0) 78%);animation:ss-curlA 4s .34s cubic-bezier(.22,.68,.32,1) forwards"></div>
+      <div style="position:absolute;left:36%;top:60%;width:48%;height:46%;border-radius:50%;filter:blur(38px);background:radial-gradient(closest-side,rgba(255,255,255,.11),rgba(212,218,224,.05) 52%,rgba(232,234,236,0) 78%);animation:ss-curlB 4.2s .48s cubic-bezier(.22,.68,.32,1) forwards"></div>
+    </div>
+    <div style="position:absolute;inset:0;background:radial-gradient(115% 78% at 50% 46%,rgba(10,10,10,0) 52%,rgba(10,10,10,.5) 100%);animation:ss-fog 4.4s ease-out forwards"></div>
+  </div>
+
+  <header style="display:flex;align-items:center;justify-content:space-between;gap:24px;background:#000000;padding:22px 36px;border-bottom:1px solid rgba(255,255,255,.14)">
+    <a class="wm wm-sm" href="#2a" style="white-space:nowrap;text-align:left"><span class="n-c">Smoke</span> <span class="n-m">Show</span> <span class="n-t">Labs</span></a>
+    <nav class="site-nav nav-sm" style="font-size:11px"><a href="#1b" style="font-size:11px">Hardware</a><a href="#1e" style="font-size:11px">Terpenes</a><a href="#1c" style="font-size:11px">Filling</a><a href="#2a" style="font-size:11px">Packaging</a></nav>
+    <div style="display:flex;align-items:center;gap:18px">
+      <a class="sl" href="#1d" style="color:#ffffff;border-bottom:1px solid rgba(255,255,255,.32);padding-bottom:3px;white-space:nowrap">Register</a>
+      <a href="#1c" style="background:var(--ember);color:#2b2b2b;padding:13px 20px;border-radius:var(--r-btn);font-size:10px;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap">Request a quote</a>
+    </div>
+  </header>
+
+  <div style="position:relative;isolation:isolate;overflow:hidden;background:#150f26;color:#ffffff;border-bottom:1px solid rgba(185,168,224,.26)">
+  <div style="position:absolute;inset:0;background:radial-gradient(130% 80% at 78% 0%,#3a2a63 0%,#1d1533 46%,#120d20 100%)"></div>
+  <div class="ss-grain" style="position:absolute;inset:-6%;mix-blend-mode:overlay;opacity:.16;animation:ss-grain 9s steps(4) infinite;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E&quot;)"></div>
+  <div style="position:relative;z-index:1;padding:52px 48px 56px;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:var(--gap-col);align-items:start">
+    <div>
+      <p class="ov" style="color:#b9a8e0;font-size:9.5px;display:flex;align-items:center;gap:9px"><span style="width:6px;height:6px;background:#b9a8e0;flex:none"></span>Stock-up window · closes 11 December</p>
+      <h2 style="font-family:var(--serif);font-size:46px;line-height:1.03;letter-spacing:-.025em;margin-top:20px;text-wrap:pretty">The fill window is closing.</h2>
+      <p style="color:rgba(255,255,255,.8);font-size:16px;line-height:1.65;margin-top:18px;max-width:480px">Orders confirmed before <strong style="color:#ffffff;font-weight:600">11 December</strong> hold this year's tier pricing and ship on the January line.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:28px;max-width:480px">
+        <span class="sl" style="border:1px solid rgba(185,168,224,.42);padding:10px 14px;color:#e5dcf4;border-radius:var(--r-btn)">Tier pricing held</span>
+        <span class="sl" style="border:1px solid rgba(185,168,224,.42);padding:10px 14px;color:#e5dcf4;border-radius:var(--r-btn)">January line slot</span>
+        <span class="sl" style="border:1px solid rgba(185,168,224,.42);padding:10px 14px;color:#e5dcf4;border-radius:var(--r-btn)">Free 10 mL samples</span>
+        <span class="sl" style="border:1px solid rgba(185,168,224,.42);padding:10px 14px;color:#e5dcf4;border-radius:var(--r-btn)">Artwork proofs waived</span>
+      </div>
+      <p style="margin-top:28px;color:rgba(255,255,255,.62);font-size:11.5px;line-height:1.6;max-width:480px">Orders of 5,000+. Freight quoted separately, pricing confirmed in writing.</p>
+    </div>
+    <div>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid rgba(185,168,224,.32);background:rgba(21,16,36,.6);border-radius:var(--r-card);overflow:hidden">
+        <div style="display:flex;flex-direction:column;align-items:center;padding:20px 6px;border-right:1px solid rgba(185,168,224,.28);">
+          <p style="font-family:var(--serif);font-size:40px;line-height:1;font-variant-numeric:tabular-nums;color:#ffffff">{{ cdD }}</p>
+          <p class="sl" style="color:#b9a8e0;margin-top:10px;font-size:9px;letter-spacing:.1em">Days</p>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;padding:20px 6px;border-right:1px solid rgba(185,168,224,.28);">
+          <p style="font-family:var(--serif);font-size:40px;line-height:1;font-variant-numeric:tabular-nums;color:#ffffff">{{ cdH }}</p>
+          <p class="sl" style="color:#b9a8e0;margin-top:10px;font-size:9px;letter-spacing:.1em">Hrs</p>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;padding:20px 6px;border-right:1px solid rgba(185,168,224,.28);">
+          <p style="font-family:var(--serif);font-size:40px;line-height:1;font-variant-numeric:tabular-nums;color:#ffffff">{{ cdM }}</p>
+          <p class="sl" style="color:#b9a8e0;margin-top:10px;font-size:9px;letter-spacing:.1em">Min</p>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;padding:20px 6px;">
+          <p style="font-family:var(--serif);font-size:40px;line-height:1;font-variant-numeric:tabular-nums;color:#ffffff">{{ cdS }}</p>
+          <p class="sl" style="color:#b9a8e0;margin-top:10px;font-size:9px;letter-spacing:.1em">Sec</p>
+        </div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border:1px solid rgba(185,168,224,.32);border-radius:var(--r-card);background:rgba(95,75,139,.16);padding:22px 24px;margin-top:16px">
+        <p style="font-family:var(--serif);font-size:34px;line-height:1;letter-spacing:-.03em">2026 tiers</p>
+        <p class="sl" style="color:#b9a8e0">Held through the january run</p>
+      </div>
+      <a href="#1c" style="display:block;margin-top:16px;background:var(--ember);color:#2b2b2b;padding:20px 0;border-radius:var(--r-btn);font-size:10px;letter-spacing:.26em;text-transform:uppercase;text-align:center" style-hover="background:#2b2b2b;color:#ffffff">Lock this year's pricing</a>
+    </div>
+  </div>
+  </div>
+
+  <div class="lab-stage {{ smokeClass }}" style="position:relative;isolation:isolate;overflow:hidden;background:#0d070d;color:#ffffff">
+  <div style="position:absolute;inset:0;background:radial-gradient(140% 88% at 28% 6%,#31112b 0%,#180a18 46%,#0a050a 100%)"></div>
+  <div class="plume p1" style="background-image:url('assets/ss-mark.webp')"></div>
+  <div class="plume p2" style="background-image:url('assets/ss-mark.webp')"></div>
+  <div class="plume p3" style="background-image:url('assets/ss-mark.webp')"></div>
+  <div class="plume p4" style="background-image:url('assets/ss-mark.webp')"></div>
+  <div class="ss-grain" style="position:absolute;inset:-6%;mix-blend-mode:overlay;opacity:.22;animation:ss-grain 9s steps(4) infinite;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E&quot;)"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,5,9,.86) 0%,rgba(9,5,9,.42) 34%,rgba(9,5,9,.5) 72%,rgba(9,5,9,.94) 100%)"></div>
+  <x-import component-from-global-scope="ss-hero-three" from="./hero-three.js" effect="{{ heroEffect }}" intensity="{{ heroIntensity }}" hint-size="100%,100%"></x-import>
+  <canvas ref="{{ trailRef }}" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen"></canvas>
+  <div style="position:relative;z-index:1;padding:78px 48px 84px;display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr);gap:var(--gap-col);align-items:center">
+    <div>
+    <p class="ov" style="color:#78d6f1;font-size:9.5px">Brand development · Est. 2016 · LA</p>
+    <h1 style="font-family:var(--serif);font-size:64px;line-height:1.02;letter-spacing:-.025em;margin-top:22px;text-wrap:pretty">Thinking of starting your own brand?</h1>
+    <div style="display:flex;width:200px;margin:26px 0"><span style="flex:4;height:2px;background:var(--violet-light)"></span><span style="flex:2;height:2px;background:#b9a8e0"></span><span style="flex:2;height:2px;background:var(--ember)"></span><span style="flex:1;height:2px;background:var(--blush)"></span></div>
+    <p style="color:rgba(255,255,255,.78);font-size:16.5px;line-height:1.7;max-width:520px">Hardware, identity, blending and filling, packaging, terpenes. Thousands of California projects — one representative from first sample to shelf.</p>
+    <div style="display:flex;align-items:center;gap:24px;margin-top:36px">
+      <a href="#1c" style="background:var(--ember);color:#2b2b2b;padding:19px 40px;border-radius:var(--r-btn);font-size:10px;letter-spacing:.26em;text-transform:uppercase;text-align:center" style-hover="background:#2b2b2b;color:#ffffff">Get started</a>
+      <a class="nav" href="#2a" style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#78d6f1;padding:14px 0">See how it works</a>
+    </div>
+    <dl style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid rgba(255,255,255,.26);margin-top:44px;max-width:520px">
+      <div style="padding:20px 14px 0 0;border-right:1px solid rgba(255,255,255,.16)"><dt class="sl" style="color:rgba(255,255,255,.66);font-size:8.5px">Min. order</dt><dd style="font-family:var(--serif);font-size:26px;line-height:1.2;margin-top:10px">1,000</dd></div>
+      <div style="padding:20px 14px 0;border-right:1px solid rgba(255,255,255,.16)"><dt class="sl" style="color:rgba(255,255,255,.66);font-size:8.5px">Fill to freight</dt><dd style="font-family:var(--serif);font-size:26px;line-height:1.2;margin-top:10px">2–3 wk</dd></div>
+      <div style="padding:20px 0 0 16px"><dt class="sl" style="color:rgba(255,255,255,.66);font-size:8.5px">Slots left</dt><dd style="font-family:var(--serif);font-size:26px;line-height:1.2;margin-top:10px">6</dd></div>
+    </dl>
+    </div>
+    <figure style="position:relative;margin:0;display:grid;justify-items:center">
+      <div style="position:relative;width:100%;aspect-ratio:1;display:grid;place-items:center">
+        <div class="ss-halo" style="position:absolute;width:88%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(236,142,190,.55) 0%,rgba(120,214,241,.18) 42%,rgba(9,5,9,0) 70%);filter:blur(24px);animation:ss-halo 11s ease-in-out infinite"></div>
+        <div class="ss-mark" style="position:relative;width:100%;aspect-ratio:1;background:url('assets/ss-mark.webp') center/contain no-repeat;animation:ss-breathe 13s ease-in-out infinite"></div>
+      </div>
+    </figure>
+  </div>
+  </div>
+
+  <div style="padding:72px 48px">
+    <div style="display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:16px;margin-bottom:30px"><p class="sl">Catalogue</p><span class="sl" style="color:var(--faded)">Four programmes</span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--gap-card)">
+      <a href="#1b" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);display:block" style-hover="background:var(--paper-tint)">
+        <div style="aspect-ratio:16/10;border-bottom:1px solid var(--line);overflow:hidden;background:var(--paper-well)"><img src="https://smokeshowlabs.com/cdn/shop/files/Ccell-vapes_waifu2x_photo_noise1_scale-1.jpg?v=1738868453&amp;width=1500" alt="CCELL 510 carts and all-in-one devices" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="padding:20px"><p class="sl" style="color:var(--violet)">01</p><h3 style="font-family:var(--serif);font-size:23px;line-height:1.2;margin-top:10px">Hardware</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">510 carts, all-in-ones, pods. Ceramic and quartz cores.</p></div>
+      </a>
+      <a href="#1b" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);display:block" style-hover="background:var(--paper-tint)">
+        <div style="aspect-ratio:16/10;border-bottom:1px solid var(--line);overflow:hidden;background:var(--paper-well)"><img src="https://smokeshowlabs.com/cdn/shop/files/quality-4-scaled-2.jpg?v=1738868453&amp;width=1500" alt="Botanically derived terpene isolates" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="padding:20px"><p class="sl" style="color:var(--violet)">02</p><h3 style="font-family:var(--serif);font-size:23px;line-height:1.2;margin-top:10px">Terpenes</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">Cultivar-true and botanical blends, third-party tested.</p></div>
+      </a>
+      <a href="#1c" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);display:block" style-hover="background:var(--paper-tint)">
+        <div style="aspect-ratio:16/10;border-bottom:1px solid var(--line);overflow:hidden;background:var(--paper-well)"><img src="https://smokeshowlabs.com/cdn/shop/files/blending-filling-2-1-1.jpg?v=1738708724&amp;width=1500" alt="Blending, filling and no-leak capping line" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="padding:20px"><p class="sl" style="color:var(--violet)">03</p><h3 style="font-family:var(--serif);font-size:23px;line-height:1.2;margin-top:10px">Blending &amp; filling</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">Your oil or ours, blended to spec and filled in-house.</p></div>
+      </a>
+      <a href="#1c" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);display:block" style-hover="background:var(--paper-tint)">
+        <div style="aspect-ratio:16/10;border-bottom:1px solid var(--line);overflow:hidden;background:var(--paper-well)"><img src="https://smokeshowlabs.com/cdn/shop/files/packaging-design-scaled-1.jpg?v=1738708747&amp;width=1500" alt="Packaging and label design work" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="padding:20px"><p class="sl" style="color:var(--violet)">04</p><h3 style="font-family:var(--serif);font-size:23px;line-height:1.2;margin-top:10px">Packaging</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">Identity, print, child-resistant boxes and compliance labels.</p></div>
+      </a>
+    </div>
+  </div>
+
+  <div style="background:var(--slab);color:var(--inv-fg);padding:72px 48px;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:var(--gap-col);align-items:start">
+    <div>
+    <p class="ov" style="color:var(--violet-light);font-size:9.5px">How it works</p>
+    <h2 style="font-family:var(--serif);font-size:42px;line-height:1.06;letter-spacing:-.02em;margin-top:18px">Build your brand with us.</h2>
+    <p style="color:var(--on-slab);margin-top:18px;font-size:15.5px;line-height:1.7;max-width:400px">From the ground up, or filling your disposables. Five steps, one point of contact.</p>
+    </div>
+    <ol style="list-style:none;padding:0;margin:6px 0 0;border-top:1px solid var(--line-slab)">
+        <li style="display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:14px;padding:16px 0;align-items:baseline;border-bottom:1px solid var(--line-slab-quiet)"><span class="sl" style="color:var(--violet-light)">01</span><span style="font-family:var(--serif);font-size:18px;line-height:1.25">Discovery call</span><span class="sl" style="color:var(--on-slab-quiet);white-space:nowrap">Day 1</span></li>
+        <li style="display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:14px;padding:16px 0;align-items:baseline;border-bottom:1px solid var(--line-slab-quiet)"><span class="sl" style="color:var(--violet-light)">02</span><span style="font-family:var(--serif);font-size:18px;line-height:1.25">Hardware &amp; oil samples</span><span class="sl" style="color:var(--on-slab-quiet);white-space:nowrap">Week 1</span></li>
+        <li style="display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:14px;padding:16px 0;align-items:baseline;border-bottom:1px solid var(--line-slab-quiet)"><span class="sl" style="color:var(--violet-light)">03</span><span style="font-family:var(--serif);font-size:18px;line-height:1.25">Identity &amp; packaging proof</span><span class="sl" style="color:var(--on-slab-quiet);white-space:nowrap">Week 2</span></li>
+        <li style="display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:14px;padding:16px 0;align-items:baseline;border-bottom:1px solid var(--line-slab-quiet)"><span class="sl" style="color:var(--violet-light)">04</span><span style="font-family:var(--serif);font-size:18px;line-height:1.25">Blend, fill, lab test</span><span class="sl" style="color:var(--on-slab-quiet);white-space:nowrap">Week 3</span></li>
+        <li style="display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:14px;padding:16px 0;align-items:baseline"><span class="sl" style="color:var(--violet-light)">05</span><span style="font-family:var(--serif);font-size:18px;line-height:1.25">Freight to your distributor</span><span class="sl" style="color:var(--on-slab-quiet);white-space:nowrap">Week 4</span></li>
+    </ol>
+  </div>
+
+  <div style="padding:72px 48px">
+    <div style="display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:16px;margin-bottom:8px"><p class="sl">Why operators stay</p><span class="sl" style="color:var(--faded)">Six reasons</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:var(--gap-col)">
+      <div style="border-top:1px solid var(--line);padding:20px 0 22px"><div style="display:flex;gap:12px;align-items:baseline"><p class="sl" style="color:var(--violet)">01</p><h3 style="font-family:var(--serif);font-size:21px;line-height:1.25">Dedicated support</h3></div><p style="color:var(--faded);font-size:14.5px;line-height:1.65;margin-top:8px">An appointed expert representative for seamless project execution.</p></div>
+      <div style="border-top:1px solid var(--line);padding:20px 0 22px"><div style="display:flex;gap:12px;align-items:baseline"><p class="sl" style="color:var(--violet)">02</p><h3 style="font-family:var(--serif);font-size:21px;line-height:1.25">Trusted partner</h3></div><p style="color:var(--faded);font-size:14.5px;line-height:1.65;margin-top:8px">Trusted by our customers and by well-known industry brands alike.</p></div>
+      <div style="border-top:1px solid var(--line);padding:20px 0 22px"><div style="display:flex;gap:12px;align-items:baseline"><p class="sl" style="color:var(--violet)">03</p><h3 style="font-family:var(--serif);font-size:21px;line-height:1.25">Fast fulfilment</h3></div><p style="color:var(--faded);font-size:14.5px;line-height:1.65;margin-top:8px">Rapid project turnaround for faster shelf placement and reach.</p></div>
+      <div style="border-top:1px solid var(--line);padding:20px 0 22px"><div style="display:flex;gap:12px;align-items:baseline"><p class="sl" style="color:var(--violet)">04</p><h3 style="font-family:var(--serif);font-size:21px;line-height:1.25">Proven purity</h3></div><p style="color:var(--faded);font-size:14.5px;line-height:1.65;margin-top:8px">Highest-quality materials, third-party lab-tested oils and terpenes.</p></div>
+      <div style="border-top:1px solid var(--line);padding:20px 0 22px"><div style="display:flex;gap:12px;align-items:baseline"><p class="sl" style="color:var(--violet)">05</p><h3 style="font-family:var(--serif);font-size:21px;line-height:1.25">Low startup cost</h3></div><p style="color:var(--faded);font-size:14.5px;line-height:1.65;margin-top:8px">No huge investment required — small MOQs from 1,000 pieces.</p></div>
+      <div style="border-top:1px solid var(--line);padding:20px 0 22px"><div style="display:flex;gap:12px;align-items:baseline"><p class="sl" style="color:var(--violet)">06</p><h3 style="font-family:var(--serif);font-size:21px;line-height:1.25">Grow your business</h3></div><p style="color:var(--faded);font-size:14.5px;line-height:1.65;margin-top:8px">People and resources to scale your operation on your own timeline.</p></div>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid var(--line);background:var(--paper-tint);padding:72px 48px;display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:var(--gap-col);align-items:start">
+    <div>
+    <p class="ov" style="color:var(--violet);font-size:9.5px">Get in touch</p>
+    <h2 style="font-family:var(--serif);font-size:42px;line-height:1.08;letter-spacing:-.02em;margin-top:18px">Start something new.</h2>
+    <dl style="margin-top:26px;border-top:1px solid var(--line-strong);font-size:14.5px">
+      <div style="display:flex;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)"><dt class="sl" style="color:var(--faded);width:70px;padding-top:4px;flex:none">Hours</dt><dd>Mon–Fri, 9:00am–5:30pm PT</dd></div>
+      <div style="display:flex;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)"><dt class="sl" style="color:var(--faded);width:70px;padding-top:4px;flex:none">Phone</dt><dd>+1 213 943 9000</dd></div>
+      <div style="display:flex;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)"><dt class="sl" style="color:var(--faded);width:70px;padding-top:4px;flex:none">Email</dt><dd>info@smokeshowlabs.com</dd></div>
+      <div style="display:flex;gap:14px;padding:13px 0"><dt class="sl" style="color:var(--faded);width:70px;padding-top:4px;flex:none">Studio</dt><dd>1410 W. Olympic Blvd, Suite B<br>Los Angeles, CA 90015</dd></div>
+    </dl>
+    </div>
+    <form style="margin-top:0;background:var(--paper-raised);border:1px solid var(--line-card);border-radius:var(--r-card);padding:24px 20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px 24px">
+      <label style="display:block"><span class="sl" style="color:var(--faded)">Name *</span><input type="text" style="width:100%;margin-top:8px;padding:10px 0 10px var(--fld-pad);background:var(--fld-bg);border:0;border-bottom:1px solid var(--line-strong);border-radius:var(--r-input);box-shadow:var(--sh-input)"></label>
+      <label style="display:block"><span class="sl" style="color:var(--faded)">Company</span><input type="text" style="width:100%;margin-top:8px;padding:10px 0 10px var(--fld-pad);background:var(--fld-bg);border:0;border-bottom:1px solid var(--line-strong);border-radius:var(--r-input);box-shadow:var(--sh-input)"></label>
+      <label style="display:block"><span class="sl" style="color:var(--faded)">Email *</span><input type="text" style="width:100%;margin-top:8px;padding:10px 0 10px var(--fld-pad);background:var(--fld-bg);border:0;border-bottom:1px solid var(--line-strong);border-radius:var(--r-input);box-shadow:var(--sh-input)"></label>
+      <label style="display:block"><span class="sl" style="color:var(--faded)">Phone</span><input type="text" style="width:100%;margin-top:8px;padding:10px 0 10px var(--fld-pad);background:var(--fld-bg);border:0;border-bottom:1px solid var(--line-strong);border-radius:var(--r-input);box-shadow:var(--sh-input)"></label>
+      </div>
+      <label style="display:block;margin-top:22px"><span class="sl" style="color:var(--faded)">Programme of interest</span>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <span class="sl" style="border:1px solid var(--line-strong);border-radius:var(--r-btn);padding:9px 13px;color:var(--faded)">Hardware</span>
+          <span class="sl" style="border:1px solid var(--violet);border-radius:var(--r-btn);padding:9px 13px;color:var(--violet)">Blending &amp; filling</span>
+          <span class="sl" style="border:1px solid var(--line-strong);border-radius:var(--r-btn);padding:9px 13px;color:var(--faded)">Terpenes</span>
+          <span class="sl" style="border:1px solid var(--line-strong);border-radius:var(--r-btn);padding:9px 13px;color:var(--faded)">Packaging</span>
+        </div>
+      </label>
+      <div style="margin-top:22px">
+      <label style="display:block"><span class="sl" style="color:var(--faded)">Message *</span><textarea rows="3" style="width:100%;margin-top:8px;padding:10px 0 10px var(--fld-pad);background:var(--fld-bg);border:0;border-bottom:1px solid var(--line-strong);border-radius:var(--r-input);box-shadow:var(--sh-input);resize:none"></textarea></label>
+      </div>
+      <button type="button" style="margin-top:26px;width:100%;background:var(--slab);color:var(--inv-fg);border:0;padding:19px 0;font-size:10px;letter-spacing:.26em;text-transform:uppercase;cursor:pointer;border-radius:var(--r-btn)">Send enquiry</button>
+      <p style="margin-top:14px;color:var(--faded);font-size:11.5px;line-height:1.6">Wholesale enquiries only. A valid state licence is required before samples ship.</p>
+    </form>
+  </div>
+
+  <footer style="background:var(--slab);color:var(--on-slab);padding:72px 48px 34px">
+    <p style="font-family:var(--serif);font-size:20px;letter-spacing:.16em;text-transform:uppercase;color:var(--inv-fg)">Smoke Show</p>
+    <p class="sl" style="color:var(--violet-light);margin-top:8px">Laboratories · Los Angeles</p>
+    <p style="margin-top:16px;font-size:14.5px;line-height:1.65;max-width:460px">Premium hardware and oils, priced for operators.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 var(--gap-col);margin-top:44px;padding:32px 0;border-top:1px solid var(--line-slab);border-bottom:1px solid var(--line-slab)">
+      <div><p class="sl" style="color:var(--inv-fg)">Catalogue</p><ul style="margin-top:14px;display:grid;gap:10px;font-size:14.5px"><li><a href="#1b">Hardware</a></li><li><a href="#1b">Terpenes</a></li><li><a href="#1c">Blending &amp; filling</a></li><li><a href="#1c">Packaging design</a></li></ul></div>
+      <div><p class="sl" style="color:var(--inv-fg)">Company</p><ul style="margin-top:14px;display:grid;gap:10px;font-size:14.5px"><li><a href="#1j">About us</a></li><li><a href="#1k">How it works</a></li><li><a href="#1m">Shows</a></li><li><a href="#1l">Additional services</a></li><li><a href="#2a">Contact</a></li></ul></div>
+      <div><p class="sl" style="color:var(--inv-fg)">Accounts</p><ul style="margin-top:14px;display:grid;gap:10px;font-size:14.5px"><li><a href="#1d">Wholesale registration</a></li><li><a href="#2a">Sign in</a></li><li><a href="#2a">Reorder</a></li><li><a href="#2a">Freight &amp; lead times</a></li></ul></div>
+    </div>
+    <p style="padding-top:24px;font-size:11.5px;line-height:1.7;max-width:720px">Products are intended for licensed cannabis manufacturers and distributors only, and are sold unfilled or filled to the purchaser's specification. Nothing on this page is an offer to sell cannabis products to consumers.</p>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:26px;padding-top:20px;border-top:1px solid var(--line-slab-quiet)"><p class="sl">© 2026 Smoke Show Labs</p><div style="display:flex;gap:18px;flex-wrap:wrap"><a class="sl" href="#2a">Privacy</a><a class="sl" href="#2a">Terms</a><a class="sl" href="#2a">Shipping</a><a class="sl" href="#2a">Returns</a></div></div>
+  </footer>
+
+</div></div>
+
+
+
+<div class="dv-opt" id="1j"><div class="dv-olabel"><a class="dv-oid" href="#1j">1j</a><span class="sl" style="color:var(--violet)">Company</span>About — credentials, co-packing pitch, operator reviews</div>
+<div class="dv-card" style="width:1080px">
+  <header style="display:flex;align-items:center;justify-content:space-between;height:76px;padding:0 48px;border-bottom:1px solid var(--line)">
+    <a href="#2a" style="font-family:var(--serif);font-size:16px;letter-spacing:.16em;text-transform:uppercase">Smoke Show</a>
+    <nav class="nav" style="display:flex;gap:28px;font-size:10px;letter-spacing:.24em;text-transform:uppercase"><a href="#1b">Hardware</a><a href="#1e">Terpenes</a><a href="#1c">Filling</a><a href="#1h">Packaging</a></nav>
+    <a href="#1f" style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--faded)">Sign in</a>
+  </header>
+
+  <div style="display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);align-items:stretch;border-bottom:1px solid var(--line)">
+    <div style="padding:64px 44px 60px">
+      <p class="ov" style="color:var(--violet);font-size:9.5px">About us · Los Angeles</p>
+      <h1 style="font-family:var(--serif);font-size:52px;line-height:1.03;letter-spacing:-.025em;margin-top:20px;text-wrap:pretty">Twenty-five years of hemp, run as a production line.</h1>
+      <p style="color:var(--faded);font-size:16.5px;line-height:1.7;margin-top:20px;max-width:480px">Los Angeles. Over 25 years of combined industry experience. Established brands and first runs alike.</p>
+      <p style="font-size:16.5px;line-height:1.7;margin-top:16px;max-width:480px">Filling and packaging thousands of disposables comes off your floor. <strong style="font-weight:600">Let us handle production and packaging, so you can focus on the bigger picture.</strong></p>
+      <dl style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line-strong);margin-top:40px;max-width:520px">
+        <div style="padding:20px 14px 0 0;border-right:1px solid var(--line)"><dt class="sl" style="color:var(--faded);font-size:8.5px">Experience</dt><dd style="font-family:var(--serif);font-size:28px;line-height:1.15;margin-top:10px;font-variant-numeric:tabular-nums">25 yrs</dd></div>
+        <div style="padding:20px 14px 0;border-right:1px solid var(--line)"><dt class="sl" style="color:var(--faded);font-size:8.5px">Facility</dt><dd style="font-family:var(--serif);font-size:28px;line-height:1.15;margin-top:10px">FDA-reg.</dd></div>
+        <div style="padding:20px 0 0 16px"><dt class="sl" style="color:var(--faded);font-size:8.5px">Model</dt><dd style="font-family:var(--serif);font-size:28px;line-height:1.15;margin-top:10px">Co-pack</dd></div>
+      </dl>
+    </div>
+    <div style="border-left:1px solid var(--line);background:var(--paper-well);overflow:hidden"><img src="https://smokeshowlabs.com/cdn/shop/files/smokeshowlabs-brand-development.png?v=1739085888&amp;width=1500" alt="Smoke Show Labs brand development work" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+  </div>
+
+  <div style="background:var(--slab);color:var(--inv-fg);padding:34px 48px;display:flex;align-items:baseline;gap:24px;flex-wrap:wrap">
+    <p class="sl" style="color:var(--violet-light);flex:none">Compliance</p>
+    <p style="font-family:var(--serif);font-size:23px;line-height:1.3;letter-spacing:.01em;max-width:760px;text-transform:uppercase">Our federally legal hemp-derived products are made in an FDA-registered facility.</p>
+  </div>
+
+  <div style="padding:72px 48px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--gap-col)">
+    <div>
+      <div style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-well);overflow:hidden;aspect-ratio:4/3"><img src="https://cdn.shopify.com/s/files/1/0918/7190/4056/files/Ccell-5_waifu2x_photo_noise1_scale-1_1024x1024.jpg?v=1739085888" alt="Finished disposable in use" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+      <h2 style="font-family:var(--serif);font-size:30px;line-height:1.12;letter-spacing:-.018em;margin-top:26px">Commitment to quality and safety</h2>
+      <p style="color:var(--faded);font-size:15.5px;line-height:1.7;margin-top:12px">Hemp-derived products in their purest form: third-party tested, batch-consistent, documented. White label and co-packing are the whole business.</p>
+    </div>
+    <div>
+      <div style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-well);overflow:hidden;aspect-ratio:4/3"><img src="https://cdn.shopify.com/s/files/1/0918/7190/4056/files/Ccell-6_waifu2x_photo_noise1_scale-1_1024x1024.jpg?v=1739085887" alt="Disposables in a variety of colourways" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+      <h2 style="font-family:var(--serif);font-size:30px;line-height:1.12;letter-spacing:-.018em;margin-top:26px">Expertise at every stage</h2>
+      <p style="color:var(--faded);font-size:15.5px;line-height:1.7;margin-top:12px">Take the whole build or one task: blending, filling, brand design, packaging. One representative either way.</p>
+      <ul style="list-style:none;padding:0;margin:20px 0 0;display:grid;gap:0;border-top:1px solid var(--line)">
+        <li style="display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14.5px"><span>Blending to spec</span><span class="sl" style="color:var(--faded)">In-house</span></li>
+        <li style="display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14.5px"><span>Filling &amp; capping</span><span class="sl" style="color:var(--faded)">In-house</span></li>
+        <li style="display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14.5px"><span>Brand &amp; label design</span><span class="sl" style="color:var(--faded)">In-house</span></li>
+        <li style="display:flex;justify-content:space-between;gap:14px;padding:11px 0;font-size:14.5px"><span>Freight &amp; fulfilment</span><span class="sl" style="color:var(--faded)">Partnered</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid var(--line);background:var(--paper-tint);padding:72px 48px">
+    <div style="display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line-strong);padding-top:16px;margin-bottom:30px"><p class="sl">Reviews from customers</p><span class="sl" style="color:var(--faded)">Four operators</span></div>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap-card)">
+      <figure style="margin:0;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:26px 24px">
+        <h3 style="font-family:var(--serif);font-size:22px;line-height:1.2">Unmatched quality &amp; potency</h3>
+        <blockquote style="margin:12px 0 0;color:var(--faded);font-size:15px;line-height:1.7">Pure, aromatic, potent — beyond anything we'd sourced before. Batch-to-batch consistency makes formulation easy.</blockquote>
+        <figcaption class="sl" style="margin-top:18px;color:var(--violet)">James R.</figcaption>
+      </figure>
+      <figure style="margin:0;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:26px 24px">
+        <h3 style="font-family:var(--serif);font-size:22px;line-height:1.2">Seamless process</h3>
+        <blockquote style="margin:12px 0 0;color:var(--faded);font-size:15px;line-height:1.7">Ordering and production are straightforward. Customers noticed the true-to-strain aromas immediately.</blockquote>
+        <figcaption class="sl" style="margin-top:18px;color:var(--violet)">Danielle M.</figcaption>
+      </figure>
+      <figure style="margin:0;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:26px 24px">
+        <h3 style="font-family:var(--serif);font-size:22px;line-height:1.2">Potent aromatics</h3>
+        <blockquote style="margin:12px 0 0;color:var(--faded);font-size:15px;line-height:1.7">The profiles are complex and natural. Each one lifts our formulations, and the team answers fast.</blockquote>
+        <figcaption class="sl" style="margin-top:18px;color:var(--violet)">Alex P.</figcaption>
+      </figure>
+      <figure style="margin:0;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:26px 24px">
+        <h3 style="font-family:var(--serif);font-size:22px;line-height:1.2">Reliable and always fresh</h3>
+        <blockquote style="margin:12px 0 0;color:var(--faded);font-size:15px;line-height:1.7">Quality control is our priority; they deliver every time. Purity and freshness show in every batch.</blockquote>
+        <figcaption class="sl" style="margin-top:18px;color:var(--violet)">Morgan L.</figcaption>
+      </figure>
+    </div>
+    <div style="display:flex;align-items:center;gap:24px;margin-top:40px">
+      <a href="#1c" style="background:var(--ember);color:#2b2b2b;padding:19px 40px;border-radius:var(--r-btn);font-size:10px;letter-spacing:.26em;text-transform:uppercase" style-hover="background:#2b2b2b;color:#ffffff">Request a quote</a>
+      <a class="nav" href="#1b" style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--violet)">Browse the catalogue</a>
+    </div>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="1k"><div class="dv-olabel"><a class="dv-oid" href="#1k">1k</a><span class="sl" style="color:var(--violet)">Company</span>How it works — six-step brand build, CCELL® distribution</div>
+<div class="dv-card" style="width:1080px">
+  <header style="display:flex;align-items:center;justify-content:space-between;height:76px;padding:0 48px;border-bottom:1px solid var(--line)">
+    <a href="#2a" style="font-family:var(--serif);font-size:16px;letter-spacing:.16em;text-transform:uppercase">Smoke Show</a>
+    <nav class="nav" style="display:flex;gap:28px;font-size:10px;letter-spacing:.24em;text-transform:uppercase"><a href="#1b">Hardware</a><a href="#1e">Terpenes</a><a href="#1c">Filling</a><a href="#1h">Packaging</a></nav>
+    <a href="#1f" style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--faded)">Sign in</a>
+  </header>
+
+  <div style="position:relative;isolation:isolate;overflow:hidden;background:#0d070d;color:#ffffff;border-bottom:1px solid rgba(185,168,224,.26)">
+    <img src="https://smokeshowlabs.com/cdn/shop/files/ss.png?v=1739085888&amp;width=1500" alt="Smoke Show Labs production" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5">
+    <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(9,5,9,.94) 0%,rgba(9,5,9,.72) 52%,rgba(9,5,9,.44) 100%)"></div>
+    <div style="position:relative;z-index:1;padding:64px 48px 60px;max-width:640px">
+      <p class="ov" style="color:#78d6f1;font-size:9.5px">How it works</p>
+      <h1 style="font-family:var(--serif);font-size:52px;line-height:1.03;letter-spacing:-.025em;margin-top:18px;text-wrap:pretty">Build your brand with us.</h1>
+      <p style="color:rgba(255,255,255,.8);font-size:16.5px;line-height:1.7;margin-top:18px">Hardware, terpenes, packaging, freight. One representative throughout.</p>
+      <a href="#1c" style="display:inline-block;margin-top:32px;background:var(--ember);color:#2b2b2b;padding:19px 40px;border-radius:var(--r-btn);font-size:10px;letter-spacing:.26em;text-transform:uppercase" style-hover="background:#2b2b2b;color:#ffffff">Build your brand</a>
+    </div>
+  </div>
+
+  <div style="padding:72px 48px">
+    <div style="display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:16px;margin-bottom:8px"><p class="sl">The build</p><span class="sl" style="color:var(--faded)">Six steps</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:var(--gap-col)">
+      <div style="border-top:1px solid var(--line);padding:20px 0 24px"><div style="display:flex;gap:12px;align-items:baseline"><p class="sl" style="color:var(--violet)">01</p><h3 style="font-family:var(--serif);font-size:22px;line-height:1.2">Select your hardware</h3></div><p style="color:var(--faded);font-size:14.5px;line-height:1.65;margin-top:8px">Premium CCELL® hardware. We are official distributors.</p></div>
+      <div style="border-top:1px solid var(--line);padding:20px 0 24px"><div style="display:flex;gap:12px;align-items:baseline"><p class="sl" style="color:var(--violet)">02</p><h3 style="font-family:var(--serif);font-size:22px;line-height:1.2">Choose flavours &amp; terpenes</h3></div><p style="color:var(--faded);font-size:14.5px;line-height:1.65;margin-top:8px">Cultivar-true and botanical profiles, blended to spec.</p></div>
+      <div style="border-top:1px solid var(--line);padding:20px 0 24px"><div style="display:flex;gap:12px;align-items:baseline"><p class="sl" style="color:var(--violet)">03</p><h3 style="font-family:var(--serif);font-size:22px;line-height:1.2">Design the packaging</h3></div><p style="color:var(--faded);font-size:14.5px;line-height:1.65;margin-top:8px">Our designers build packaging that holds a shelf.</p></div>
+      <div style="border-top:1px solid var(--line);padding:20px 0 24px"><div style="display:flex;gap:12px;align-items:baseline"><p class="sl" style="color:var(--violet)">04</p><h3 style="font-family:var(--serif);font-size:22px;line-height:1.2">Pack &amp; label in the lab</h3></div><p style="color:var(--faded);font-size:14.5px;line-height:1.65;margin-top:8px">Packaging and labelling in-house, to compliance.</p></div>
+      <div style="border-top:1px solid var(--line);padding:20px 0 24px"><div style="display:flex;gap:12px;align-items:baseline"><p class="sl" style="color:var(--violet)">05</p><h3 style="font-family:var(--serif);font-size:22px;line-height:1.2">Ship to your location</h3></div><p style="color:var(--faded);font-size:14.5px;line-height:1.65;margin-top:8px">Freight to the address you name, market-ready.</p></div>
+      <div style="border-top:1px solid var(--line);padding:20px 0 24px"><div style="display:flex;gap:12px;align-items:baseline"><p class="sl" style="color:var(--violet)">06</p><h3 style="font-family:var(--serif);font-size:22px;line-height:1.2">Own the brand</h3></div><p style="color:var(--faded);font-size:14.5px;line-height:1.65;margin-top:8px">A consumer-safe brand that is yours.</p></div>
+    </div>
+  </div>
+
+  <div style="background:var(--slab);color:var(--inv-fg);padding:48px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--gap-col);align-items:center">
+    <div>
+      <p class="ov" style="color:var(--violet-light);font-size:9.5px">Consultations</p>
+      <h2 style="font-family:var(--serif);font-size:34px;line-height:1.1;letter-spacing:-.02em;margin-top:14px">In person, Zoom, or phone.</h2>
+      <p style="color:var(--on-slab);font-size:15.5px;line-height:1.7;margin-top:14px;max-width:400px">Bring artwork, or nothing at all.</p>
+    </div>
+    <div style="display:grid;gap:12px">
+      <a class="sl" href="#1c" style="background:var(--paper);color:var(--ink);padding:18px 22px;border-radius:var(--r-btn);display:flex;justify-content:space-between">Book a call<span>+1 213 943 9000</span></a>
+      <a class="sl" href="#1b" style="border:1px solid var(--line-slab);color:var(--inv-fg);padding:18px 22px;border-radius:var(--r-btn);display:flex;justify-content:space-between">Start with hardware<span style="color:var(--violet-light)">Catalogue</span></a>
+    </div>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="1l"><div class="dv-olabel"><a class="dv-oid" href="#1l">1l</a><span class="sl" style="color:var(--violet)">Company</span>Additional services — gummies manufacturing, bulk sales</div>
+<div class="dv-card" style="width:1080px">
+  <header style="display:flex;align-items:center;justify-content:space-between;height:76px;padding:0 48px;border-bottom:1px solid var(--line)">
+    <a href="#2a" style="font-family:var(--serif);font-size:16px;letter-spacing:.16em;text-transform:uppercase">Smoke Show</a>
+    <nav class="nav" style="display:flex;gap:28px;font-size:10px;letter-spacing:.24em;text-transform:uppercase"><a href="#1b">Hardware</a><a href="#1e">Terpenes</a><a href="#1c">Filling</a><a href="#1h">Packaging</a></nav>
+    <a href="#1f" style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--faded)">Sign in</a>
+  </header>
+
+  <div style="display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);border-bottom:1px solid var(--line)">
+    <div style="padding:60px 44px 56px">
+      <p class="ov" style="color:var(--violet);font-size:9.5px">Additional services</p>
+      <h1 style="font-family:var(--serif);font-size:48px;line-height:1.04;letter-spacing:-.024em;margin-top:18px;text-wrap:pretty">If it isn't on the site, call us.</h1>
+      <p style="color:var(--faded);font-size:16.5px;line-height:1.7;margin-top:18px;max-width:470px">Anything not listed here still gets handled. Ring <strong style="font-weight:600;color:var(--ink)">+1 213 943 9000</strong>.</p>
+      <a href="#1c" style="display:inline-block;margin-top:30px;background:var(--slab);color:var(--inv-fg);padding:19px 40px;border-radius:var(--r-btn);font-size:10px;letter-spacing:.26em;text-transform:uppercase">Book a free call</a>
+    </div>
+    <div class="gummy-stage" style="border-left:1px solid var(--line);background:var(--paper-well);overflow:hidden;position:relative;display:grid;place-items:end center;padding:36px 36px 44px;min-height:340px">
+      <div style="position:absolute;bottom:34px;left:50%;translate:-50% 0;width:150px;height:16px;border-radius:50%;background:radial-gradient(closest-side,rgba(31,26,45,.5),rgba(31,26,45,0));" class="gummy-shadow"></div>
+      <img class="gummy" src="https://smokeshowlabs.com/cdn/shop/files/gummybear.png?v=1739003199&amp;width=1500" alt="Terped gummy bears" loading="lazy" style="position:relative;width:100%;max-width:300px;height:auto;display:block">
+    </div>
+  </div>
+
+  <div style="padding:72px 48px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--gap-col);align-items:stretch">
+    <div style="display:flex;flex-direction:column">
+      <p class="sl" style="color:var(--violet)">01</p>
+      <h2 style="font-family:var(--serif);font-size:32px;line-height:1.1;letter-spacing:-.02em;margin-top:10px">Gummies manufacturing</h2>
+      <p style="color:var(--faded);font-size:15.5px;line-height:1.7;margin-top:12px">Bears, hearts, fruits, or a custom mould. Plant-based and gluten-free: organic fruit extracts, vegan pectin, non-GMO sources. Small batches through high-volume runs, lab-tested.</p>
+      <ul style="list-style:none;padding:0;margin:22px 0 0;border-top:1px solid var(--line);display:flex;flex-direction:column;flex:1">
+        <li style="display:flex;justify-content:space-between;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14.5px;flex:1"><span>Shapes</span><span class="sl" style="color:var(--faded)">Bear · Heart · Fruit · Custom</span></li>
+        <li style="display:flex;justify-content:space-between;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14.5px;flex:1"><span>Pectin</span><span class="sl" style="color:var(--faded)">Vegan</span></li>
+        <li style="display:flex;justify-content:space-between;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14.5px;flex:1"><span>Testing</span><span class="sl" style="color:var(--faded)">Per batch</span></li>
+        <li style="display:flex;justify-content:space-between;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14.5px;flex:1"><span>Minimums</span><span class="sl" style="color:var(--faded)">Flexible</span></li>
+        <li style="display:flex;justify-content:space-between;align-items:center;gap:14px;padding:11px 0;font-size:14.5px;flex:1"><span>Turnaround</span><span class="sl" style="color:var(--faded)">2–4 wk</span></li>
+      </ul>
+    </div>
+    <div>
+      <div style="border:1px solid var(--line-card);border-radius:var(--r-card);background:#0a050a;overflow:hidden;aspect-ratio:16/10;position:relative;isolation:isolate">
+        <img class="smoke-img" src="https://cdn.shopify.com/s/files/1/0918/7190/4056/files/bluesmoke_600x600.jpg?v=1739002357" alt="Blue vapour against black" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
+        <div class="smoke-glow" style="position:absolute;inset:0;mix-blend-mode:screen;background:radial-gradient(60% 70% at 42% 60%,rgba(120,214,241,.5),rgba(9,5,9,0) 70%)"></div>
+      </div>
+      <p class="sl" style="color:var(--violet);margin-top:26px">02</p>
+      <h2 style="font-family:var(--serif);font-size:32px;line-height:1.1;letter-spacing:-.02em;margin-top:10px">Bulk sales</h2>
+      <p style="color:var(--faded);font-size:15.5px;line-height:1.7;margin-top:12px">Private-label partnerships, wholesale distribution, custom packaging. Flexible minimums, fast turnaround, temperature-controlled logistics for sensitive formulations.</p>
+    </div>
+  </div>
+
+  <div style="background:var(--slab);color:var(--inv-fg);padding:40px 48px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap">
+    <p style="font-family:var(--serif);font-size:26px;line-height:1.2;letter-spacing:-.015em">Volume discounts quoted by phone.</p>
+    <p class="sl" style="color:var(--violet-light);font-size:11px">+1 213 943 9000 · Mon–Fri 9:00–17:30 PT</p>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="1m"><div class="dv-olabel"><a class="dv-oid" href="#1m">1m</a><span class="sl" style="color:var(--violet)">Company</span>Shows — trade calendar, booth meeting request</div>
+<div class="dv-card" style="width:1080px">
+  <header style="display:flex;align-items:center;justify-content:space-between;height:76px;padding:0 48px;border-bottom:1px solid var(--line)">
+    <a href="#2a" style="font-family:var(--serif);font-size:16px;letter-spacing:.16em;text-transform:uppercase">Smoke Show</a>
+    <nav class="nav" style="display:flex;gap:28px;font-size:10px;letter-spacing:.24em;text-transform:uppercase"><a href="#1b">Hardware</a><a href="#1e">Terpenes</a><a href="#1c">Filling</a><a href="#1h">Packaging</a></nav>
+    <a href="#1f" style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--faded)">Sign in</a>
+  </header>
+
+  <div style="padding:60px 48px 40px">
+    <p class="ov" style="color:var(--violet);font-size:9.5px">Shows</p>
+    <h1 style="font-family:var(--serif);font-size:48px;line-height:1.04;letter-spacing:-.024em;margin-top:18px;max-width:640px;text-wrap:pretty">Meet us on the floor.</h1>
+    <p style="color:var(--faded);font-size:16.5px;line-height:1.7;margin-top:16px;max-width:520px">CHAMPS and other conventions, coast to coast. Book a booth slot and bring your spec.</p>
+  </div>
+
+  <div style="padding:0 48px 72px">
+    <div style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);display:grid;grid-template-columns:minmax(0,1fr);overflow:hidden">
+      <div style="padding:34px 32px">
+        <p class="sl" style="color:var(--violet)">Next show</p>
+        <h2 style="font-family:var(--serif);font-size:34px;line-height:1.1;letter-spacing:-.02em;margin-top:12px">CHAMPS Trade Show — Fort Lauderdale</h2>
+        <p style="color:var(--faded);font-size:15.5px;line-height:1.7;margin-top:12px">Broward County Convention Center, 17–19 November 2026. Hundreds of vendors, thousands of brands.</p>
+        <dl style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line-strong);margin-top:26px">
+          <div style="padding:16px 14px 0 0;border-right:1px solid var(--line)"><dt class="sl" style="color:var(--faded);font-size:8.5px">Dates</dt><dd style="font-family:var(--serif);font-size:22px;line-height:1.2;margin-top:8px;font-variant-numeric:tabular-nums">17–19 Nov</dd></div>
+          <div style="padding:16px 14px 0;border-right:1px solid var(--line)"><dt class="sl" style="color:var(--faded);font-size:8.5px">City</dt><dd style="font-family:var(--serif);font-size:22px;line-height:1.2;margin-top:8px">Ft. Lauderdale</dd></div>
+          <div style="padding:16px 0 0 16px"><dt class="sl" style="color:var(--faded);font-size:8.5px">Year</dt><dd style="font-family:var(--serif);font-size:22px;line-height:1.2;margin-top:8px;font-variant-numeric:tabular-nums">2026</dd></div>
+        </dl>
+        <div style="display:flex;align-items:center;gap:22px;margin-top:28px">
+          <a href="#1c" style="background:var(--ember);color:#2b2b2b;padding:17px 34px;border-radius:var(--r-btn);font-size:10px;letter-spacing:.26em;text-transform:uppercase" style-hover="background:#2b2b2b;color:#ffffff">Book a booth slot</a>
+          <a class="nav" href="https://champstradeshows.com/fort-lauderdale-2026" style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--violet)">Get event info</a>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:16px;margin-top:44px;margin-bottom:4px"><p class="sl">Calendar</p><span class="sl" style="color:var(--faded)">Dates confirmed as booths are secured</span></div>
+    <ul style="list-style:none;padding:0;margin:0">
+      <li style="display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:20px;align-items:baseline;padding:18px 0;border-bottom:1px solid var(--line)"><span class="sl" style="color:var(--violet);font-variant-numeric:tabular-nums">17–19 Nov</span><span style="font-family:var(--serif);font-size:19px;line-height:1.25">CHAMPS Fort Lauderdale · Broward County Convention Center</span><span class="sl" style="color:var(--faded);white-space:nowrap">Confirmed</span></li>
+      <li style="display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:20px;align-items:baseline;padding:18px 0;border-bottom:1px solid var(--line)"><span class="sl" style="color:var(--faded);font-variant-numeric:tabular-nums">TBA</span><span style="font-family:var(--serif);font-size:19px;line-height:1.25;color:var(--faded)">CHAMPS Las Vegas</span><span class="sl" style="color:var(--faded);white-space:nowrap">Pending</span></li>
+      <li style="display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:20px;align-items:baseline;padding:18px 0"><span class="sl" style="color:var(--faded);font-variant-numeric:tabular-nums">TBA</span><span style="font-family:var(--serif);font-size:19px;line-height:1.25;color:var(--faded)">West coast trade dates</span><span class="sl" style="color:var(--faded);white-space:nowrap">Pending</span></li>
+    </ul>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="1d"><div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a><span class="sl" style="color:var(--violet)">Step 2</span>Licence gate — full-window doorway before the site loads</div>
+<div class="dv-card" style="width:1080px;background:var(--slab)">
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.86fr);gap:var(--gap-col);align-items:center;padding:96px 48px;color:var(--inv-fg)">
+    <div>
+      <p style="font-family:var(--serif);font-size:20px;letter-spacing:.16em;text-transform:uppercase">Smoke Show</p>
+      <div style="display:flex;width:120px;margin:28px 0"><span style="flex:2;height:2px;background:var(--violet-light)"></span><span style="flex:1;height:2px;background:var(--blush)"></span></div>
+      <h2 style="font-family:var(--serif);font-size:52px;line-height:1.04;letter-spacing:-.025em">Trade access only.</h2>
+      <p style="color:var(--on-slab);margin-top:20px;font-size:16px;line-height:1.7;max-width:440px">Confirm you are 21+ and buying for a licensed business. Licence number requested at registration.</p>
+    </div>
+    <div style="border:1px solid var(--line-slab);border-radius:var(--r-card);padding:36px 34px">
+      <p class="sl" style="color:var(--violet-light)">Wholesale only</p>
+      <p style="margin-top:16px;font-size:15.3px;line-height:1.65;color:var(--on-slab)">Products are sold to licensed cannabis manufacturers and distributors, unfilled or filled to specification.</p>
+      <div style="display:grid;gap:12px;margin-top:32px">
+        <button type="button" class="sl" style="background:var(--paper);color:var(--ink);border:0;padding:18px 0;cursor:pointer;border-radius:var(--r-btn)">Enter — I am licensed</button>
+        <button type="button" class="sl" style="background:transparent;color:var(--inv-fg);border:1px solid var(--line-slab);padding:18px 0;cursor:pointer;border-radius:var(--r-btn)">Exit</button>
+      </div>
+      <p class="sl" style="color:var(--on-slab-quiet);margin-top:24px">No consumer sales · CA C11 licence required</p>
+    </div>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="1i"><div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a><span class="sl" style="color:var(--violet)">Step 3</span>Wholesale registration — split into lead capture, then paperwork</div>
+<div class="dv-card" style="width:1080px">
+  <header style="display:flex;align-items:center;justify-content:space-between;height:76px;padding:0 48px;border-bottom:1px solid var(--line)">
+    <a href="#2a" style="font-family:var(--serif);font-size:16px;letter-spacing:.16em;text-transform:uppercase">Smoke Show</a>
+    <nav class="nav" style="display:flex;gap:28px;font-size:10px;letter-spacing:.24em;text-transform:uppercase"><a href="#1b">Hardware</a><a href="#1e">Terpenes</a><a href="#1c">Filling</a><a href="#1h">Packaging</a></nav>
+    <a href="#1f" style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--faded)">Sign in</a>
+  </header>
+
+  <div style="display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);align-items:start">
+    <div style="padding:48px 44px 44px;border-right:1px solid var(--line)">
+      <p class="ov" style="color:var(--violet)">Wholesale registration</p>
+      <h1 style="font-family:var(--serif);font-size:46px;line-height:1.05;letter-spacing:-.022em;margin-top:16px">{{ regTitle }}</h1>
+      <p style="color:var(--faded);font-size:15.3px;line-height:1.7;margin-top:14px;max-width:520px">{{ regBlurb }}</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:30px">
+        <div style="border-top:2px solid {{ regTone1 }};padding-top:12px"><p class="sl" style="color:{{ regTone1 }}">Step 1 · Who you are</p><p style="font-size:14.5px;color:var(--faded);margin-top:6px">40 seconds, no documents</p></div>
+        <div style="border-top:2px solid {{ regTone2 }};padding-top:12px"><p class="sl" style="color:{{ regTone2 }}">Step 2 · Paperwork</p><p style="font-size:14.5px;color:var(--faded);margin-top:6px">Before your first order ships</p></div>
+      </div>
+
+      <sc-if value="{{ regOne }}" hint-placeholder-val="{{ true }}">
+      <div style="margin-top:34px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px 26px">
+          <label style="display:block"><span class="sl" style="color:var(--faded)">Your name *</span><input type="text" placeholder="Dana Reyes" style="width:100%;margin-top:8px;padding:10px 0 10px var(--fld-pad);background:var(--fld-bg);border:0;border-bottom:1px solid var(--line-strong);border-radius:var(--r-input);box-shadow:var(--sh-input)"></label>
+          <label style="display:block"><span class="sl" style="color:var(--faded)">Company *</span><input type="text" placeholder="Nova Concentrates" style="width:100%;margin-top:8px;padding:10px 0 10px var(--fld-pad);background:var(--fld-bg);border:0;border-bottom:1px solid var(--line-strong);border-radius:var(--r-input);box-shadow:var(--sh-input)"></label>
+          <label style="display:block"><span class="sl" style="color:var(--faded)">Work email *</span><input type="text" placeholder="dana@novaconcentrates.com" style="width:100%;margin-top:8px;padding:10px 0 10px var(--fld-pad);background:var(--fld-bg);border:0;border-bottom:1px solid var(--line-strong);border-radius:var(--r-input);box-shadow:var(--sh-input)"></label>
+          <label style="display:block"><span class="sl" style="color:var(--faded)">Phone</span><input type="text" placeholder="+1 213 555 0142" style="width:100%;margin-top:8px;padding:10px 0 10px var(--fld-pad);background:var(--fld-bg);border:0;border-bottom:1px solid var(--line-strong);border-radius:var(--r-input);box-shadow:var(--sh-input)"></label>
+        </div>
+
+        <p class="sl" style="color:var(--faded);margin-top:30px">What are you buying? Pick any</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+          <sc-for list="{{ regInterests }}" as="i" hint-placeholder-count="5">
+            <button type="button" onClick="{{ i.onToggle }}" class="sl" style="border:1px solid {{ i.border }};border-radius:var(--r-btn);background:{{ i.bg }};padding:12px 16px;cursor:pointer;color:{{ i.color }};min-height:44px">{{ i.label }}</button>
+          </sc-for>
+        </div>
+
+        <p class="sl" style="color:var(--faded);margin-top:28px">Roughly how much, first order?</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+          <sc-for list="{{ regBands }}" as="b" hint-placeholder-count="4">
+            <button type="button" onClick="{{ b.onPick }}" class="sl" style="border:1px solid {{ b.border }};border-radius:var(--r-btn);background:{{ b.bg }};padding:12px 16px;cursor:pointer;color:{{ b.color }};min-height:44px">{{ b.label }}</button>
+          </sc-for>
+        </div>
+
+        <button type="button" onClick="{{ regNext }}" style="margin-top:34px;width:100%;background:var(--ember);color:#2b2b2b;border:0;padding:20px 0;font-size:10px;letter-spacing:.28em;text-transform:uppercase;cursor:pointer;border-radius:var(--r-btn)">Create my account</button>
+        <p style="margin-top:14px;color:var(--faded);font-size:11.5px;line-height:1.6">Tier pricing opens immediately. No licence to look, only to ship.</p>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ regTwo }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:34px">
+        <div style="display:flex;align-items:center;gap:14px;border:1px solid var(--stock);border-radius:var(--r-card);background:var(--paper-tint);padding:16px 18px">
+          <span style="width:22px;height:22px;flex:none;display:flex;align-items:center;justify-content:center;border:1px solid var(--stock);color:var(--stock);font-size:11px;line-height:1">✓</span>
+          <span style="flex:1"><span style="display:block;font-size:15.3px">Account created — pricing is unlocked</span><span class="sl" style="color:var(--faded)">Dana Reyes · Nova Concentrates · tier 5,000</span></span>
+          <a class="sl" href="#1b" style="color:var(--violet);border-bottom:1px solid var(--violet);padding-bottom:2px">Browse now</a>
+        </div>
+
+        <p style="color:var(--faded);font-size:15.3px;line-height:1.7;margin-top:26px;max-width:520px">Finish whenever. We need it before the first pallet moves — quote, sample and build in the meantime.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px 26px;margin-top:28px">
+          <label style="display:block"><span class="sl" style="color:var(--faded)">State licence number *</span><input type="text" placeholder="C11-0000432-LIC" style="width:100%;margin-top:8px;padding:10px 0 10px var(--fld-pad);background:var(--fld-bg);border:0;border-bottom:1px solid var(--line-strong);border-radius:var(--r-input);box-shadow:var(--sh-input)"></label>
+          <label style="display:block"><span class="sl" style="color:var(--faded)">Company EIN *</span><input type="text" placeholder="00-0000000" style="width:100%;margin-top:8px;padding:10px 0 10px var(--fld-pad);background:var(--fld-bg);border:0;border-bottom:1px solid var(--line-strong);border-radius:var(--r-input);box-shadow:var(--sh-input)"></label>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:16px;border:1px dashed var(--line-strong);border-radius:var(--r-card);background:var(--paper-raised);padding:20px;margin-top:22px">
+          <span style="width:36px;height:44px;flex:none;border:1px solid var(--line-card);background:var(--paper-well)"></span>
+          <span style="flex:1"><span style="display:block;font-family:var(--serif);font-size:19px">Resale certificate</span><span class="sl" style="color:var(--faded)">PDF or JPG, up to 25 MB</span></span>
+          <span class="sl" style="border:1px solid var(--line-strong);border-radius:var(--r-btn);padding:12px 18px;color:var(--faded)">Choose file</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:22px 26px;margin-top:26px">
+          <label style="display:block"><span class="sl" style="color:var(--faded)">Shipping address *</span><input type="text" placeholder="2200 E 15th St, Unit 4" style="width:100%;margin-top:8px;padding:10px 0 10px var(--fld-pad);background:var(--fld-bg);border:0;border-bottom:1px solid var(--line-strong);border-radius:var(--r-input);box-shadow:var(--sh-input)"></label>
+          <label style="display:block"><span class="sl" style="color:var(--faded)">City *</span><input type="text" placeholder="Los Angeles" style="width:100%;margin-top:8px;padding:10px 0 10px var(--fld-pad);background:var(--fld-bg);border:0;border-bottom:1px solid var(--line-strong);border-radius:var(--r-input);box-shadow:var(--sh-input)"></label>
+          <label style="display:block"><span class="sl" style="color:var(--faded)">State / ZIP *</span><input type="text" placeholder="CA 90021" style="width:100%;margin-top:8px;padding:10px 0 10px var(--fld-pad);background:var(--fld-bg);border:0;border-bottom:1px solid var(--line-strong);border-radius:var(--r-input);box-shadow:var(--sh-input)"></label>
+        </div>
+
+        <div style="display:flex;gap:14px;align-items:center;margin-top:34px">
+          <button type="button" style="flex:1;background:var(--slab);color:var(--inv-fg);border:0;padding:20px 0;font-size:10px;letter-spacing:.28em;text-transform:uppercase;cursor:pointer;border-radius:var(--r-btn)">Submit for approval</button>
+          <button type="button" onClick="{{ regBack }}" class="sl" style="flex:none;border:1px solid var(--line-strong);border-radius:var(--r-btn);background:transparent;padding:20px 26px;cursor:pointer;color:var(--faded)">Back</button>
+        </div>
+        <p style="margin-top:14px;color:var(--faded);font-size:11.5px;line-height:1.6">Verified in one business day against the state register. We store only what the audit requires.</p>
+      </div>
+      </sc-if>
+    </div>
+
+    <div style="padding:48px 44px 44px;background:var(--paper-tint)">
+      <p class="sl">What you get straight away</p>
+      <dl style="margin-top:18px;border-top:1px solid var(--line-strong)">
+        <div style="padding:15px 0;border-bottom:1px solid var(--line)"><dt style="font-family:var(--serif);font-size:19px">Tier pricing</dt><dd style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:6px">Every price on the site drops to your volume band.</dd></div>
+        <div style="padding:15px 0;border-bottom:1px solid var(--line)"><dt style="font-family:var(--serif);font-size:19px">Free samples</dt><dd style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:6px">Five hardware units and a 10 mL terpene of your choice.</dd></div>
+        <div style="padding:15px 0;border-bottom:1px solid var(--line)"><dt style="font-family:var(--serif);font-size:19px">Batch COAs</dt><dd style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:6px">Full lab panel on every SKU, downloadable.</dd></div>
+        <div style="padding:15px 0"><dt style="font-family:var(--serif);font-size:19px">One rep</dt><dd style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:6px">Assigned after your first quote — not a queue.</dd></div>
+      </dl>
+
+      <div style="border-top:1px solid var(--line-strong);margin-top:28px;padding-top:18px">
+        <p class="sl">Needed later, not now</p>
+        <ul style="margin-top:14px;display:grid;gap:10px">
+          <li style="display:flex;gap:12px;align-items:baseline;font-size:14.5px;color:var(--faded)"><span class="sl" style="color:var(--violet)">01</span>State licence number</li>
+          <li style="display:flex;gap:12px;align-items:baseline;font-size:14.5px;color:var(--faded)"><span class="sl" style="color:var(--violet)">02</span>Company EIN</li>
+          <li style="display:flex;gap:12px;align-items:baseline;font-size:14.5px;color:var(--faded)"><span class="sl" style="color:var(--violet)">03</span>Resale certificate</li>
+          <li style="display:flex;gap:12px;align-items:baseline;font-size:14.5px;color:var(--faded)"><span class="sl" style="color:var(--violet)">04</span>Shipping address</li>
+        </ul>
+      </div>
+
+      <div style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:20px;margin-top:28px">
+        <p style="font-family:var(--serif);font-size:19px;line-height:1.3">Prefer to talk?</p>
+        <p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">Call +1 213 943 9000, Mon–Fri 9:00–5:30 PT. We'll set the account up on the phone.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:26px 48px;background:var(--slab);color:var(--on-slab)">
+    <p class="sl">{{ regFooter }}</p>
+    <a class="sl" href="#1b" style="color:var(--violet-light);border-bottom:1px solid var(--violet-light);padding-bottom:2px">Skip for now, browse the catalogue</a>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="1b"><div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a><span class="sl" style="color:var(--violet)">Step 4</span>Hardware catalogue — filterable, tiered wholesale pricing</div>
+<div class="dv-card" style="width:1080px">
+  <header style="display:flex;align-items:center;justify-content:space-between;height:76px;padding:0 48px;border-bottom:1px solid var(--line)">
+    <a href="#2a" style="font-family:var(--serif);font-size:16px;letter-spacing:.16em;text-transform:uppercase">Smoke Show</a>
+    <nav class="nav" style="display:flex;gap:28px;font-size:10px;letter-spacing:.24em;text-transform:uppercase"><a href="#1b" style="color:var(--violet)">Hardware</a><a href="#1b">Terpenes</a><a href="#1c">Filling</a><a href="#2a">Packaging</a></nav>
+    <a href="#1c" style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;border-bottom:1px solid var(--violet);padding-bottom:3px;color:var(--violet)">Quote (3)</a>
+  </header>
+
+  <div style="padding:56px 48px 26px">
+    <p class="ov" style="color:var(--violet)">Catalogue 01</p>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:32px;margin-top:20px">
+      <h1 style="font-family:var(--serif);font-size:56px;line-height:1.04;letter-spacing:-.022em">Hardware</h1>
+      <p style="color:var(--faded);font-size:15.3px;max-width:330px">Sample kits ship free to registered accounts. Prices are per unit at your tier.</p>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:20px 48px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--paper-tint)">
+    <p class="sl" style="color:var(--faded);margin-right:8px">Format</p>
+    <sc-for list="{{ filters }}" as="f" hint-placeholder-count="5">
+      <button type="button" onClick="{{ f.onPick }}" class="sl" style="border:1px solid var(--line-strong);border-radius:var(--r-btn);background:transparent;padding:10px 15px;cursor:pointer;transition:color 200ms ease">
+        <span style="border-bottom:1px solid transparent;padding-bottom:2px;color:{{ f.color }}">{{ f.label }}</span>
+      </button>
+    </sc-for>
+    <p class="sl" style="color:var(--faded);margin-left:auto">Tier</p>
+    <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="3">
+      <button type="button" onClick="{{ t.onPick }}" class="sl" style="border:1px solid var(--line-strong);border-radius:var(--r-btn);background:transparent;padding:10px 15px;cursor:pointer;color:{{ t.color }}">{{ t.label }}</button>
+    </sc-for>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr .8fr .9fr;gap:20px;padding:16px 48px;border-bottom:1px solid var(--line-strong)">
+    <p class="sl" style="color:var(--faded)">Model</p><p class="sl" style="color:var(--faded)">Core / coil</p><p class="sl" style="color:var(--faded)">Capacity</p><p class="sl" style="color:var(--faded);text-align:right">Unit</p><p class="sl" style="color:var(--faded);text-align:right">MOQ</p>
+  </div>
+  <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+    <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr .8fr .9fr;gap:20px;padding:22px 48px;border-bottom:1px solid var(--line);align-items:center" style-hover="background:var(--paper-tint)">
+      <div style="display:flex;gap:18px;align-items:center">
+        <span style="width:44px;height:56px;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-well);flex:none"></span>
+        <span><span style="font-family:var(--serif);font-size:21px;display:block;line-height:1.25">{{ r.name }}</span><span class="sl" style="color:var(--faded)">{{ r.sku }}</span></span>
+      </div>
+      <p style="font-size:15.3px;color:var(--faded)">{{ r.core }}</p>
+      <p style="font-size:15.3px;color:var(--faded);display:flex;align-items:center;gap:9px"><span style="width:7px;height:7px;flex:none;background:{{ r.stockColor }}"></span>{{ r.cap }}</p>
+      <p style="font-family:var(--serif);font-size:21px;text-align:right">{{ r.price }}</p>
+      <p class="sl" style="text-align:right;color:var(--faded)">{{ r.moq }}</p>
+    </div>
+  </sc-for>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:28px 48px;background:var(--slab);color:var(--on-slab)">
+    <div style="display:flex;align-items:center;gap:22px"><p class="sl">Showing {{ shown }} of 18 models · tier {{ tierLabel }}</p><p class="sl" style="display:flex;align-items:center;gap:8px;color:var(--on-slab-quiet)"><span style="width:7px;height:7px;background:var(--violet-light)"></span>In stock</p><p class="sl" style="display:flex;align-items:center;gap:8px;color:var(--on-slab-quiet)"><span style="width:7px;height:7px;background:var(--ember)"></span>3-week lead</p></div>
+    <a href="#1c" style="background:var(--ember);color:#2b2b2b;padding:15px 28px;border-radius:var(--r-btn);font-size:10px;letter-spacing:.28em;text-transform:uppercase">Build a quote</a>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="1g"><div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a><span class="sl" style="color:var(--violet)">Step 5</span>Hardware product detail — colourway, volume tiers, certification</div>
+<div class="dv-card" style="width:1080px">
+  <header style="display:flex;align-items:center;justify-content:space-between;height:76px;padding:0 48px;border-bottom:1px solid var(--line)">
+    <a href="#2a" style="font-family:var(--serif);font-size:16px;letter-spacing:.16em;text-transform:uppercase">Smoke Show</a>
+    <nav class="nav" style="display:flex;gap:28px;font-size:10px;letter-spacing:.24em;text-transform:uppercase"><a href="#1b" style="color:var(--violet)">Hardware</a><a href="#1e">Terpenes</a><a href="#1c">Filling</a><a href="#2a">Packaging</a></nav>
+    <a href="#1c" style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;border-bottom:1px solid var(--violet);padding-bottom:3px;color:var(--violet)">Quote (3)</a>
+  </header>
+
+  <div style="display:flex;align-items:center;gap:10px;padding:16px 48px;border-bottom:1px solid var(--line);background:var(--paper-tint)">
+    <a class="sl" href="#1b" style="color:var(--faded)">Catalogue</a><span class="sl" style="color:var(--faded)">/</span><a class="sl" href="#1b" style="color:var(--faded)">Hardware</a><span class="sl" style="color:var(--faded)">/</span><p class="sl">All-in-One 2g · ceramic core</p>
+    <p class="sl" style="margin-left:auto;color:var(--faded)">SKU AIO-2000-C</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);align-items:start">
+    <div style="border-right:1px solid var(--line)">
+      <div style="aspect-ratio:1/1;overflow:hidden;background:var(--paper-well);border-bottom:1px solid var(--line)"><img src="https://smokeshowlabs.com/cdn/shop/files/blending-filling-2-1-1.jpg?v=1738708724&amp;width=1500" alt="SSL All-in-One 2g device" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid var(--line)">
+        <div style="aspect-ratio:1/1;overflow:hidden;background:var(--paper-well);border-right:1px solid var(--line)"><img src="https://smokeshowlabs.com/cdn/shop/files/quality-4-scaled-2.jpg?v=1738868453&amp;width=1500" alt="Device QC bench" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="aspect-ratio:1/1;overflow:hidden;background:var(--paper-well);border-right:1px solid var(--line)"><img src="https://smokeshowlabs.com/cdn/shop/files/co-packing-1.jpg?v=1738708795&amp;width=1500" alt="Co-packing line" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="aspect-ratio:1/1;overflow:hidden;background:var(--paper-well)"><img src="https://smokeshowlabs.com/cdn/shop/files/flavor-development-1.jpg?v=1738708698&amp;width=1500" alt="Fill and cap detail" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+      </div>
+      <div style="padding:22px 28px">
+        <div style="display:flex;gap:14px;align-items:baseline"><p class="sl">Tooling rev. C</p><p class="sl" style="color:var(--faded);margin-left:auto">Shipping since Mar 2026</p></div>
+        <p style="color:var(--faded);font-size:14.5px;line-height:1.65;margin-top:12px">Fill-tested, leak-checked at pressure, cycled twice. Failed units are destroyed, not re-sleeved.</p>
+      </div>
+    </div>
+
+    <div style="padding:48px 48px 44px">
+      <p class="ov" style="color:var(--violet)">Hardware · all-in-one</p>
+      <h1 style="font-family:var(--serif);font-size:52px;line-height:1.04;letter-spacing:-.022em;margin-top:18px">All-in-One 2g</h1>
+      <p style="color:var(--faded);font-size:15.3px;line-height:1.7;margin-top:16px">A 2 mL rechargeable with a 1.2Ω ceramic core, tuned for live resin and heavy distillate. Draw-activated, USB-C, wickless.</p>
+
+      <div style="display:flex;align-items:baseline;gap:14px;margin-top:34px;border-top:1px solid var(--line-strong);padding-top:22px">
+        <p style="font-family:var(--serif);font-size:40px;line-height:1">{{ hwPrice }}</p>
+        <p class="sl" style="color:var(--faded)">per unit · {{ hwVolLabel }} units</p>
+        <p class="sl" style="margin-left:auto;color:var(--faded)">Order {{ hwLine }}</p>
+      </div>
+
+      <p class="sl" style="color:var(--faded);margin-top:26px">Order volume</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <sc-for list="{{ hwVols }}" as="z" hint-placeholder-count="4">
+          <button type="button" onClick="{{ z.onPick }}" class="sl" style="border:1px solid {{ z.border }};border-radius:var(--r-btn);background:transparent;padding:13px 17px;cursor:pointer;color:{{ z.color }};min-height:44px">{{ z.label }}</button>
+        </sc-for>
+      </div>
+
+      <p class="sl" style="color:var(--faded);margin-top:26px">Colourway · {{ hwColorName }}</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">
+        <sc-for list="{{ hwColors }}" as="c" hint-placeholder-count="4">
+          <button type="button" onClick="{{ c.onPick }}" title="{{ c.name }}" style="display:flex;align-items:center;gap:10px;border:1px solid {{ c.border }};border-radius:var(--r-btn);background:transparent;padding:10px 16px 10px 12px;cursor:pointer;min-height:44px">
+            <span style="width:18px;height:18px;flex:none;border:1px solid var(--line-strong);background:{{ c.swatch }}"></span>
+            <span class="sl" style="color:{{ c.color }}">{{ c.name }}</span>
+          </button>
+        </sc-for>
+      </div>
+
+      <dl style="margin-top:34px;border-top:1px solid var(--line-strong)">
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Tank</dt><dd style="font-size:15.3px">2.0 mL, borosilicate glass, centre post</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Heating</dt><dd style="font-size:15.3px">1.2Ω porous ceramic, wickless</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Battery</dt><dd style="font-size:15.3px">400 mAh Li-po, USB-C, 500 cycles</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Airflow</dt><dd style="font-size:15.3px">Draw-activated, 1.1 mm dual intake</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">MOQ</dt><dd style="font-size:15.3px">1,000 units per colourway</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Lead time</dt><dd style="font-size:15.3px">{{ hwLead }} — add 1 week if we fill</dd></div>
+      </dl>
+
+      <div style="display:flex;gap:14px;align-items:center;margin-top:34px">
+        <a href="#1c" style="flex:1;background:var(--ember);color:#2b2b2b;padding:19px 0;border-radius:var(--r-btn);font-size:10px;letter-spacing:.28em;text-transform:uppercase;text-align:center" style-hover="background:#2b2b2b;color:#ffffff">Add to quote</a>
+        <a href="#1d" style="flex:none;border:1px solid var(--line-strong);border-radius:var(--r-btn);padding:19px 26px;font-size:10px;letter-spacing:.24em;text-transform:uppercase" style-hover="background:var(--paper-tint)">Request 5-unit sample</a>
+      </div>
+      <p style="margin-top:16px;color:var(--faded);font-size:11.5px;line-height:1.6">Samples ship free to registered accounts. Sold empty; filling quoted separately.</p>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid var(--line);padding:52px 48px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:var(--gap-col)">
+    <div>
+      <div style="display:flex;gap:18px;border-top:1px solid var(--line-strong);padding-top:18px;margin-bottom:12px"><p class="sl">Bench results</p><span class="sl" style="color:var(--faded)">50-unit run, 2 mL live resin</span></div>
+      <div style="display:grid;grid-template-columns:170px minmax(0,1fr) 66px;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
+        <p style="font-family:var(--serif);font-size:17px">Tank emptied</p>
+        <span style="display:block;height:6px;background:var(--paper-well);border:1px solid var(--line)"><span style="display:block;height:100%;width:98%;background:var(--violet)"></span></span>
+        <p class="sl" style="text-align:right">98.2%</p>
+      </div>
+      <div style="display:grid;grid-template-columns:170px minmax(0,1fr) 66px;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
+        <p style="font-family:var(--serif);font-size:17px">Charge retention</p>
+        <span style="display:block;height:6px;background:var(--paper-well);border:1px solid var(--line)"><span style="display:block;height:100%;width:94%;background:var(--azure)"></span></span>
+        <p class="sl" style="text-align:right">94%</p>
+      </div>
+      <div style="display:grid;grid-template-columns:170px minmax(0,1fr) 66px;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
+        <p style="font-family:var(--serif);font-size:17px">Terpene retained</p>
+        <span style="display:block;height:6px;background:var(--paper-well);border:1px solid var(--line)"><span style="display:block;height:100%;width:91%;background:var(--violet-light)"></span></span>
+        <p class="sl" style="text-align:right">91%</p>
+      </div>
+      <div style="display:grid;grid-template-columns:170px minmax(0,1fr) 66px;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
+        <p style="font-family:var(--serif);font-size:17px">Clog rate</p>
+        <span style="display:block;height:6px;background:var(--paper-well);border:1px solid var(--line)"><span style="display:block;height:100%;width:8%;background:var(--ember)"></span></span>
+        <p class="sl" style="text-align:right">0.4%</p>
+      </div>
+      <div style="display:grid;grid-template-columns:170px minmax(0,1fr) 66px;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
+        <p style="font-family:var(--serif);font-size:17px">Leak at pressure</p>
+        <span style="display:block;height:6px;background:var(--paper-well);border:1px solid var(--line)"><span style="display:block;height:100%;width:4%;background:var(--faded)"></span></span>
+        <p class="sl" style="text-align:right">0.2%</p>
+      </div>
+      <p style="color:var(--faded);font-size:11.5px;line-height:1.6;margin-top:16px">At 22°C with a 4% terpene load. Distillate above 60 cP pulls the emptied figure down 2–4 points.</p>
+    </div>
+    <div>
+      <div style="display:flex;gap:18px;border-top:1px solid var(--line-strong);padding-top:18px;margin-bottom:20px"><p class="sl">Certification</p><span class="sl" style="color:var(--faded)">Third-party tested</span></div>
+      <div style="display:grid;gap:12px">
+        <a href="#1g" style="display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:18px 20px" style-hover="background:var(--paper-tint)"><span><span style="display:block;font-family:var(--serif);font-size:19px">Heavy metal migration</span><span class="sl" style="color:var(--faded)">PDF · non-detect at 30 days</span></span><span class="sl" style="color:var(--violet)">Open</span></a>
+        <a href="#1g" style="display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:18px 20px" style-hover="background:var(--paper-tint)"><span><span style="display:block;font-family:var(--serif);font-size:19px">UN38.3 battery transport</span><span class="sl" style="color:var(--faded)">PDF · air freight cleared</span></span><span class="sl" style="color:var(--violet)">Open</span></a>
+        <a href="#1g" style="display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:18px 20px" style-hover="background:var(--paper-tint)"><span><span style="display:block;font-family:var(--serif);font-size:19px">CE / RoHS declaration</span><span class="sl" style="color:var(--faded)">PDF · rev. 2026-03</span></span><span class="sl" style="color:var(--violet)">Open</span></a>
+      </div>
+      <dl style="margin-top:26px;border-top:1px solid var(--line)">
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Warranty</dt><dd style="font-size:15.3px">DOA replacement, 12 months from ship</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">State filings</dt><dd style="font-size:15.3px">CA, CO, MI, NV registration on file</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Traceability</dt><dd style="font-size:15.3px">Batch code lasered on the base</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid var(--line);background:var(--paper-tint);padding:44px 48px">
+    <div style="display:flex;gap:18px;border-top:1px solid var(--line-strong);padding-top:18px;margin-bottom:26px"><p class="sl">Make it yours</p><span class="sl" style="color:var(--faded)">Decoration priced per unit, on top of hardware</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap-card)">
+      <div style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:24px"><p class="sl" style="color:var(--violet)">+$0.14</p><h3 style="font-family:var(--serif);font-size:23px;margin-top:12px">Laser etch</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">One-colour mark on the body. No plate charge, 1,000 minimum.</p></div>
+      <div style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:24px"><p class="sl" style="color:var(--violet)">+$0.31</p><h3 style="font-family:var(--serif);font-size:23px;margin-top:12px">UV print</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">Full-colour wrap, Pantone matched. 5,000 minimum per artwork.</p></div>
+      <div style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:24px"><p class="sl" style="color:var(--violet)">+$0.90</p><h3 style="font-family:var(--serif);font-size:23px;margin-top:12px">Custom mouthpiece</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">Your tool, our line. 6-week first article, 25,000 minimum.</p></div>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid var(--line);padding:44px 48px">
+    <div style="display:flex;gap:18px;border-top:1px solid var(--line-strong);padding-top:18px;margin-bottom:26px"><p class="sl">Pairs with</p><span class="sl" style="color:var(--faded)">What most accounts run in this device</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap-card)">
+      <a href="#1e" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:24px" style-hover="background:var(--paper-tint)"><p class="sl" style="color:var(--violet)">Terpenes</p><h3 style="font-family:var(--serif);font-size:23px;margin-top:12px">Blue Dream</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">Cultivar-true, holds its top note through the full tank.</p></a>
+      <a href="#1c" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:24px" style-hover="background:var(--paper-tint)"><p class="sl" style="color:var(--violet)">Oil</p><h3 style="font-family:var(--serif);font-size:23px;margin-top:12px">Live resin fill</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">Cold-cured base filled on our line, 4% loading.</p></a>
+      <a href="#1b" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:24px" style-hover="background:var(--paper-tint)"><p class="sl" style="color:var(--violet)">Hardware</p><h3 style="font-family:var(--serif);font-size:23px;margin-top:12px">All-in-One 1g</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">Same core and shell in a half-size tank.</p></a>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:28px 48px;background:var(--slab);color:var(--on-slab)">
+    <div style="display:flex;align-items:center;gap:22px"><p class="sl">All-in-One 2g · {{ hwColorName }} · {{ hwVolLabel }} units · {{ hwPrice }} ea</p><p class="sl" style="display:flex;align-items:center;gap:8px;color:var(--on-slab-quiet)"><span style="width:7px;height:7px;background:var(--violet-light)"></span>In stock</p></div>
+    <a href="#1c" style="background:var(--ember);color:#2b2b2b;padding:15px 28px;border-radius:var(--r-btn);font-size:10px;letter-spacing:.28em;text-transform:uppercase">Add to quote</a>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="1e"><div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a><span class="sl" style="color:var(--violet)">Step 6</span>Terpene product detail — profile, COA, tiered volumes</div>
+<div class="dv-card" style="width:1080px">
+  <header style="display:flex;align-items:center;justify-content:space-between;height:76px;padding:0 48px;border-bottom:1px solid var(--line)">
+    <a href="#2a" style="font-family:var(--serif);font-size:16px;letter-spacing:.16em;text-transform:uppercase">Smoke Show</a>
+    <nav class="nav" style="display:flex;gap:28px;font-size:10px;letter-spacing:.24em;text-transform:uppercase"><a href="#1b">Hardware</a><a href="#1e" style="color:var(--violet)">Terpenes</a><a href="#1c">Filling</a><a href="#2a">Packaging</a></nav>
+    <a href="#1c" style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;border-bottom:1px solid var(--violet);padding-bottom:3px;color:var(--violet)">Quote (3)</a>
+  </header>
+
+  <div style="display:flex;align-items:center;gap:10px;padding:16px 48px;border-bottom:1px solid var(--line);background:var(--paper-tint)">
+    <a class="sl" href="#1b" style="color:var(--faded)">Catalogue</a><span class="sl" style="color:var(--faded)">/</span><a class="sl" href="#1e" style="color:var(--faded)">Terpenes</a><span class="sl" style="color:var(--faded)">/</span><p class="sl">Blue Dream · cultivar-true</p>
+    <p class="sl" style="margin-left:auto;color:var(--faded)">SKU TRP-BLD-CT</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);align-items:start">
+    <div style="position:sticky;top:0;border-right:1px solid var(--line)">
+      <div style="aspect-ratio:1/1;overflow:hidden;background:var(--paper-well);border-bottom:1px solid var(--line)"><img src="https://smokeshowlabs.com/cdn/shop/files/quality-4-scaled-2.jpg?v=1738868453&amp;width=1500" alt="Blue Dream cultivar-true terpene blend" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid var(--line)">
+        <div style="aspect-ratio:1/1;overflow:hidden;background:var(--paper-well);border-right:1px solid var(--line)"><img src="https://smokeshowlabs.com/cdn/shop/files/flavor-development-1.jpg?v=1738708698&amp;width=1500" alt="Flavour development bench" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="aspect-ratio:1/1;overflow:hidden;background:var(--paper-well);border-right:1px solid var(--line)"><img src="https://smokeshowlabs.com/cdn/shop/files/blending-filling-2-1-1.jpg?v=1738708724&amp;width=1500" alt="Blending and filling line" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="aspect-ratio:1/1;overflow:hidden;background:var(--paper-well)"><img src="https://smokeshowlabs.com/cdn/shop/files/co-packing-1.jpg?v=1738708795&amp;width=1500" alt="Co-packing and drum decant" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+      </div>
+      <div style="padding:22px 28px">
+        <div style="display:flex;gap:14px;align-items:baseline"><p class="sl">Batch 26-0418</p><p class="sl" style="color:var(--faded);margin-left:auto">Distilled 2 Sep 2026</p></div>
+        <p style="color:var(--faded);font-size:14.5px;line-height:1.65;margin-top:12px">Steam-distilled in Los Angeles, decanted under nitrogen, shipped in amber glass or HDPE drum. Every batch panelled.</p>
+      </div>
+    </div>
+
+    <div style="padding:48px 48px 44px">
+      <p class="ov" style="color:var(--violet)">Terpenes · cultivar-true</p>
+      <h1 style="font-family:var(--serif);font-size:52px;line-height:1.04;letter-spacing:-.022em;margin-top:18px">Blue Dream</h1>
+      <p style="color:var(--faded);font-size:15.3px;line-height:1.7;margin-top:16px">Single-source Blue Dream, reconstructed to the live plant's ratios. Sweet berry over soft pine — holds its top notes at a 5% load.</p>
+
+      <div style="display:flex;align-items:baseline;gap:14px;margin-top:34px;border-top:1px solid var(--line-strong);padding-top:22px">
+        <p style="font-family:var(--serif);font-size:40px;line-height:1">{{ terpPrice }}</p>
+        <p class="sl" style="color:var(--faded)">per mL · {{ terpSizeLabel }}</p>
+        <p class="sl" style="margin-left:auto;color:var(--faded)">Pack {{ terpPack }}</p>
+      </div>
+
+      <p class="sl" style="color:var(--faded);margin-top:26px">Volume</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <sc-for list="{{ terpSizes }}" as="z" hint-placeholder-count="4">
+          <button type="button" onClick="{{ z.onPick }}" class="sl" style="border:1px solid {{ z.border }};border-radius:var(--r-btn);background:transparent;padding:13px 17px;cursor:pointer;color:{{ z.color }};min-height:44px">{{ z.label }}</button>
+        </sc-for>
+      </div>
+
+      <dl style="margin-top:34px;border-top:1px solid var(--line-strong)">
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Format</dt><dd style="font-size:15.3px">Neat liquid, amber glass or HDPE drum</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Terpene load</dt><dd style="font-size:15.3px">3–6% by weight, 5% recommended</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Viscosity</dt><dd style="font-size:15.3px">12 cP at 25°C — no thinner required</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Composition</dt><dd style="font-size:15.3px">100% botanically derived, no PG/VG/MCT</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Lead time</dt><dd style="font-size:15.3px">{{ terpLead }} from order confirmation</dd></div>
+      </dl>
+
+      <div style="display:flex;gap:14px;align-items:center;margin-top:34px">
+        <a href="#1c" style="flex:1;background:var(--ember);color:#2b2b2b;padding:19px 0;border-radius:var(--r-btn);font-size:10px;letter-spacing:.28em;text-transform:uppercase;text-align:center" style-hover="background:#2b2b2b;color:#ffffff">Add to quote</a>
+        <a href="#1d" style="flex:none;border:1px solid var(--line-strong);border-radius:var(--r-btn);padding:19px 26px;font-size:10px;letter-spacing:.24em;text-transform:uppercase" style-hover="background:var(--paper-tint)">Request 10 mL sample</a>
+      </div>
+      <p style="margin-top:16px;color:var(--faded);font-size:11.5px;line-height:1.6">Samples ship free to registered wholesale accounts. Research and manufacturing use only.</p>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid var(--line);padding:52px 48px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:var(--gap-col)">
+    <div>
+      <div style="display:flex;gap:18px;border-top:1px solid var(--line-strong);padding-top:18px;margin-bottom:12px"><p class="sl">Dominant profile</p><span class="sl" style="color:var(--faded)">GC/MS, batch 26-0418</span></div>
+        <div style="display:grid;grid-template-columns:150px minmax(0,1fr) 58px;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
+          <p style="font-family:var(--serif);font-size:17px">Myrcene</p>
+          <span style="display:block;height:6px;background:var(--paper-well);border:1px solid var(--line)"><span style="display:block;height:100%;width:38.4%;background:var(--violet)"></span></span>
+          <p class="sl" style="text-align:right">38.4%</p>
+        </div>
+        <div style="display:grid;grid-template-columns:150px minmax(0,1fr) 58px;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
+          <p style="font-family:var(--serif);font-size:17px">α-Pinene</p>
+          <span style="display:block;height:6px;background:var(--paper-well);border:1px solid var(--line)"><span style="display:block;height:100%;width:19.1%;background:var(--azure)"></span></span>
+          <p class="sl" style="text-align:right">19.1%</p>
+        </div>
+        <div style="display:grid;grid-template-columns:150px minmax(0,1fr) 58px;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
+          <p style="font-family:var(--serif);font-size:17px">β-Caryophyllene</p>
+          <span style="display:block;height:6px;background:var(--paper-well);border:1px solid var(--line)"><span style="display:block;height:100%;width:14.6%;background:var(--violet-light)"></span></span>
+          <p class="sl" style="text-align:right">14.6%</p>
+        </div>
+        <div style="display:grid;grid-template-columns:150px minmax(0,1fr) 58px;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
+          <p style="font-family:var(--serif);font-size:17px">Limonene</p>
+          <span style="display:block;height:6px;background:var(--paper-well);border:1px solid var(--line)"><span style="display:block;height:100%;width:11.2%;background:var(--ember)"></span></span>
+          <p class="sl" style="text-align:right">11.2%</p>
+        </div>
+        <div style="display:grid;grid-template-columns:150px minmax(0,1fr) 58px;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
+          <p style="font-family:var(--serif);font-size:17px">Linalool</p>
+          <span style="display:block;height:6px;background:var(--paper-well);border:1px solid var(--line)"><span style="display:block;height:100%;width:7.8%;background:var(--blush)"></span></span>
+          <p class="sl" style="text-align:right">7.8%</p>
+        </div>
+        <div style="display:grid;grid-template-columns:150px minmax(0,1fr) 58px;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)">
+          <p style="font-family:var(--serif);font-size:17px">Terpinolene</p>
+          <span style="display:block;height:6px;background:var(--paper-well);border:1px solid var(--line)"><span style="display:block;height:100%;width:5.3%;background:var(--faded)"></span></span>
+          <p class="sl" style="text-align:right">5.3%</p>
+        </div>
+      <p style="color:var(--faded);font-size:11.5px;line-height:1.6;margin-top:16px">The remaining 3.6% is minor terpenes below the 1% reporting threshold. Variance held within ±2% per compound.</p>
+    </div>
+    <div>
+      <div style="display:flex;gap:18px;border-top:1px solid var(--line-strong);padding-top:18px;margin-bottom:20px"><p class="sl">Compliance</p><span class="sl" style="color:var(--faded)">Third-party panels</span></div>
+      <div style="display:grid;gap:12px">
+        <a href="#1e" style="display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:18px 20px" style-hover="background:var(--paper-tint)"><span><span style="display:block;font-family:var(--serif);font-size:19px">Certificate of analysis</span><span class="sl" style="color:var(--faded)">PDF · batch 26-0418 · 2 Sep 2026</span></span><span class="sl" style="color:var(--violet)">Open</span></a>
+        <a href="#1e" style="display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:18px 20px" style-hover="background:var(--paper-tint)"><span><span style="display:block;font-family:var(--serif);font-size:19px">Safety data sheet</span><span class="sl" style="color:var(--faded)">PDF · GHS rev. 4</span></span><span class="sl" style="color:var(--violet)">Open</span></a>
+        <a href="#1e" style="display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:18px 20px" style-hover="background:var(--paper-tint)"><span><span style="display:block;font-family:var(--serif);font-size:19px">Allergen &amp; residual solvent</span><span class="sl" style="color:var(--faded)">PDF · non-detect</span></span><span class="sl" style="color:var(--violet)">Open</span></a>
+      </div>
+      <dl style="margin-top:26px;border-top:1px solid var(--line)">
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Pesticides</dt><dd style="font-size:15.3px">Non-detect, CA Phase III panel</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Heavy metals</dt><dd style="font-size:15.3px">Non-detect (Pb, As, Cd, Hg)</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Diluents</dt><dd style="font-size:15.3px">None added</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid var(--line);background:var(--paper-tint);padding:44px 48px">
+    <div style="display:flex;gap:18px;border-top:1px solid var(--line-strong);padding-top:18px;margin-bottom:26px"><p class="sl">Pairs with</p><span class="sl" style="color:var(--faded)">Fills we run this profile in most</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap-card)">
+      <a href="#1b" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:24px" style-hover="background:var(--paper)"><p class="sl" style="color:var(--violet)">Hardware</p><h3 style="font-family:var(--serif);font-size:23px;margin-top:12px">SSL All-in-One 2g</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">Ceramic core holds the berry top note through the full tank.</p></a>
+      <a href="#1c" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:24px" style-hover="background:var(--paper)"><p class="sl" style="color:var(--violet)">Oil</p><h3 style="font-family:var(--serif);font-size:23px;margin-top:12px">Live resin fill</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">Cold-cured base, cultivar-matched at 4% loading.</p></a>
+      <a href="#1e" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:24px" style-hover="background:var(--paper)"><p class="sl" style="color:var(--violet)">Terpenes</p><h3 style="font-family:var(--serif);font-size:23px;margin-top:12px">Strawberry Cough</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">Brighter, sharper berry — same distillation process.</p></a>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:28px 48px;background:var(--slab);color:var(--on-slab)">
+    <div style="display:flex;align-items:center;gap:22px"><p class="sl">Blue Dream · {{ terpSizeLabel }} · {{ terpPack }}</p><p class="sl" style="display:flex;align-items:center;gap:8px;color:var(--on-slab-quiet)"><span style="width:7px;height:7px;background:var(--violet-light)"></span>In stock</p></div>
+    <a href="#1c" style="background:var(--ember);color:#2b2b2b;padding:15px 28px;border-radius:var(--r-btn);font-size:10px;letter-spacing:.28em;text-transform:uppercase">Add to quote</a>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="1h"><div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a><span class="sl" style="color:var(--violet)">Step 7</span>Packaging detail — CR box, print method, artwork check</div>
+<div class="dv-card" style="width:1080px">
+  <header style="display:flex;align-items:center;justify-content:space-between;height:76px;padding:0 48px;border-bottom:1px solid var(--line)">
+    <a href="#2a" style="font-family:var(--serif);font-size:16px;letter-spacing:.16em;text-transform:uppercase">Smoke Show</a>
+    <nav class="nav" style="display:flex;gap:28px;font-size:10px;letter-spacing:.24em;text-transform:uppercase"><a href="#1b">Hardware</a><a href="#1e">Terpenes</a><a href="#1c">Filling</a><a href="#1h" style="color:var(--violet)">Packaging</a></nav>
+    <a href="#1c" style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;border-bottom:1px solid var(--violet);padding-bottom:3px;color:var(--violet)">Quote (3)</a>
+  </header>
+
+  <div style="display:flex;align-items:center;gap:10px;padding:16px 48px;border-bottom:1px solid var(--line);background:var(--paper-tint)">
+    <a class="sl" href="#1b" style="color:var(--faded)">Catalogue</a><span class="sl" style="color:var(--faded)">/</span><a class="sl" href="#1h" style="color:var(--faded)">Packaging</a><span class="sl" style="color:var(--faded)">/</span><p class="sl">Child-resistant box · single device</p>
+    <p class="sl" style="margin-left:auto;color:var(--faded)">SKU PKG-BOX-04</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);align-items:start">
+    <div style="border-right:1px solid var(--line)">
+      <div style="aspect-ratio:1/1;overflow:hidden;background:var(--paper-well);border-bottom:1px solid var(--line)"><img src="https://smokeshowlabs.com/cdn/shop/files/co-packing-1.jpg?v=1738708795&amp;width=1500" alt="Child-resistant box on the co-packing line" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid var(--line)">
+        <div style="aspect-ratio:1/1;overflow:hidden;background:var(--paper-well);border-right:1px solid var(--line)"><img src="https://smokeshowlabs.com/cdn/shop/files/quality-4-scaled-2.jpg?v=1738868453&amp;width=1500" alt="Print QC" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="aspect-ratio:1/1;overflow:hidden;background:var(--paper-well);border-right:1px solid var(--line)"><img src="https://smokeshowlabs.com/cdn/shop/files/flavor-development-1.jpg?v=1738708698&amp;width=1500" alt="Label application" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="aspect-ratio:1/1;overflow:hidden;background:var(--paper-well)"><img src="https://smokeshowlabs.com/cdn/shop/files/blending-filling-2-1-1.jpg?v=1738708724&amp;width=1500" alt="Case pack" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+      </div>
+      <div style="padding:22px 28px">
+        <div style="display:flex;gap:14px;align-items:baseline"><p class="sl">Dieline PKG-04 rev. B</p><p class="sl" style="color:var(--faded);margin-left:auto">Download AI / PDF</p></div>
+        <p style="color:var(--faded);font-size:14.5px;line-height:1.65;margin-top:12px">Flat dieline with bleed, safe area and the CR mechanism marked. Return artwork on the same template to skip a proofing round.</p>
+      </div>
+    </div>
+
+    <div style="padding:48px 48px 44px">
+      <p class="ov" style="color:var(--violet)">Packaging · child-resistant</p>
+      <h1 style="font-family:var(--serif);font-size:52px;line-height:1.04;letter-spacing:-.022em;margin-top:18px">CR Box 04</h1>
+      <p style="color:var(--faded);font-size:15.3px;line-height:1.7;margin-top:16px">A certified push-tab carton for one all-in-one or 510 cart. 350 gsm board, soy inks, no plastic insert.</p>
+
+      <div style="display:flex;align-items:baseline;gap:14px;margin-top:34px;border-top:1px solid var(--line-strong);padding-top:22px">
+        <p style="font-family:var(--serif);font-size:40px;line-height:1">{{ pkPrice }}</p>
+        <p class="sl" style="color:var(--faded)">per box · {{ pkVolLabel }} units</p>
+        <p class="sl" style="margin-left:auto;color:var(--faded)">Order {{ pkLine }}</p>
+      </div>
+
+      <p class="sl" style="color:var(--faded);margin-top:26px">Run size</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <sc-for list="{{ pkVols }}" as="z" hint-placeholder-count="4">
+          <button type="button" onClick="{{ z.onPick }}" class="sl" style="border:1px solid {{ z.border }};border-radius:var(--r-btn);background:transparent;padding:13px 17px;cursor:pointer;color:{{ z.color }};min-height:44px">{{ z.label }}</button>
+        </sc-for>
+      </div>
+
+      <p class="sl" style="color:var(--faded);margin-top:26px">Print method · {{ pkFinishName }}</p>
+      <div style="display:grid;gap:10px;margin-top:12px">
+        <sc-for list="{{ pkFinishes }}" as="f" hint-placeholder-count="3">
+          <button type="button" onClick="{{ f.onPick }}" style="display:flex;align-items:center;gap:16px;text-align:left;border:1px solid {{ f.border }};border-radius:var(--r-card);background:{{ f.bg }};padding:16px 18px;cursor:pointer;min-height:44px">
+            <span style="width:9px;height:9px;flex:none;background:{{ f.dot }};border:1px solid var(--line-strong)"></span>
+            <span style="flex:1"><span style="display:block;font-family:var(--serif);font-size:19px;line-height:1.25">{{ f.name }}</span><span class="sl" style="color:var(--faded)">{{ f.note }}</span></span>
+            <span class="sl" style="color:{{ f.color }}">{{ f.delta }}</span>
+          </button>
+        </sc-for>
+      </div>
+
+      <dl style="margin-top:34px;border-top:1px solid var(--line-strong)">
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Board</dt><dd style="font-size:15.3px">350 gsm FSC SBS, 30% post-consumer</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Interior</dt><dd style="font-size:15.3px">Moulded pulp tray, no PET clamshell</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Size</dt><dd style="font-size:15.3px">104 × 42 × 22 mm, fits AIO 2g and 510</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Case pack</dt><dd style="font-size:15.3px">100 per case, 24 cases per pallet layer</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">MOQ</dt><dd style="font-size:15.3px">5,000 per artwork</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Lead time</dt><dd style="font-size:15.3px">{{ pkLead }} from artwork approval</dd></div>
+      </dl>
+
+      <div style="display:flex;gap:14px;align-items:center;margin-top:34px">
+        <a href="#1c" style="flex:1;background:var(--ember);color:#2b2b2b;padding:19px 0;border-radius:var(--r-btn);font-size:10px;letter-spacing:.28em;text-transform:uppercase;text-align:center" style-hover="background:#2b2b2b;color:#ffffff">Add to quote</a>
+        <a href="#1d" style="flex:none;border:1px solid var(--line-strong);border-radius:var(--r-btn);padding:19px 26px;font-size:10px;letter-spacing:.24em;text-transform:uppercase" style-hover="background:var(--paper-tint)">Request blank sample</a>
+      </div>
+      <p style="margin-top:16px;color:var(--faded);font-size:11.5px;line-height:1.6">Blanks ship free. Printed proofs $180, credited against the first run.</p>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid var(--line);padding:52px 48px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:var(--gap-col)">
+    <div>
+      <div style="display:flex;gap:18px;border-top:1px solid var(--line-strong);padding-top:18px;margin-bottom:20px"><p class="sl">Artwork check</p><span class="sl" style="color:var(--faded)">Nova · uploaded 4 Sep 2026</span></div>
+      <div style="display:grid;gap:10px">
+        <sc-for list="{{ pkChecks }}" as="c" hint-placeholder-count="5">
+          <div style="display:flex;align-items:center;gap:16px;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:15px 18px">
+            <span style="width:22px;height:22px;flex:none;display:flex;align-items:center;justify-content:center;border:1px solid {{ c.tone }};color:{{ c.tone }};font-size:11px;line-height:1">{{ c.mark }}</span>
+            <span style="flex:1"><span style="display:block;font-size:15.3px">{{ c.label }}</span><span class="sl" style="color:var(--faded)">{{ c.detail }}</span></span>
+            <span class="sl" style="color:{{ c.tone }}">{{ c.status }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <p style="color:var(--faded);font-size:11.5px;line-height:1.6;margin-top:16px">Two items need attention before we plate. Fix them on the dieline and re-upload.</p>
+    </div>
+    <div>
+      <div style="display:flex;gap:18px;border-top:1px solid var(--line-strong);padding-top:18px;margin-bottom:20px"><p class="sl">Compliance</p><span class="sl" style="color:var(--faded)">Certificates on file</span></div>
+      <div style="display:grid;gap:12px">
+        <a href="#1h" style="display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:18px 20px" style-hover="background:var(--paper-tint)"><span><span style="display:block;font-family:var(--serif);font-size:19px">CR certification</span><span class="sl" style="color:var(--faded)">PDF · 16 CFR 1700.20, F=1</span></span><span class="sl" style="color:var(--violet)">Open</span></a>
+        <a href="#1h" style="display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:18px 20px" style-hover="background:var(--paper-tint)"><span><span style="display:block;font-family:var(--serif);font-size:19px">FSC chain of custody</span><span class="sl" style="color:var(--faded)">PDF · mill + converter</span></span><span class="sl" style="color:var(--violet)">Open</span></a>
+        <a href="#1h" style="display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:18px 20px" style-hover="background:var(--paper-tint)"><span><span style="display:block;font-family:var(--serif);font-size:19px">Prop 65 &amp; ink safety</span><span class="sl" style="color:var(--faded)">PDF · low-migration inks</span></span><span class="sl" style="color:var(--violet)">Open</span></a>
+      </div>
+      <dl style="margin-top:26px;border-top:1px solid var(--line)">
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">State panels</dt><dd style="font-size:15.3px">CA, CO, MI warning copy pre-set</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;border-bottom:1px solid var(--line);"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Variable data</dt><dd style="font-size:15.3px">Batch, THC%, QR — inkjet at fill</dd></div>
+        <div style="display:flex;gap:20px;padding:13px 0;"><dt class="sl" style="color:var(--faded);width:150px;flex:none;padding-top:4px">Recyclability</dt><dd style="font-size:15.3px">Curbside, no separation required</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid var(--line);background:var(--paper-tint);padding:44px 48px">
+    <div style="display:flex;gap:18px;border-top:1px solid var(--line-strong);padding-top:18px;margin-bottom:26px"><p class="sl">Pairs with</p><span class="sl" style="color:var(--faded)">Ordered together on most accounts</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap-card)">
+      <a href="#1g" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:24px" style-hover="background:var(--paper)"><p class="sl" style="color:var(--violet)">Hardware</p><h3 style="font-family:var(--serif);font-size:23px;margin-top:12px">All-in-One 2g</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">The device this tray was moulded around.</p></a>
+      <a href="#1b" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:24px" style-hover="background:var(--paper)"><p class="sl" style="color:var(--violet)">Packaging</p><h3 style="font-family:var(--serif);font-size:23px;margin-top:12px">Pre-roll tube</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">CR pop-top in the same board and ink set.</p></a>
+      <a href="#1c" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:24px" style-hover="background:var(--paper)"><p class="sl" style="color:var(--violet)">Service</p><h3 style="font-family:var(--serif);font-size:23px;margin-top:12px">Identity design</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">We draw the brand and set the dieline for you.</p></a>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:28px 48px;background:var(--slab);color:var(--on-slab)">
+    <div style="display:flex;align-items:center;gap:22px"><p class="sl">CR Box 04 · {{ pkFinishName }} · {{ pkVolLabel }} units · {{ pkPrice }} ea</p><p class="sl" style="display:flex;align-items:center;gap:8px;color:var(--on-slab-quiet)"><span style="width:7px;height:7px;background:var(--ember)"></span>Artwork pending</p></div>
+    <a href="#1c" style="background:var(--ember);color:#2b2b2b;padding:15px 28px;border-radius:var(--r-btn);font-size:10px;letter-spacing:.28em;text-transform:uppercase">Add to quote</a>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="1c"><div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a><span class="sl" style="color:var(--violet)">Step 8</span>Quote builder — hardware + oil + terpene + packaging, live estimate</div>
+<div class="dv-card" style="width:1080px">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 44px;height:64px;background:var(--slab);color:var(--inv-fg)">
+    <p class="sl" style="color:var(--violet-light)">Quote builder · Step 2 of 3</p>
+    <p class="sl">Ref. SSL-2026-0418</p>
+  </div>
+  <div style="display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)">
+    <div style="padding:48px 44px;border-right:1px solid var(--line)">
+      <h1 style="font-family:var(--serif);font-size:44px;line-height:1.06;letter-spacing:-.02em">Configure your fill.</h1>
+      <p style="color:var(--faded);margin-top:16px;font-size:15.3px;max-width:440px">Every combination is quoted at your volume tier. Change anything — the estimate follows.</p>
+      <sc-for list="{{ groups }}" as="g" hint-placeholder-count="4">
+        <div style="margin-top:44px">
+          <div style="display:flex;gap:16px;align-items:baseline;border-top:1px solid var(--line);padding-top:18px"><p class="sl" style="color:var(--violet)">{{ g.num }}</p><p class="sl">{{ g.title }}</p><p class="sl" style="color:var(--faded);margin-left:auto">{{ g.hint }}</p></div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:20px">
+            <sc-for list="{{ g.opts }}" as="o" hint-placeholder-count="3">
+              <button type="button" onClick="{{ o.onPick }}" style="text-align:left;background:{{ o.bg }};border:1px solid {{ o.border }};padding:20px;cursor:pointer;transition:background 200ms ease">
+                <span style="display:flex;align-items:center;gap:10px"><span style="width:8px;height:8px;flex:none;background:{{ o.dot }}"></span><span class="sl" style="color:var(--faded)">{{ o.tag }}</span></span>
+                <span style="display:block;font-family:var(--serif);font-size:20px;line-height:1.25;margin-top:14px">{{ o.name }}</span>
+                <span style="display:block;font-size:12.5px;color:var(--faded);margin-top:6px">{{ o.note }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+      <div style="margin-top:44px;border-top:1px solid var(--line);padding-top:18px">
+        <div style="display:flex;gap:16px;align-items:baseline"><p class="sl" style="color:var(--violet)">05</p><p class="sl">Volume</p><p class="sl" style="color:var(--faded);margin-left:auto">MOQ 1,000</p></div>
+        <div style="display:flex;gap:14px;margin-top:20px">
+          <sc-for list="{{ volumes }}" as="v" hint-placeholder-count="4">
+            <button type="button" onClick="{{ v.onPick }}" class="sl" style="flex:1;border:1px solid {{ v.border }};background:{{ v.bg }};padding:16px 0;cursor:pointer;color:{{ v.color }}">{{ v.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    <aside style="padding:48px 40px;background:var(--paper-tint);align-self:start">
+      <p class="ov" style="color:var(--violet)">Estimate</p>
+      <p style="font-family:var(--serif);font-size:58px;line-height:1;letter-spacing:-.02em;margin-top:24px">{{ total }}</p>
+      <p class="sl" style="color:var(--faded);margin-top:12px">{{ perUnit }} per unit · {{ qtyLabel }} units</p>
+      <dl style="margin-top:36px;border-top:1px solid var(--line-strong);font-size:15.3px">
+        <sc-for list="{{ lines }}" as="l" hint-placeholder-count="4">
+          <div style="display:flex;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid var(--line)"><dt class="sl" style="color:var(--faded)">{{ l.label }}</dt><dd style="text-align:right">{{ l.value }}</dd></div>
+        </sc-for>
+      </dl>
+      <div style="display:flex;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line-strong)"><p class="sl">Lead time</p><p style="font-size:15.3px">{{ lead }}</p></div>
+      <button type="button" style="margin-top:32px;width:100%;background:var(--ember);color:#2b2b2b;border:0;padding:18px 0;font-size:10px;letter-spacing:.28em;text-transform:uppercase;cursor:pointer;border-radius:var(--r-btn)" style-hover="background:#2b2b2b;color:#ffffff">Send to my rep</button>
+      <button type="button" style="margin-top:12px;width:100%;background:transparent;color:var(--ink);border:1px solid var(--line-strong);padding:18px 0;font-size:10px;letter-spacing:.28em;text-transform:uppercase;cursor:pointer;border-radius:var(--r-btn)">Order sample kit</button>
+      <p style="margin-top:20px;font-size:11.5px;line-height:1.6;color:var(--faded)">Excludes freight, excise and state testing. Final pricing confirmed by your rep.</p>
+    </aside>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="1f"><div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a><span class="sl" style="color:var(--violet)">Return visit</span>Reorder dashboard — returning wholesale account, one-click repeat</div>
+<div class="dv-card" style="width:1080px">
+  <header style="display:flex;align-items:center;justify-content:space-between;height:76px;padding:0 48px;border-bottom:1px solid var(--line)">
+    <a href="#2a" style="font-family:var(--serif);font-size:16px;letter-spacing:.16em;text-transform:uppercase">Smoke Show</a>
+    <nav class="nav" style="display:flex;gap:28px;font-size:10px;letter-spacing:.24em;text-transform:uppercase"><a href="#1b">Hardware</a><a href="#1e">Terpenes</a><a href="#1c">Filling</a><a href="#1f" style="color:var(--violet)">Account</a></nav>
+    <a href="#1c" style="font-size:10px;letter-spacing:.24em;text-transform:uppercase;border-bottom:1px solid var(--violet);padding-bottom:3px;color:var(--violet)">Quote ({{ reoCount }})</a>
+  </header>
+
+  <div style="padding:48px 48px 34px">
+    <p class="ov" style="color:var(--violet)">Account · SSL-2291</p>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:32px;margin-top:20px">
+      <h1 style="font-family:var(--serif);font-size:52px;line-height:1.04;letter-spacing:-.022em">Welcome back,<br>Nova Botanicals.</h1>
+      <div style="text-align:right">
+        <p class="sl" style="display:flex;align-items:center;gap:9px;justify-content:flex-end"><span style="width:7px;height:7px;background:var(--stock)"></span>Licence C11-0004821 · verified</p>
+        <p class="sl" style="color:var(--faded);margin-top:10px">Net 30 · renews 12 Mar 2027</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--slab);color:var(--on-slab);display:grid;grid-template-columns:repeat(4,minmax(0,1fr))">
+      <div style="display:flex;flex-direction:column;padding:22px 26px 24px;border-right:1px solid var(--line-slab-quiet);"><p class="sl" style="color:var(--on-slab-quiet)">Units shipped YTD</p><p style="font-family:var(--serif);font-size:32px;line-height:1.15;margin-top:14px;color:var(--inv-fg)">184,000</p><p class="sl" style="color:var(--on-slab-quiet);margin-top:8px">Across 11 orders</p></div>
+      <div style="display:flex;flex-direction:column;padding:22px 26px 24px;border-right:1px solid var(--line-slab-quiet);"><p class="sl" style="color:var(--on-slab-quiet)">Open orders</p><p style="font-family:var(--serif);font-size:32px;line-height:1.15;margin-top:14px;color:var(--inv-fg)">2</p><p class="sl" style="color:var(--on-slab-quiet);margin-top:8px">Both on schedule</p></div>
+      <div style="display:flex;flex-direction:column;padding:22px 26px 24px;border-right:1px solid var(--line-slab-quiet);"><p class="sl" style="color:var(--on-slab-quiet)">Your average lead</p><p style="font-family:var(--serif);font-size:32px;line-height:1.15;margin-top:14px;color:var(--inv-fg)">2.4 wks</p><p class="sl" style="color:var(--on-slab-quiet);margin-top:8px">Fill to freight</p></div>
+      <div style="display:flex;flex-direction:column;padding:22px 26px 24px;"><p class="sl" style="color:var(--on-slab-quiet)">Credit available</p><p style="font-family:var(--serif);font-size:32px;line-height:1.15;margin-top:14px;color:var(--inv-fg)">$42,500</p><p class="sl" style="color:var(--on-slab-quiet);margin-top:8px">of $60,000</p></div>
+  </div>
+
+  <div style="padding:48px 48px 0">
+    <div style="display:flex;gap:18px;align-items:baseline;border-top:1px solid var(--line-strong);padding-top:18px"><p class="sl">Reorder</p><span class="sl" style="color:var(--faded)">Your last twelve months, priced at today's tier</span><span class="sl" style="color:var(--violet);margin-left:auto">{{ reoCount }} selected</span></div>
+  </div>
+  <div style="display:grid;grid-template-columns:44px 2fr 1fr .8fr .9fr 1fr;gap:20px;padding:20px 48px 14px">
+    <span></span><p class="sl" style="color:var(--faded)">Item</p><p class="sl" style="color:var(--faded)">Last ordered</p><p class="sl" style="color:var(--faded);text-align:right">Qty</p><p class="sl" style="color:var(--faded);text-align:right">Unit</p><p class="sl" style="color:var(--faded);text-align:right">Line</p>
+  </div>
+  <sc-for list="{{ reoLines }}" as="l" hint-placeholder-count="5">
+    <div style="display:grid;grid-template-columns:44px 2fr 1fr .8fr .9fr 1fr;gap:20px;padding:20px 48px;border-top:1px solid var(--line);align-items:center;background:{{ l.rowBg }}">
+      <button type="button" onClick="{{ l.onToggle }}" aria-label="Toggle line" style="width:26px;height:26px;min-height:26px;padding:0;display:grid;place-items:center;border:1px solid {{ l.boxBorder }};background:{{ l.boxBg }};color:{{ l.boxInk }};cursor:pointer;font-size:13px;line-height:1;border-radius:var(--r-input)">{{ l.mark }}</button>
+      <div><span style="font-family:var(--serif);font-size:20px;display:block;line-height:1.3">{{ l.name }}</span><span class="sl" style="color:var(--faded)">{{ l.sku }}</span></div>
+      <p style="font-size:15.3px;color:var(--faded)">{{ l.when }}</p>
+      <p style="font-size:15.3px;text-align:right">{{ l.qty }}</p>
+      <p style="font-size:15.3px;text-align:right;color:var(--faded)">{{ l.unit }}</p>
+      <p style="font-family:var(--serif);font-size:20px;text-align:right">{{ l.line }}</p>
+    </div>
+  </sc-for>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:26px 48px;border-top:1px solid var(--line-strong);background:var(--paper-tint)">
+    <div>
+      <p class="sl" style="color:var(--faded)">Reorder subtotal · {{ reoUnits }} units</p>
+      <p style="font-family:var(--serif);font-size:34px;line-height:1.15;margin-top:8px">{{ reoTotal }}</p>
+      <p class="sl" style="color:var(--faded);margin-top:8px">{{ reoNote }}</p>
+    </div>
+    <div style="display:flex;gap:14px;align-items:center">
+      <button type="button" onClick="{{ reoClear }}" class="sl" style="border:1px solid var(--line-strong);border-radius:var(--r-btn);background:transparent;padding:17px 24px;cursor:pointer;min-height:44px">Clear</button>
+      <a href="#1c" style="background:var(--ember);color:#2b2b2b;padding:19px 34px;border-radius:var(--r-btn);font-size:10px;letter-spacing:.28em;text-transform:uppercase" style-hover="background:#2b2b2b;color:#ffffff">Reorder selected</a>
+    </div>
+  </div>
+
+  <div style="padding:48px 48px 0">
+    <div style="display:flex;gap:18px;border-top:1px solid var(--line-strong);padding-top:18px;margin-bottom:6px"><p class="sl">In production</p><span class="sl" style="color:var(--faded)">Two open orders</span></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1.1fr 1.55fr .7fr .9fr 1.05fr;gap:20px;padding:14px 48px;border-bottom:1px solid var(--line-strong)">
+    <p class="sl" style="color:var(--faded)">Ref.</p><p class="sl" style="color:var(--faded)">Contents</p><p class="sl" style="color:var(--faded)">Units</p><p class="sl" style="color:var(--faded)">Freight ETA</p><p class="sl" style="color:var(--faded);text-align:right">Status</p>
+  </div>
+      <div style="display:grid;grid-template-columns:1.1fr 1.55fr .7fr .9fr 1.05fr;gap:20px;padding:20px 48px;align-items:center;border-bottom:1px solid var(--line);" style-hover="background:var(--paper-tint)">
+        <p class="sl">SSL-2026-0391</p>
+        <p style="font-size:15.3px">All-in-One 2g · live resin · Blue Dream</p>
+        <p style="font-size:15.3px;color:var(--faded)">24,000</p>
+        <p style="font-size:15.3px;color:var(--faded)">18 Sep 2026</p>
+        <p class="sl" style="display:flex;align-items:center;gap:9px;justify-content:flex-end;white-space:nowrap"><span style="width:7px;height:7px;flex:none;background:var(--stock)"></span>Filling</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1.1fr 1.55fr .7fr .9fr 1.05fr;gap:20px;padding:20px 48px;align-items:center;" style-hover="background:var(--paper-tint)">
+        <p class="sl">SSL-2026-0402</p>
+        <p style="font-size:15.3px">510 cart 1g · distillate · botanical</p>
+        <p style="font-size:15.3px;color:var(--faded)">40,000</p>
+        <p style="font-size:15.3px;color:var(--faded)">29 Sep 2026</p>
+        <p class="sl" style="display:flex;align-items:center;gap:9px;justify-content:flex-end;white-space:nowrap"><span style="width:7px;height:7px;flex:none;background:var(--ember)"></span>Awaiting artwork</p>
+      </div>
+
+  <div style="padding:48px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--gap-col)">
+    <div>
+      <div style="display:flex;gap:18px;border-top:1px solid var(--line-strong);padding-top:18px;margin-bottom:20px"><p class="sl">Documents</p><span class="sl" style="color:var(--faded)">Invoices &amp; panels</span></div>
+      <div style="display:grid;gap:12px">
+      <a href="#1f" style="display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:18px 20px" style-hover="background:var(--paper-tint)"><span><span style="display:block;font-family:var(--serif);font-size:19px">Invoice SSL-2026-0391</span><span class="sl" style="color:var(--faded)">PDF · $104,400.00 · due 18 Oct 2026</span></span><span class="sl" style="color:var(--violet)">Open</span></a>
+      <a href="#1f" style="display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:18px 20px" style-hover="background:var(--paper-tint)"><span><span style="display:block;font-family:var(--serif);font-size:19px">COA · Blue Dream 26-0418</span><span class="sl" style="color:var(--faded)">PDF · batch panel, non-detect</span></span><span class="sl" style="color:var(--violet)">Open</span></a>
+      <a href="#1f" style="display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:18px 20px" style-hover="background:var(--paper-tint)"><span><span style="display:block;font-family:var(--serif);font-size:19px">Freight manifest 0378</span><span class="sl" style="color:var(--faded)">PDF · delivered 22 Aug 2026</span></span><span class="sl" style="color:var(--violet)">Open</span></a>
+      </div>
+    </div>
+    <div>
+      <div style="display:flex;gap:18px;border-top:1px solid var(--line-strong);padding-top:18px;margin-bottom:20px"><p class="sl">Support</p><span class="sl" style="color:var(--faded)">Your representative</span></div>
+      <div style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:26px">
+        <p style="font-family:var(--serif);font-size:24px;line-height:1.25">Marisol Vega</p>
+        <p class="sl" style="color:var(--faded);margin-top:8px">Appointed representative · since 2023</p>
+        <dl style="margin-top:22px;border-top:1px solid var(--line);font-size:15.3px">
+          <div style="display:flex;gap:16px;padding:12px 0;border-bottom:1px solid var(--line)"><dt class="sl" style="color:var(--faded);width:80px;flex:none;padding-top:4px">Direct</dt><dd>+1 213 943 9014</dd></div>
+          <div style="display:flex;gap:16px;padding:12px 0"><dt class="sl" style="color:var(--faded);width:80px;flex:none;padding-top:4px">Email</dt><dd>marisol@smokeshowlabs.com</dd></div>
+        </dl>
+        <a href="#1c" style="display:block;margin-top:24px;text-align:center;border:1px solid var(--line-strong);border-radius:var(--r-btn);padding:17px 0;font-size:10px;letter-spacing:.24em;text-transform:uppercase" style-hover="background:var(--paper-tint)">Book a call</a>
+      </div>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid var(--line);background:var(--paper-tint);padding:44px 48px">
+    <div style="display:flex;gap:18px;border-top:1px solid var(--line-strong);padding-top:18px;margin-bottom:26px"><p class="sl">Saved configurations</p><span class="sl" style="color:var(--faded)">Locked specs, ready to run again</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap-card)">
+      <a href="#1c" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:24px;display:block" style-hover="background:var(--paper)"><p class="sl" style="color:var(--violet)">Config A</p><h3 style="font-family:var(--serif);font-size:22px;line-height:1.25;margin-top:12px">Nova Berry AIO</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">All-in-One 2g · live resin · Blue Dream at 4% · CR box</p><p class="sl" style="margin-top:18px;border-top:1px solid var(--line);padding-top:14px">$4.86 / unit at 25,000</p></a>
+      <a href="#1c" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:24px;display:block" style-hover="background:var(--paper)"><p class="sl" style="color:var(--violet)">Config B</p><h3 style="font-family:var(--serif);font-size:22px;line-height:1.25;margin-top:12px">Nova Classic cart</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">510 glass 1g · distillate · botanical blend · printed box</p><p class="sl" style="margin-top:18px;border-top:1px solid var(--line);padding-top:14px">$2.14 / unit at 25,000</p></a>
+      <a href="#1c" style="border:1px solid var(--line-card);border-radius:var(--r-card);background:var(--paper-raised);padding:24px;display:block" style-hover="background:var(--paper)"><p class="sl" style="color:var(--violet)">Config C</p><h3 style="font-family:var(--serif);font-size:22px;line-height:1.25;margin-top:12px">Nova Pod</h3><p style="color:var(--faded);font-size:14.5px;line-height:1.6;margin-top:8px">Pod 2g · live resin · Strawberry Cough · identity + box</p><p class="sl" style="margin-top:18px;border-top:1px solid var(--line);padding-top:14px">$6.72 / unit at 5,000</p></a>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:28px 48px;background:var(--slab);color:var(--on-slab)">
+    <div style="display:flex;align-items:center;gap:22px"><p class="sl">Nova Botanicals · Net 30 · {{ reoCount }} lines selected</p><p class="sl" style="display:flex;align-items:center;gap:8px;color:var(--on-slab-quiet)"><span style="width:7px;height:7px;background:var(--violet-light)"></span>Licence verified</p></div>
+    <a href="#1c" style="background:var(--ember);color:#2b2b2b;padding:15px 28px;border-radius:var(--r-btn);font-size:10px;letter-spacing:.28em;text-transform:uppercase">Reorder selected</a>
+  </div>
+</div></div>
+
+</div>
+<p class="dv-next">Try next: "add an order tracking page" · "add a mobile version of <a class="dv-oid" href="#1g">1g</a>" · "add a 1440 wide home"</p>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;1560&quot;,&quot;height&quot;:&quot;1000&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Editorial — Minimalism&quot;,&quot;Brand — smokeshowlabs.com&quot;],&quot;default&quot;:&quot;Brand — smokeshowlabs.com&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;intro&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;On&quot;,&quot;Off&quot;],&quot;default&quot;:&quot;On&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Intro&quot;},&quot;smoke&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Immersive&quot;,&quot;Soft&quot;,&quot;Paused&quot;],&quot;default&quot;:&quot;Immersive&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;heroEffect&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Volumetric plume&quot;,&quot;Ember drift&quot;,&quot;Glass mark&quot;,&quot;Off&quot;],&quot;default&quot;:&quot;Ember drift&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;heroIntensity&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.6,&quot;min&quot;:0.2,&quot;max&quot;:1.8,&quot;step&quot;:0.1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Hero&quot;}}">
+const HW = [
+  {name:"SSL All-in-One 2g", sku:"AIO-2000-C", core:"Ceramic, 1.2Ω", cap:"2.0 mL", moq:"1,000", fmt:"All-in-one", p:[4.35,3.95,3.60]},
+  {name:"SSL All-in-One 1g", sku:"AIO-1000-C", core:"Ceramic, 1.2Ω", cap:"1.0 mL", moq:"1,000", fmt:"All-in-one", p:[3.80,3.45,3.10]},
+  {name:"Cart 510 · Glass", sku:"C510-G-100", core:"Ceramic, 1.6Ω", cap:"1.0 mL", moq:"2,000", fmt:"510 cart", p:[1.35,1.15,0.98]},
+  {name:"Cart 510 · Quartz", sku:"C510-Q-100", core:"Quartz rod", cap:"1.0 mL", moq:"2,000", fmt:"510 cart", p:[1.60,1.38,1.20]},
+  {name:"Pod System · 2g", sku:"POD-2000-M", core:"Mesh, 1.0Ω", cap:"2.0 mL", moq:"2,500", fmt:"Pod", p:[5.10,4.60,4.15]},
+  {name:"Battery · 510 Vari", sku:"BAT-510-V3", core:"350 mAh", cap:"—", moq:"1,000", fmt:"Battery", p:[2.20,1.95,1.70]},
+  {name:"Infused Pre-Roll Tube", sku:"PKG-TUB-01", core:"CR pop-top", cap:"—", moq:"5,000", fmt:"Packaging", p:[0.42,0.36,0.30]}
+];
+const GROUPS = [
+  {key:"hw", num:"01", title:"Hardware", hint:"Filled by us", opts:[
+    {id:"aio2", tag:"AIO", name:"All-in-one 2g", note:"Ceramic core, rechargeable", price:4.35},
+    {id:"cart", tag:"510", name:"510 cart 1g", note:"Glass body, ceramic core", price:1.35},
+    {id:"pod", tag:"Pod", name:"Pod system 2g", note:"Mesh coil, magnetic", price:5.10}]},
+  {key:"oil", num:"02", title:"Oil", hint:"Yours or ours", opts:[
+    {id:"client", tag:"Client", name:"Send us your oil", note:"Blend + fill service only", price:0.85},
+    {id:"dist", tag:"Ours", name:"Distillate", note:"Lab-tested, 88%+", price:3.20},
+    {id:"live", tag:"Ours", name:"Live resin", note:"Cold-cured, cultivar-true", price:6.40}]},
+  {key:"terp", num:"03", title:"Terpenes", hint:"5% loading", opts:[
+    {id:"none", tag:"—", name:"No terpenes", note:"Straight fill", price:0},
+    {id:"bot", tag:"Botanical", name:"Botanical blend", note:"12 profiles in stock", price:0.35},
+    {id:"cult", tag:"Cultivar", name:"Cultivar-true", note:"Steam-distilled, single source", price:0.90}]},
+  {key:"pkg", num:"04", title:"Packaging", hint:"Child-resistant", opts:[
+    {id:"bare", tag:"Bulk", name:"Bulk, unbranded", note:"Bagged, 100 per case", price:0},
+    {id:"box", tag:"Print", name:"CR box + label", note:"4-colour, your artwork", price:0.55},
+    {id:"full", tag:"Design", name:"Identity + box", note:"We design the brand", price:1.10}]}
+];
+const DEADLINE = new Date(2026, 11, 11, 0, 0, 0).getTime();
+const pad2 = n => String(Math.max(0, n)).padStart(2, "0");
+const REO = [
+  {id:"aio", name:"SSL All-in-One 2g · Blue Dream", sku:"AIO-2000-C / TRP-BLD-CT", when:"12 Aug 2026", qty:24000, unit:4.86},
+  {id:"cart", name:"Cart 510 · Glass 1g", sku:"C510-G-100", when:"12 Aug 2026", qty:40000, unit:2.14},
+  {id:"terp", name:"Blue Dream terpenes · 5 L drum", sku:"TRP-BLD-CT", when:"29 Jul 2026", qty:4, unit:2400},
+  {id:"box", name:"CR box + label · Nova artwork", sku:"PKG-BOX-04", when:"29 Jul 2026", qty:24000, unit:0.55},
+  {id:"bat", name:"Battery · 510 Vari", sku:"BAT-510-V3", when:"04 Jun 2026", qty:12000, unit:1.95}
+];
+const TSZ = [
+  {id:0, label:"10 mL sample", per:1.90, pack:"1 bottle", lead:"3–5 days"},
+  {id:1, label:"100 mL", per:0.94, pack:"$94.00", lead:"1 week"},
+  {id:2, label:"1 L", per:0.62, pack:"$620.00", lead:"1–2 weeks"},
+  {id:3, label:"5 L drum", per:0.48, pack:"$2,400.00", lead:"2–3 weeks"}
+];
+const HWV = [
+  {i:0, label:"1,000", per:4.35, lead:"3 weeks"},
+  {i:1, label:"5,000", per:3.95, lead:"3–4 weeks"},
+  {i:2, label:"25,000", per:3.60, lead:"4–5 weeks"},
+  {i:3, label:"100,000", per:3.28, lead:"6–7 weeks"}
+];
+const HWC = [
+  {i:0, name:"Matte black", sw:"#1b1b1b"},
+  {i:1, name:"Bone", sw:"#e9e7e3"},
+  {i:2, name:"Ultraviolet", sw:"#5f4b8b"},
+  {i:3, name:"Ember", sw:"#f48120"}
+];
+const PKV = [
+  {i:0, label:"5,000", per:0.62, lead:"3 weeks"},
+  {i:1, label:"10,000", per:0.55, lead:"3–4 weeks"},
+  {i:2, label:"50,000", per:0.44, lead:"4–5 weeks"},
+  {i:3, label:"200,000", per:0.36, lead:"6 weeks"}
+];
+const PKF = [
+  {i:0, name:"4-colour litho", note:"CMYK, matte varnish", d:0},
+  {i:1, name:"Litho + spot Pantone", note:"Two spots, soft-touch laminate", d:0.09},
+  {i:2, name:"Foil + emboss", note:"One foil pass, blind emboss", d:0.21}
+];
+const PKC = [
+  {ok:true, label:"Bleed and safe area", detail:"3 mm bleed present on all panels", status:"Pass"},
+  {ok:true, label:"Resolution", detail:"All raster art above 300 dpi", status:"Pass"},
+  {ok:false, label:"State warning panel", detail:"CA panel is 6.4 pt — 8 pt minimum", status:"Fix"},
+  {ok:true, label:"Ink coverage", detail:"Max 284% — within press limit", status:"Pass"},
+  {ok:false, label:"Spot colours", detail:"3 spots supplied, 2 included in this method", status:"Fix"}
+];
+const VOL = [{id:1000,label:"1,000"},{id:5000,label:"5,000"},{id:25000,label:"25,000"},{id:100000,label:"100,000+"}];
+const DISC = {1000:1, 5000:0.92, 25000:0.84, 100000:0.76};
+const money = n => "$" + n.toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+class Component extends DCLogic {
+  state = {now: Date.now(), fmt:"All", tier:1, tsz:2, hwv:1, hwc:0, pkv:1, pkf:0, regStep:1, ri:["Hardware","Packaging"], rb:"5,000–25,000", reo:["aio","terp","box"], hw:"aio2", oil:"dist", terp:"bot", pkg:"box", qty:5000};
+  trailRef = React.createRef();
+
+  componentDidMount() {
+    this._cd = setInterval(() => this.setState({now: Date.now()}), 1000);
+    const cv = this.trailRef.current;
+    if (!cv) return;
+    const stage = cv.parentElement, ctx = cv.getContext("2d");
+    const P = [];
+    let sprite = null, raf = 0, last = performance.now(), px = 0, py = 0, has = false;
+
+    const img = new Image();
+    img.src = "assets/ss-mark.webp";
+    img.onload = () => {
+      const s = document.createElement("canvas");
+      s.width = s.height = 256;
+      const sc = s.getContext("2d");
+      sc.filter = "blur(38px) saturate(1.1)";
+      sc.drawImage(img, 12, 12, 232, 232);
+      sprite = s;
+    };
+
+    const fit = () => {
+      const r = stage.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2);
+      cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d);
+      ctx.setTransform(d, 0, 0, d, 0, 0);
+      this._w = r.width; this._h = r.height;
+    };
+    fit();
+    const ro = new ResizeObserver(fit); ro.observe(stage);
+
+    const puff = (x, y, vx, vy, size, life, alpha) => {
+      if (P.length > 260) P.shift();
+      P.push({x, y, vx, vy, size, grow: 0.34 + Math.random() * 0.5, t: 0, life,
+        rot: Math.random() * Math.PI * 2, spin: (Math.random() - 0.5) * 0.5, a: alpha});
+    };
+
+    const move = e => {
+      if ((this.props.smoke ?? "Immersive") === "Paused") return;
+      const r = stage.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      if (!has) { px = x; py = y; has = true; }
+      const dx = x - px, dy = y - py, d = Math.hypot(dx, dy);
+      const n = d > 26 ? 1 : 0;
+      for (let i = 0; i < n; i++) {
+        const k = i / n;
+        puff(px + dx * k + (Math.random() - 0.5) * 12, py + dy * k + (Math.random() - 0.5) * 12,
+          dx * 0.11 + (Math.random() - 0.5) * 14, dy * 0.11 - 16 - Math.random() * 22,
+          52 + Math.random() * 46, 1300 + Math.random() * 700, 0.40);
+      }
+      px = x; py = y;
+    };
+
+    const down = e => {
+      if ((this.props.smoke ?? "Immersive") === "Paused") return;
+      const r = stage.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      for (let i = 0; i < 9; i++) {
+        const a = (i / 9) * Math.PI * 2 + Math.random() * 0.4, sp = 70 + Math.random() * 100;
+        puff(x, y, Math.cos(a) * sp, Math.sin(a) * sp * 0.62 - 30,
+          30 + Math.random() * 34, 900 + Math.random() * 600, 0.06);
+      }
+      puff(x, y - 10, 0, -60, 120, 1500, 0.05);
+    };
+
+    const leave = () => { has = false; };
+
+    const tick = now => {
+      raf = requestAnimationFrame(tick);
+      const dt = Math.min(64, now - last); last = now;
+      ctx.clearRect(0, 0, this._w, this._h);
+      for (let i = P.length - 1; i >= 0; i--) {
+        const p = P[i];
+        p.t += dt;
+        if (p.t >= p.life) { P.splice(i, 1); continue; }
+        const k = p.t / p.life;
+        p.x += p.vx * dt / 1000; p.y += p.vy * dt / 1000;
+        p.vx *= 0.975; p.vy = p.vy * 0.975 - 6 * dt / 1000;
+        p.rot += p.spin * dt / 1000;
+        if (!sprite) continue;
+        const sz = p.size * (1 + p.grow * k * 2.1);
+        ctx.save();
+        ctx.globalAlpha = p.a * Math.sin(Math.min(1, k * 3.2) * Math.PI / 2) * (1 - k) ** 1.35;
+        ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        ctx.drawImage(sprite, -sz / 2, -sz / 2, sz, sz);
+        ctx.restore();
+      }
+    };
+    raf = requestAnimationFrame(tick);
+
+    stage.addEventListener("pointermove", move);
+    stage.addEventListener("pointerdown", down);
+    stage.addEventListener("pointerleave", leave);
+    this._trailOff = () => {
+      cancelAnimationFrame(raf); ro.disconnect();
+      stage.removeEventListener("pointermove", move);
+      stage.removeEventListener("pointerdown", down);
+      stage.removeEventListener("pointerleave", leave);
+    };
+  }
+
+  componentWillUnmount() { if (this._trailOff) this._trailOff(); if (this._cd) clearInterval(this._cd); }
+
+  renderVals() {
+    const s = this.state;
+    const v = {};
+    v.trailRef = this.trailRef;
+    v.introClass = (this.props.intro ?? "On") === "On" ? "" : "intro-off";
+    v.smokeClass = {Soft: "smoke-soft", Paused: "smoke-off"}[this.props.smoke ?? "Immersive"] ?? "";
+    const eff = this.props.heroEffect ?? "Volumetric plume";
+    v.heroEffect = (this.props.smoke ?? "Immersive") === "Paused" ? "Off" : eff;
+    v.heroIntensity = String((this.props.heroIntensity ?? 1) * ((this.props.smoke ?? "Immersive") === "Soft" ? 0.5 : 1));
+    v.themeClass = (this.props.theme ?? "Brand — smokeshowlabs.com") === "Editorial — Minimalism" ? "" : "brand";
+
+    v.filters = ["All","All-in-one","510 cart","Pod","Battery","Packaging"].map(label => ({
+      label, color: s.fmt === label ? "var(--violet)" : "var(--faded)",
+      onPick: () => this.setState({fmt: label})
+    }));
+    v.tiers = [{i:0,label:"1k"},{i:1,label:"5k"},{i:2,label:"25k"}].map(t => ({
+      label: t.label, color: s.tier === t.i ? "var(--violet)" : "var(--faded)",
+      onPick: () => this.setState({tier: t.i})
+    }));
+    const left = Math.max(0, DEADLINE - (s.now || Date.now()));
+    const secs = Math.floor(left / 1000);
+    v.cdD = pad2(Math.floor(secs / 86400));
+    v.cdH = pad2(Math.floor(secs / 3600) % 24);
+    v.cdM = pad2(Math.floor(secs / 60) % 60);
+    v.cdS = pad2(secs % 60);
+    const picked = s.reo || [];
+    v.reoCount = picked.length;
+    v.reoLines = REO.map(l => {
+      const on = picked.includes(l.id);
+      return {name:l.name, sku:l.sku, when:l.when,
+        qty: l.qty.toLocaleString("en-US"),
+        unit: money(l.unit),
+        line: money(l.qty * l.unit),
+        mark: on ? "✓" : "",
+        rowBg: on ? "var(--paper-tint)" : "transparent",
+        boxBorder: on ? "var(--violet)" : "var(--line-strong)",
+        boxBg: on ? "var(--violet)" : "transparent",
+        boxInk: on ? "var(--inv-fg)" : "var(--faded)",
+        onToggle: () => this.setState(p => ({reo: (p.reo || []).includes(l.id) ? p.reo.filter(x => x !== l.id) : (p.reo || []).concat(l.id)}))};
+    });
+    const sel = REO.filter(l => picked.includes(l.id));
+    v.reoTotal = money(sel.reduce((a, l) => a + l.qty * l.unit, 0));
+    v.reoUnits = sel.reduce((a, l) => a + (l.unit > 100 ? 0 : l.qty), 0).toLocaleString("en-US");
+    v.reoNote = picked.length ? "Priced at your 25,000 tier · Net 30 · 2–3 week lead" : "Select lines to rebuild your last order";
+    v.reoClear = () => this.setState({reo: []});
+    const tz = TSZ[s.tsz] || TSZ[2];
+    v.terpPrice = "$" + tz.per.toFixed(2);
+    v.terpSizeLabel = tz.label;
+    v.terpPack = tz.pack;
+    v.terpLead = tz.lead;
+    v.terpSizes = TSZ.map(z => ({label: z.label,
+      color: z.id === s.tsz ? "var(--violet)" : "var(--faded)",
+      border: z.id === s.tsz ? "var(--violet)" : "var(--line-strong)",
+      onPick: () => this.setState({tsz: z.id})}));
+    const hv = HWV[s.hwv] || HWV[1], hc = HWC[s.hwc] || HWC[0];
+    v.hwPrice = "$" + hv.per.toFixed(2);
+    v.hwVolLabel = hv.label;
+    v.hwLead = hv.lead;
+    v.hwLine = money(hv.per * Number(hv.label.replace(/,/g, ""))).replace(/\.\d\d$/, "");
+    v.hwColorName = hc.name;
+    v.hwVols = HWV.map(z => ({label: z.label,
+      color: z.i === s.hwv ? "var(--violet)" : "var(--faded)",
+      border: z.i === s.hwv ? "var(--violet)" : "var(--line-strong)",
+      onPick: () => this.setState({hwv: z.i})}));
+    v.hwColors = HWC.map(c => ({name: c.name, swatch: c.sw,
+      color: c.i === s.hwc ? "var(--violet)" : "var(--faded)",
+      border: c.i === s.hwc ? "var(--violet)" : "var(--line-strong)",
+      onPick: () => this.setState({hwc: c.i})}));
+    const pv = PKV[s.pkv] || PKV[1], pf = PKF[s.pkf] || PKF[0];
+    v.pkPrice = "$" + (pv.per + pf.d).toFixed(2);
+    v.pkVolLabel = pv.label;
+    v.pkLead = pv.lead;
+    v.pkLine = money((pv.per + pf.d) * Number(pv.label.replace(/,/g, ""))).replace(/\.\d\d$/, "");
+    v.pkFinishName = pf.name;
+    v.pkVols = PKV.map(z => ({label: z.label,
+      color: z.i === s.pkv ? "var(--violet)" : "var(--faded)",
+      border: z.i === s.pkv ? "var(--violet)" : "var(--line-strong)",
+      onPick: () => this.setState({pkv: z.i})}));
+    v.pkFinishes = PKF.map(f => {
+      const on = f.i === s.pkf;
+      return {name: f.name, note: f.note,
+        delta: f.d ? "+$" + f.d.toFixed(2) : "included",
+        bg: on ? "var(--paper-well)" : "var(--paper-raised)",
+        border: on ? "var(--violet)" : "var(--line-card)",
+        dot: on ? "var(--violet)" : "transparent",
+        color: on ? "var(--violet)" : "var(--faded)",
+        onPick: () => this.setState({pkf: f.i})};
+    });
+    v.pkChecks = PKC.map(c => ({label: c.label, detail: c.detail, status: c.status,
+      mark: c.ok ? "✓" : "!", tone: c.ok ? "var(--stock)" : "var(--ember)"}));
+    const RI = ["Hardware","Terpenes","Blending & filling","Packaging","White label"];
+    const RB = ["Under 5,000","5,000–25,000","25,000–100,000","100,000+"];
+    v.regOne = s.regStep === 1;
+    v.regTwo = s.regStep === 2;
+    v.regTitle = s.regStep === 1 ? "Two fields and you're in." : "Now the paperwork.";
+    v.regBlurb = s.regStep === 1
+      ? "Tell us who you are and tier pricing opens straight away. Licence, EIN and resale certificate come later."
+      : "Your account is live and pricing is unlocked. Complete this when it suits you.";
+    v.regTone1 = s.regStep === 1 ? "var(--violet)" : "var(--stock)";
+    v.regTone2 = s.regStep === 2 ? "var(--violet)" : "var(--line-strong)";
+    v.regFooter = s.regStep === 1 ? "Step 1 of 2 · no documents required" : "Step 2 of 2 · required before your first shipment";
+    v.regNext = () => this.setState({regStep: 2});
+    v.regBack = () => this.setState({regStep: 1});
+    const ri = s.ri || [];
+    v.regInterests = RI.map(label => {
+      const on = ri.includes(label);
+      return {label,
+        bg: on ? "var(--paper-well)" : "transparent",
+        border: on ? "var(--violet)" : "var(--line-strong)",
+        color: on ? "var(--violet)" : "var(--faded)",
+        onToggle: () => this.setState(p => ({ri: (p.ri || []).includes(label) ? p.ri.filter(x => x !== label) : (p.ri || []).concat(label)}))};
+    });
+    v.regBands = RB.map(label => {
+      const on = s.rb === label;
+      return {label,
+        bg: on ? "var(--slab)" : "transparent",
+        border: on ? "var(--slab)" : "var(--line-strong)",
+        color: on ? "var(--inv-fg)" : "var(--faded)",
+        onPick: () => this.setState({rb: label})};
+    });
+    v.tierLabel = ["1,000","5,000","25,000"][s.tier];
+    const rows = HW.filter(h => s.fmt === "All" || h.fmt === s.fmt);
+    v.rows = rows.map((h, i) => ({name:h.name, sku:h.sku, core:h.core, cap:h.cap, moq:h.moq,
+      price: money(h.p[s.tier]),
+      stockColor: i % 4 === 3 ? "var(--ember)" : "var(--stock)"}));
+    v.shown = rows.length;
+
+    v.groups = GROUPS.map(g => ({
+      num: g.num, title: g.title, hint: g.hint,
+      opts: g.opts.map(o => {
+        const on = s[g.key] === o.id;
+        return {
+          tag: o.tag, name: o.name, note: o.note,
+          bg: on ? "var(--paper-well)" : "var(--paper-raised)",
+          border: on ? "var(--violet)" : "var(--line-card)",
+          dot: on ? "var(--violet)" : "transparent",
+          onPick: () => this.setState({[g.key]: o.id})
+        };
+      })
+    }));
+
+    v.volumes = VOL.map(x => {
+      const on = s.qty === x.id;
+      return {label: x.label, bg: on ? "var(--slab)" : "transparent",
+        border: on ? "var(--slab)" : "var(--line-strong)",
+        color: on ? "var(--inv-fg)" : "var(--faded)",
+        onPick: () => this.setState({qty: x.id})};
+    });
+
+    const pick = k => GROUPS.find(g => g.key === k).opts.find(o => o.id === s[k]);
+    const parts = ["hw","oil","terp","pkg"].map(k => ({k, o: pick(k)}));
+    const disc = DISC[s.qty];
+    const unit = parts.reduce((a, p) => a + p.o.price, 0) * disc;
+    v.perUnit = money(unit);
+    v.total = money(unit * s.qty).replace(/\.\d\d$/, "");
+    v.qtyLabel = s.qty.toLocaleString("en-US");
+    v.lines = parts.map(p => ({label: GROUPS.find(g => g.key === p.k).title, value: p.o.name + "  " + money(p.o.price * disc)}))
+      .concat([{label: "Volume discount", value: disc === 1 ? "—" : "−" + Math.round((1 - disc) * 100) + "%"}]);
+    v.lead = s.qty >= 25000 ? "4–5 weeks" : "2–3 weeks";
+    return v;
+  }
+}
+</script>
+</body>
+</html>

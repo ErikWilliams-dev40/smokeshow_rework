@@ -1,0 +1,29 @@
+{
+  "source": "https://smokeshowlabs.com/",
+  "scraped": "2026-09-05",
+  "note": "Live Shopify CDN URLs referenced by Smoke Show Labs.dc.html. Hotlinked, not vendored — swap for local files before handoff so the mockups survive a CDN change.",
+  "logo": "https://smokeshowlabs.com/cdn/shop/files/smoke-show-labs-logo-xprnt.png?v=1737068330&width=600",
+  "og": "https://smokeshowlabs.com/cdn/shop/files/smokeshowlabs-brand-development_bff6e853-93dd-4522-b86d-e6c2c44f959c.png?v=1750776372",
+  "hardware": {
+    "hero": "https://smokeshowlabs.com/cdn/shop/files/Ccell-vapes_waifu2x_photo_noise1_scale-1.jpg?v=1738868453&width=1500",
+    "detail": "https://cdn.shopify.com/s/files/1/0918/7190/4056/files/Ccell-vape-2_waifu2x_photo_noise1_scale-1-2.jpg?v=1738868453"
+  },
+  "terpenes": "https://smokeshowlabs.com/cdn/shop/files/quality-4-scaled-2.jpg?v=1738868453&width=1500",
+  "services": {
+    "consultation": "https://smokeshowlabs.com/cdn/shop/files/consultation-scaled-1.jpg?v=1738708671&width=1500",
+    "flavourDevelopment": "https://smokeshowlabs.com/cdn/shop/files/flavor-development-1.jpg?v=1738708698&width=1500",
+    "blendingFilling": "https://smokeshowlabs.com/cdn/shop/files/blending-filling-2-1-1.jpg?v=1738708724&width=1500",
+    "packagingDesign": "https://smokeshowlabs.com/cdn/shop/files/packaging-design-scaled-1.jpg?v=1738708747&width=1500",
+    "coPacking": "https://smokeshowlabs.com/cdn/shop/files/co-packing-1.jpg?v=1738708795&width=1500",
+    "speedyProduction": "https://smokeshowlabs.com/cdn/shop/files/speedy-production-1.jpg?v=1738708770&width=1500"
+  },
+  "banner": "https://smokeshowlabs.com/cdn/shop/files/ChampsChicagoBanner.png?v=1780341908&width=1500",
+  "benefitIcons": {
+    "dedicatedSupport": "https://cdn.shopify.com/s/files/1/0918/7190/4056/files/businessman2.png?v=1738448556",
+    "trustedPartner": "https://cdn.shopify.com/s/files/1/0918/7190/4056/files/briefcase.png?v=1738448556",
+    "fastFulfilment": "https://cdn.shopify.com/s/files/1/0918/7190/4056/files/clock.png?v=1738448556",
+    "provenPurity": "https://cdn.shopify.com/s/files/1/0918/7190/4056/files/test-beaker-solid.png?v=1738448556",
+    "lowStartupCost": "https://cdn.shopify.com/s/files/1/0918/7190/4056/files/handdollar3.png?v=1738448556",
+    "growYourBusiness": "https://cdn.shopify.com/s/files/1/0918/7190/4056/files/arrowupgraph.png?v=1738448556"
+  }
+}
