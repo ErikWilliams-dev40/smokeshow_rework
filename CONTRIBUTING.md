@@ -97,5 +97,49 @@ PR title.
 
 ## Local setup
 
-<!-- CUSTOMIZE — fill in once the stack is chosen -->
-_Prerequisites, install command, how to run tests, how to run the app locally._
+**Prerequisites:** Node 24 (the version in `.nvmrc`) and pnpm. pnpm is pinned by
+the `packageManager` field, so you do not need to choose a version:
+
+```sh
+corepack enable pnpm     # or: npm install -g pnpm
+```
+
+If `corepack enable` fails with a permission error, it is trying to write a shim
+into the Node installation directory. Either run `npm install -g pnpm` instead,
+or prefix commands with `corepack ` — `corepack pnpm install`. CI takes the
+latter route for the same reason.
+
+**Install and run:**
+
+```sh
+pnpm install            # --frozen-lockfile in CI
+pnpm dev                # http://localhost:3000
+```
+
+**Before opening a pull request**, run what CI runs:
+
+```sh
+pnpm lint               # tsc --noEmit, ESLint, Stylelint, Prettier --check
+pnpm test               # Vitest
+pnpm build              # next build
+pnpm audit --audit-level=high
+```
+
+`pnpm format` writes Prettier's changes rather than only checking them. Note that
+Prettier is scoped away from Markdown and `.github/`: prose here is hard-wrapped
+by hand, and a formatter that rewrites workflow YAML on every run would breach
+the rule against editing `.github/workflows/` as a side effect.
+
+**Verifying a screen against the design.** The specification is
+`design_handoff_wholesale_b2b/README.md`, and `screenshots/` holds one capture
+per screen. Two things to know before you compare:
+
+- Every capture is the light **Editorial** theme, while the shipping default is
+  dark **Brand**. Force the Editorial root class when comparing.
+- The animated screens are frozen at an arbitrary frame. Read the motion spec
+  rather than the still, and open the `.dc.html` in a browser to see the live
+  effect and both themes.
+
+The handoff screenshots are a human review reference, not a pixel baseline — a
+different renderer produces different output, so treating them as CI baselines
+would produce a permanently red check that everyone learns to ignore.
