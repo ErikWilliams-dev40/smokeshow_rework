@@ -1,7 +1,8 @@
 name: Lint (reusable)
 
-# PLACEHOLDER. This workflow does not know the language or linter of this
-# project. Replace the step marked CUSTOMIZE with a real lint command.
+# Runs the project's static checks: TypeScript, ESLint, Stylelint and Prettier.
+# The composite command lives in package.json as `lint`, so local runs and CI
+# execute the same thing and cannot drift.
 #
 # Reusable workflow: it is called by another workflow, never triggered directly.
 # Called by: .github/workflows/pr-checks.yml
@@ -30,6 +31,10 @@ jobs:
     name: Lint
     runs-on: ${{ inputs.runner }}
     timeout-minutes: 15
+    env:
+      # Corepack otherwise prompts for confirmation before it downloads
+      # the pinned pnpm, which would hang a non-interactive runner.
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
     permissions:
       contents: read # required only so actions/checkout can read the repository
     defaults:
@@ -44,17 +49,35 @@ jobs:
           ref: ${{ inputs.ref }}
           persist-credentials: false
 
-      # ── CUSTOMIZE ─────────────────────────────────────────────────────────
-      # Replace this entire step with the lint command for this project.
-      # Per-stack guidance: docs/CUSTOMIZATION.md
+      # ── Toolchain ─────────────────────────────────────────────────────────
+      # No `setup-*` action. docs/RECOMMENDED_ACTIONS.md prefers the runner's
+      # preinstalled runtime and a plain command, and GitHub-hosted images ship
+      # Node. Corepack is bundled with Node and resolves pnpm to the exact
+      # version pinned by `packageManager` in package.json, so the package
+      # manager is pinned by the manifest rather than by anything in here.
       #
-      # If the stack needs a toolchain, install it here first. Prefer a runner
-      # preinstalled tool or a version manager already in the image over adding
-      # a third-party setup action.
-      - name: Lint
+      # `corepack pnpm ...` is used rather than `corepack enable`, because
+      # enabling writes a shim into the Node installation directory and that
+      # needs privileges the runner does not reliably have.
+      - name: Verify the runner's Node matches .nvmrc
+        # A deliberate hard failure. If the runner image moves to a different
+        # Node major than this project pins, the job stops with a clear message
+        # instead of quietly running against a runtime nobody tested against.
         run: |
-          echo "::error title=Template not configured::.github/workflows/lint.yml is still a placeholder."
-          echo "Replace the 'Lint' step with this project's lint command."
-          echo "See docs/CUSTOMIZATION.md for the section matching your stack."
-          exit 1
-      # ──────────────────────────────────────────────────────────────────────
+          actual="$(node -p 'process.versions.node.split(".")[0]')"
+          expected="$(tr -d '[:space:]' < .nvmrc)"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error title=Node version mismatch::Runner provides Node ${actual}; .nvmrc pins ${expected}. Update .nvmrc and package.json engines together, or pin the runner image."
+            exit 1
+          fi
+          echo "node $(node --version), pnpm $(corepack pnpm --version)"
+
+      - name: Install dependencies
+        # --frozen-lockfile is the CI-oriented install: it fails rather than
+        # silently updating pnpm-lock.yaml, so CI cannot resolve a different
+        # dependency tree than the one that was reviewed.
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Lint
+        # `pnpm lint` = tsc --noEmit && eslint . && stylelint && prettier --check
+        run: corepack pnpm run lint
