@@ -5,7 +5,7 @@
   "description": "Smoke Show Labs \u2014 B2B wholesale storefront for licensed cannabis operators",
   "packageManager": "pnpm@12.3.4",
   "engines": {
-    "node": ">=24.0.0 <25"
+    "node": ">=22.0.0 <23"
   },
   "scripts": {
     "dev": "next dev",
