@@ -1,19 +1,18 @@
 # Issue template chooser configuration.
-# CUSTOMIZE the contact links, or delete any that do not apply.
 
 # Require one of the templates above rather than allowing a blank issue, so every
 # issue carries the fields the lifecycle depends on.
 blank_issues_enabled: false
 
-contact_links:
-  - name: Report a security vulnerability
-    url: https://github.com/ORG/REPO/security/advisories/new
-    about: >-
-      Never report a vulnerability in a public issue. Use private advisory
-      reporting — see SECURITY.md.
-
-  - name: Ask a question
-    url: https://github.com/ORG/REPO/discussions
-    about: >-
-      For questions and design discussion that are not yet a bug or a feature
-      request. (Requires Discussions to be enabled.)
+# No `contact_links:`. The template shipped two, and both would have pointed at
+# a page that does not exist here:
+#
+#   - Discussions is not enabled on this repository.
+#   - A direct link to the "report a vulnerability" form is redundant — GitHub
+#     already surfaces private vulnerability reporting from the Security tab,
+#     and a link in the issue chooser is not what stops someone filing a
+#     vulnerability as a public issue.
+#
+# SECURITY.md carries the reporting route and is the single place it is stated,
+# so it cannot drift out of sync with a copy here. Add a contact link back only
+# when it points somewhere real.
