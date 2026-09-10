@@ -113,7 +113,12 @@ jobs:
     permissions: {}
     with:
       url: ${{ needs.staging-deploy.outputs.url }}
-      path: / # CUSTOMIZE to the real health endpoint, e.g. /healthz
+      # The readiness probe, not the home page. `/` returns 200 as soon as
+      # anything is serving, including the previous version still up because the
+      # deploy silently did nothing — which is the failure a health check exists
+      # to catch. src/app/api/health/route.ts is `force-dynamic` and `no-store`
+      # so neither Next nor a CDN can answer this from cache.
+      path: /api/health
 
   # Business approval happens here, and it is enforced by GitHub rather than by
   # this file: production-deploy binds to the `production` Environment, and the
@@ -146,4 +151,5 @@ jobs:
     permissions: {}
     with:
       url: ${{ needs.production-deploy.outputs.url }}
-      path: / # CUSTOMIZE to the real health endpoint, e.g. /healthz
+      # See the note on staging-health-check above.
+      path: /api/health
