@@ -10,6 +10,17 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+
+  // `next dev` otherwise appends a `nextjs-agent-rules` block to CLAUDE.md on
+  // every run. CLAUDE.md is this repository's governance document — it carries
+  // the lifecycle rules, the review gates and the deploy policy — and a
+  // framework that rewrites it on each dev-server start both muddies which
+  // instructions the repo actually authored and leaves an uncommitted change in
+  // every working tree. Turning the generation off keeps that file
+  // human-authored; the framework's own guidance stays available where it is
+  // written, in node_modules/next/dist/docs/.
+  agentRules: false,
+
   images: {
     remotePatterns: [],
   },
