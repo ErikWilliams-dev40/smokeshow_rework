@@ -2,38 +2,96 @@
 
 Guidance for Claude Code working in this repository.
 
-> **CUSTOMIZE:** every section marked `CUSTOMIZE` below is a placeholder. Fill it
-> in when you start the project. Leave the lifecycle rules as they are.
-
 ---
 
 ## Project
 
-<!-- CUSTOMIZE -->
-- **What this is:** _one sentence._
-- **Stack:** _language, framework, package manager, runtime version._
-- **Hosting:** _where staging and production run._
-- **Owner:** _team or person._
+- **What this is:** Smoke Show Labs — a B2B wholesale storefront through which
+  licensed cannabis operators specify and price white-label vape products
+  (hardware, terpenes, blending and filling, packaging).
+- **Stack:** TypeScript on Next.js (App Router, server rendering), React, pnpm,
+  Node 24. Styling is plain CSS with CSS Modules over a custom-property token
+  system — deliberately not Tailwind, see below. Vitest for units, Playwright
+  for end-to-end and visual review.
+- **Hosting:** not yet decided. Server rendering is a hard requirement — route
+  handlers, middleware and server actions all need a Node runtime, so a
+  static-export host is not an option. `docs/CUSTOMIZATION.md` notes this is the
+  decision that determines how the project deploys and rolls back, so settle it
+  before filling in the deploy workflows.
+- **Owner:** not yet assigned. `CODEOWNERS.example` stays a template until real
+  teams exist and have repository access — see `docs/CUSTOMIZATION.md` step 2.
 
 ## Commands
 
-<!-- CUSTOMIZE — these must match the commands in .github/workflows/ -->
+These must match `.github/workflows/`. The workflows invoke the same package
+scripts, so there is one definition of each command rather than two.
+
 | Task | Command |
 | --- | --- |
-| Install | _fill in_ |
-| Lint | _fill in_ |
-| Test | _fill in_ |
-| Build | _fill in_ |
-| Run locally | _fill in_ |
+| Install | `pnpm install --frozen-lockfile` |
+| Lint | `pnpm lint` (`tsc --noEmit`, ESLint, Stylelint, Prettier `--check`) |
+| Test | `pnpm test` (Vitest) |
+| Build | `pnpm build` (`next build`) |
+| Run locally | `pnpm dev` |
+| Audit | `pnpm audit --audit-level=high` |
+| Format | `pnpm format` |
 
 Keep this table and the workflows in sync. If they drift, CI and local runs stop
 agreeing and the AI review gate loses its reference point.
 
+CI has no `setup-*` action: it uses the runner's preinstalled Node and reaches
+pnpm through `corepack pnpm ...`, which resolves the version pinned by
+`packageManager` in `package.json`. Each job asserts the runner's Node major
+matches `.nvmrc` and fails if it does not.
+
 ## Layout
 
-<!-- CUSTOMIZE -->
-_Describe the source layout once it exists: where application code lives, where
-tests live, where configuration lives._
+```
+src/app/          routes (App Router). Screens map to routes as in
+                  docs/design/SCREEN_MAP.md; api/ holds route handlers.
+src/styles/       tokens.css (both themes, lifted verbatim from the handoff),
+                  base.css, motion.css, utilities.css (.ov and .sl only)
+src/components/   layout/ primitives/ product/ hero/ compliance/
+src/content/      compliance.ts — the frozen compliance strings
+src/domain/       Zod schemas and the types inferred from them
+src/data/         typed fixtures, parsed by their schema
+src/server/       server-only code: pricing/, repositories/, session/, uploads/
+src/lib/          shared pure helpers (money, format, countdown)
+tests/            unit/ guards/ e2e/ visual/
+public/           fonts/, brand/, photography/ — all assets are local
+design_handoff_wholesale_b2b/
+                  the design specification. Reference only, never imported.
+```
+
+### Things about this codebase that are load-bearing
+
+- **The volume discount table is server-owned.** It lives in
+  `src/server/pricing/discount.server.ts` behind `import 'server-only'` and must
+  never reach the browser. The client sends option IDs and a quantity and
+  receives computed numbers; it never applies the multiplier itself. All totals
+  are derived, never stored.
+- **Compliance copy may be re-typeset but never reworded.** Six strings live in
+  `src/content/compliance.ts` and are rendered only through `ComplianceText`. A
+  test asserts them verbatim.
+- **Animation uses the `translate` / `rotate` / `scale` longhands, never the
+  `transform` shorthand.** The hero's smoke plumes compose their drift; the
+  shorthand overwrites it. Stylelint fails the build on `transform` in animation
+  CSS.
+- **Tabular numerals are load-bearing**, not decoration: prices, spec tables and
+  the countdown rely on them to column-align.
+- **No icons, no emoji, no CDN, no analytics, no external requests.** Every
+  indicator is a coloured square, dot, bar or rule. `next.config.ts` keeps
+  `images.remotePatterns` empty so `next/image` can only serve local files.
+- **Two themes over one markup tree**, applied as a root class. Brand (dark) is
+  the shipping default; Editorial (light) is the `:root` token set. Never fork
+  the markup per theme.
+- **The licence gate is not access control.** It is a consent interstitial backed
+  by a cookie any visitor can set. Authorization belongs in server actions and
+  page-level session checks, not in middleware.
+- **The design handoff's `.dc.html` must not be ported.** It runs on a bespoke
+  in-house template runtime (`<x-dc>`, `{{ holes }}`, `DCLogic`) that does not
+  exist here, and it carries 1,199 inline styles with no class vocabulary. Read
+  it for tokens, copy, pricing and motion parameters; re-express the structure.
 
 ---
 
