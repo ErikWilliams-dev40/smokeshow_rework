@@ -9,11 +9,26 @@
       "Bash(corepack pnpm *)",
       "Bash(npm config *)",
       "Bash(npm install *)",
-      "Bash(node -e ' *)",
       "Bash(pnpm add *)",
+      "Bash(pnpm install *)",
       "Bash(pnpm typecheck *)",
+      "Bash(pnpm lint)",
       "Bash(pnpm lint:es)",
-      "Bash(pnpm install *)"
+      "Bash(pnpm lint:css)",
+      "Bash(pnpm lint:format)",
+      "Bash(pnpm test)",
+      "Bash(pnpm build)",
+      "Bash(pnpm audit *)",
+      "Bash(git add *)",
+      "Bash(git checkout *)",
+      "Bash(git cherry-pick *)",
+      "Bash(git commit *)",
+      "Bash(git fetch *)",
+      "Bash(git pull *)",
+      "Bash(git push *)",
+      "Bash(gh issue *)",
+      "Bash(gh pr *)",
+      "Bash(gh run *)"
     ]
   }
 }
