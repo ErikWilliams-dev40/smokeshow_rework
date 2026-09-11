@@ -40,8 +40,7 @@
       "Bash(gh run list *)",
       "Bash(gh run view *)",
       "Bash(gh run watch *)",
-      "Bash(git --no-pager diff main --stat)",
-      "Bash(git push *)"
+      "Bash(git commit -q -m ' *)"
     ]
   }
 }
