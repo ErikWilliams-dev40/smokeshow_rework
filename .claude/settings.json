@@ -25,10 +25,21 @@
       "Bash(git commit *)",
       "Bash(git fetch *)",
       "Bash(git pull *)",
-      "Bash(git push *)",
-      "Bash(gh issue *)",
-      "Bash(gh pr *)",
-      "Bash(gh run *)"
+      "Bash(git push origin *)",
+      "Bash(git push -u origin *)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr list *)",
+      "Bash(gh pr diff *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh pr comment *)",
+      "Bash(gh issue create *)",
+      "Bash(gh issue view *)",
+      "Bash(gh issue list *)",
+      "Bash(gh issue comment *)",
+      "Bash(gh run list *)",
+      "Bash(gh run view *)",
+      "Bash(gh run watch *)"
     ]
   }
 }
