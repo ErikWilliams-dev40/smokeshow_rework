@@ -1,11 +1,10 @@
 name: PR checks
 
 # Caller workflow. Runs the four automated gates on every pull request.
-# The reusable workflows it calls are placeholders — see README.md for why they
-# fail until customized.
 #
 # Configure these four as required status checks in branch protection
-# (Settings → Branches) so a PR cannot merge without them.
+# (Settings → Branches) so a PR cannot merge without them. Not yet possible on
+# this repository — see issue #6 — so today they are advisory.
 
 on:
   pull_request:
