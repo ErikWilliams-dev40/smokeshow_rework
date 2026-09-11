@@ -62,12 +62,12 @@ jobs:
       # a full commit SHA like the first.
       #
       # docs/RECOMMENDED_ACTIONS.md prefers the runner's preinstalled runtime
-      # and a plain command, and that held until this project needed a Node
-      # major the `ubuntu-latest` image does not ship. Without an action the
-      # effective version was whatever GitHub happened to install, which is not
-      # a pin at all — it broke CI twice already (3772969, cc61f5b). The action
-      # is what makes `.nvmrc` authoritative rather than aspirational. See
-      # issue #13.
+      # and a plain command, and that held until the version needed pinning.
+      # Relying on the image meant the effective Node major was whatever GitHub
+      # happened to install — not a pin at all. It broke CI twice (3772969,
+      # cc61f5b), and both times the fix was to move `.nvmrc` to match the
+      # runner rather than the other way round. The action inverts that: it
+      # makes `.nvmrc` authoritative rather than aspirational. See issue #13.
       #
       # It reads `.nvmrc` rather than carrying a version of its own, so the Node
       # version still has exactly one definition in this repository.
