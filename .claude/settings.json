@@ -39,8 +39,7 @@
       "Bash(gh issue comment *)",
       "Bash(gh run list *)",
       "Bash(gh run view *)",
-      "Bash(gh run watch *)",
-      "Bash(git commit -q -m ' *)"
+      "Bash(gh run watch *)"
     ]
   }
 }
