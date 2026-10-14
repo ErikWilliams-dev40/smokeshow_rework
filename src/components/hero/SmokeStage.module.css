@@ -1,0 +1,126 @@
+/*
+ * Values from design_handoff_wholesale_b2b/README.md § Hero smoke stage. The
+ * keyframes live in src/styles/motion.css. Plumes animate the translate /
+ * rotate / scale longhands only; Stylelint bans `transform` in this folder.
+ */
+
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.plume {
+  position: absolute;
+  aspect-ratio: 1;
+  background: url('/brand/ss-mark.webp') center / contain no-repeat;
+  mix-blend-mode: screen;
+  will-change: translate, rotate, scale;
+}
+
+.p1 {
+  left: -26%;
+  top: -38%;
+  width: 98%;
+  filter: blur(64px) saturate(1.75) contrast(1.1);
+  animation: ss-a 46s ease-in-out infinite;
+}
+
+.p2 {
+  right: -30%;
+  top: -24%;
+  width: 112%;
+  opacity: 0.92;
+  filter: blur(104px) saturate(1.9);
+  animation: ss-b 67s ease-in-out infinite;
+}
+
+.p3 {
+  left: 14%;
+  bottom: -52%;
+  width: 66%;
+  filter: blur(30px) saturate(1.5);
+  animation: ss-c 34s linear infinite;
+}
+
+.p4 {
+  right: 6%;
+  bottom: -58%;
+  width: 52%;
+  filter: blur(46px) saturate(1.4);
+  animation: ss-d 41s linear -14s infinite;
+}
+
+/* Keeps the copy legible over the plumes. The handoff says not to weaken it. */
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgb(9 5 9 / 86%) 0%,
+    rgb(9 5 9 / 42%) 34%,
+    rgb(9 5 9 / 50%) 72%,
+    rgb(9 5 9 / 94%) 100%
+  );
+}
+
+.figure {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.halo {
+  position: absolute;
+  width: 88%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgb(236 142 190 / 55%) 0%,
+    rgb(120 214 241 / 18%) 42%,
+    rgb(9 5 9 / 0%) 70%
+  );
+  filter: blur(24px);
+  animation: ss-halo 11s ease-in-out infinite;
+}
+
+.mark {
+  position: relative;
+  width: 78%;
+  animation: ss-breathe 13s ease-in-out infinite;
+}
+
+/*
+ * On a narrow, tall hero the desktop offsets (percentages of the stage) push
+ * the plumes off-screen. Re-anchor them so the smoke still sits behind the
+ * mark and headline. Animations are unchanged.
+ */
+@media (width <= 900px) {
+  .p1 {
+    left: -60%;
+    top: -6%;
+    width: 190%;
+  }
+
+  .p2 {
+    right: -80%;
+    top: 14%;
+    width: 210%;
+  }
+
+  .p3 {
+    left: -10%;
+    bottom: -12%;
+    width: 130%;
+  }
+
+  .p4 {
+    right: -20%;
+    bottom: -18%;
+    width: 110%;
+  }
+}
