@@ -1,0 +1,59 @@
+/*
+ * Placeholder styling for screen 2a. This is scaffolding, not the Home screen —
+ * it exists so the token layer is visibly exercised (both grounds, the display
+ * face, the accent, a hairline, tabular figures) before any real screen lands.
+ * Replace it wholesale when 2a is built.
+ */
+
+.page {
+  min-height: 100dvh;
+  padding: var(--band) var(--gutter);
+  background: var(--paper);
+}
+
+.eyebrow {
+  color: var(--violet);
+}
+
+.title {
+  margin-top: 18px;
+  font-size: 52px;
+  line-height: 1.02;
+}
+
+.lede {
+  max-width: 520px;
+  margin-top: 20px;
+  color: var(--faded);
+  font-size: 16.5px;
+  line-height: 1.7;
+}
+
+.rule {
+  width: 120px;
+  height: 2px;
+  margin-top: var(--band);
+  border: 0;
+  background: var(--line-strong);
+}
+
+.specs {
+  margin: 26px 0 0;
+}
+
+.specs > div {
+  display: flex;
+  justify-content: space-between;
+  max-width: 420px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.specs dt {
+  color: var(--faded);
+}
+
+.specs dd {
+  margin: 0;
+  color: var(--ink);
+}

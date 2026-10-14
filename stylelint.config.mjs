@@ -25,6 +25,21 @@ const config = {
   },
   overrides: [
     {
+      // tokens.css is a 1:1 transcription of the handoff's token table, kept
+      // that way so a reviewer can diff the file against the table line for
+      // line. These four rules are purely cosmetic — `#ffffff` and `#fff`,
+      // `rgba(0,0,0,.28)` and `rgb(0 0 0 / 28%)` are the same colour — so
+      // enforcing them here would churn the transcription for no behavioural
+      // gain and break that correspondence. They stay on everywhere else.
+      files: ['src/styles/tokens.css'],
+      rules: {
+        'color-hex-length': null,
+        'color-function-notation': null,
+        'color-function-alias-notation': null,
+        'alpha-value-notation': null,
+      },
+    },
+    {
       files: [
         'src/styles/motion.css',
         'src/components/hero/**/*.css',

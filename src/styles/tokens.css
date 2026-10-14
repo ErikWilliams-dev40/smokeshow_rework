@@ -1,0 +1,141 @@
+/**
+ * Token layer — two themes over one markup tree.
+ *
+ * Editorial (light) is the `:root` set. Brand (dark) is the `.brand` override
+ * and the shipping default, so the root element carries that class. Nothing
+ * here selects on markup: a screen never knows which theme it is rendering in.
+ *
+ * Values are lifted verbatim from design_handoff_wholesale_b2b/README.md
+ * § Token table, § Spacing scale and § Typography. Do not "tidy" them.
+ */
+
+:root {
+  /* Grounds */
+  --paper: #ffffff;
+  --paper-raised: #ffffff;
+  --paper-tint: #e3f0f7;
+  --paper-well: #eeeeee;
+  --slab: #111111;
+  --coal: #231f20;
+
+  /* Text */
+  --ink: #2b2b2b;
+  --faded: #565656;
+  --inv-fg: #ffffff;
+  --on-slab: rgba(255, 255, 255, 0.72);
+  --on-slab-quiet: rgba(255, 255, 255, 0.62);
+
+  /* Accents */
+  --violet: #006ebc;
+  --violet-light: #78d6f1;
+  --uv: #5f4b8b;
+  --uv-light: #b9a8e0;
+  --ember: #f48120;
+  --stock: #2e3191;
+  --promo: #f00036;
+  --blush: #ec8ebe;
+  --azure: #3086c8;
+
+  /*
+   * `--promo` reads at roughly 3:1 on `--slab`. The handoff specifies this
+   * darker red for promo chips sitting on inverted bands, where it clears 6.6:1.
+   */
+  --promo-on-slab: #c8002c;
+
+  /* Rules and hairlines */
+  --line: rgba(95, 75, 139, 0.16);
+  --line-strong: rgba(95, 75, 139, 0.24);
+  --line-card: rgba(95, 75, 139, 0.18);
+  --line-slab: rgba(255, 255, 255, 0.16);
+  --line-slab-quiet: rgba(255, 255, 255, 0.1);
+
+  /* Shape */
+  --r-card: 0px;
+  --r-btn: 0px;
+  --r-badge: 0px;
+  --r-input: 0px;
+  --sh-card: none;
+  --sh-input: none;
+  --fld-bg: transparent;
+  --fld-pad: 0px;
+
+  /* Vertical rhythm and gutters */
+  --band: 96px;
+  --gutter: 72px;
+  --gap-col: 56px;
+  --gap-card: 24px;
+  --pad-card: 34px;
+
+  /* Type families */
+  --serif: 'Bodoni Moda', 'Didot', 'Baskerville', 'Times New Roman', serif;
+  --sans: 'Jost', 'Helvetica Neue', 'Arial', sans-serif;
+
+  /*
+   * Headings are weight 400 in Editorial and forced to 650 with tighter
+   * tracking in Brand. Both are read by base.css so no screen re-states them.
+   */
+  --h-weight: 400;
+  --h-tracking: 0;
+}
+
+.brand {
+  /* Grounds */
+  --paper: #292929;
+  --paper-raised: #343434;
+  --paper-tint: #393939;
+  --paper-well: #252131;
+  --slab: #000000;
+  --coal: #231f20;
+
+  /* Text */
+  --ink: #ffffff;
+  --faded: #bdbdbd;
+  --inv-fg: #ffffff;
+  --on-slab: #c8c8c8;
+  --on-slab-quiet: #b5b5b5;
+
+  /* Accents */
+  --violet: #78d6f1;
+  --violet-light: #78d6f1;
+  --uv: #8f7ec4;
+  --uv-light: #b9a8e0;
+  --ember: #f7b829;
+  --stock: #78d6f1;
+  --promo: #f00036;
+  --blush: #ec8ebe;
+  --azure: #3086c8;
+  --promo-on-slab: #c8002c;
+
+  /* Rules and hairlines */
+  --line: #474252;
+  --line-strong: #645d74;
+  --line-card: #524c60;
+  --line-slab: rgba(255, 255, 255, 0.2);
+  --line-slab-quiet: rgba(255, 255, 255, 0.12);
+
+  /* Shape — Brand deliberately breaks the zero-radius, no-shadow house rules. */
+  --r-card: 12px;
+  --r-btn: 150px;
+  --r-badge: 150px;
+  --r-input: 6px;
+  --sh-card: 0 20px 70px rgba(0, 0, 0, 0.28);
+  --sh-input: none;
+  --fld-bg: #242424;
+  --fld-pad: 14px;
+
+  /* Vertical rhythm and gutters — tighter than Editorial throughout. */
+  --band: 80px;
+  --gutter: 56px;
+  --gap-col: 44px;
+  --gap-card: 16px;
+  --pad-card: 26px;
+
+  /*
+   * The brand has no serif. Its display face is the same sans at weight 650,
+   * so `--serif` is reassigned rather than dropped — screens keep asking for
+   * `var(--serif)` and get the right face in either theme.
+   */
+  --serif: 'Jost', 'Helvetica Neue', 'Arial', sans-serif;
+  --h-weight: 650;
+  --h-tracking: -0.025em;
+}
