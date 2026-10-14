@@ -18,8 +18,9 @@ blob-report/
 # Local environment. Never commit these — see docs/CUSTOMIZATION.md step 8 on
 # where deploy credentials actually belong (Environment secrets, not files).
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+!.env.*.example
 
 # Fixture-mode upload store. Holds resale certificates, which carry a state
 # licence number and an EIN. Must never reach the repository.
@@ -28,3 +29,37 @@ blob-report/
 # OS noise
 .DS_Store
 Thumbs.db
+
+# Local credentials and agent state (shared .claude settings remain tracked)
+*.pem
+*.key
+*.p12
+*.pfx
+.aws/
+.codex/
+.agents/
+
+# Package-manager caches and diagnostic output
+.pnpm-store/
+.npm/
+*.log
+
+# Exported builds and tooling caches
+out/
+dist/
+.cache/
+.eslintcache
+.stylelintcache
+.vercel/
+.turbo/
+
+# Editor and OS temporary files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+Desktop.ini
+
+# Original local planning scratchpad; launch scope is summarized in README
+/I want a simple, professional Smoke.txt
