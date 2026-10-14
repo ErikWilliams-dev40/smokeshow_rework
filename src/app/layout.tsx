@@ -11,7 +11,7 @@ import '../styles/utilities.css'
 export const metadata: Metadata = {
   title: 'Smoke Show Labs',
   description:
-    'White-label vape brand development for licensed cannabis operators. Hardware, terpenes, blending and filling, packaging.',
+    'Wholesale bulk flower, vapes, edibles, pre-rolls, concentrates and HOUSE OF HELIX peptide strips for retailers, distributors and brands.',
 }
 
 /**
