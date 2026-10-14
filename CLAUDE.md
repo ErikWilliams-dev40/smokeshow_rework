@@ -59,6 +59,12 @@ src/server/       server-only code: pricing/, repositories/, session/, uploads/
 src/lib/          shared pure helpers (money, format, countdown)
 tests/            unit/ guards/ e2e/ visual/
 public/           fonts/, brand/, photography/ — all assets are local
+policies/         Company governance vendored from helix-engineering: the
+                  policies, standards, security rules and templates this
+                  project follows. Read them; never import them. The sibling
+                  directories standards/, security/, onboarding/, templates/
+                  and architecture/ are part of the same set, and the
+                  provenance, index and caveats live in policies/README.md.
 design_handoff_wholesale_b2b/
                   the design specification. Reference only, never imported.
 ```
