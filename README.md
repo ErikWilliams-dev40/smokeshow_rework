@@ -23,12 +23,12 @@ in separate draft PRs under issue #1; they are pending merge into `main`.
 | --- | --- |
 | Frontend foundation | Two-theme CSS tokens, base styles, motion utilities and self-hosted fonts |
 | Homepage | Placeholder exercising the tokens; the launch homepage is not built |
-| Health endpoint | Uncached `GET /api/health` returns `{ "status": "ok" }`; no dependency or release checks |
+| Health endpoint | Uncached `GET /api/health` reports the deployed commit and a D1 check; 503 when D1 does not answer |
 | Tests | Vitest with a toolchain smoke test; no signup or browser tests yet |
 | Governance | Vendored policies, standards, security guidance and onboarding documents |
 | Brand assets | Local HOUSE OF HELIX logo variants in `public/brand/` |
 | Signup, lead storage and email | Not implemented; providers and configuration remain to be chosen |
-| Hosting and deployment | Host undecided; deploy and health-check workflows remain placeholders |
+| Hosting and deployment | Cloudflare Workers via vinext and the `cf` CLI ([ADR-0001](docs/decisions/0001-cloudflare-workers-adapter.md)); deploy and rollback workflows remain placeholders until account access exists |
 
 The recent frontend foundation is reusable for the launch. The quote/pricing
 prototype on local branch `chore/23-park-quote-pricing` is parked for later and
@@ -45,19 +45,26 @@ references to Node 24 are stale; use the manifest and `.nvmrc`.
 nvm install
 nvm use
 corepack pnpm install --frozen-lockfile
+cp .dev.vars.example .dev.vars   # fill in local values
+corepack pnpm db:migrate:local   # local D1 in .cloudflare/state
 corepack pnpm dev
 ```
 
 `nvm` is optional; another version manager can install the same Node version.
-Open <http://localhost:3000>. Corepack invokes the pinned pnpm without writing
+Open <http://localhost:3000>. `pnpm dev` runs vinext on Vite with local
+Cloudflare bindings (D1, email, rate limit) simulated by workerd. `pnpm build`
+then `pnpm preview` serves the production Worker locally; run it for any
+change that touches server code, because `vite dev` is not proof that the
+Workers build works. Corepack invokes the pinned pnpm without writing
 system-wide shims. If your Node installation lacks Corepack, install the exact
 pnpm version declared in `package.json` and run the same commands with `pnpm`.
 
-No environment variables are required for the current placeholder. Future
-integrations must document their keys in a tracked `.env.example` with empty
-values. Local values belong in ignored environment files; production values
-belong in GitHub Environment secrets and the chosen host's secret store.
-The runtime secret store has not been selected yet.
+Worker secrets are declared in `cloudflare.config.ts` and listed with empty
+values in the tracked `.dev.vars.example`. Local values go in the ignored
+`.dev.vars`. Staging and production values are Worker secrets, set with
+`cf workers secrets update <NAME> --mode <mode>` by a technical admin; the
+deploy credentials (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`) are GitHub
+Environment secrets. Nothing secret is ever committed.
 
 ## Checks
 
@@ -165,10 +172,11 @@ Project-specific guidance and known differences are listed in
 
 ## Deployment and security
 
-Deployment is not configured. Placeholder deploy workflows intentionally fail;
-a green application build is not evidence of a deployment. Maintainers must
-select a server-capable host and implement the deployment and health checks
-before dispatching the release workflow.
+The host is Cloudflare Workers ([ADR-0001](docs/decisions/0001-cloudflare-workers-adapter.md)).
+The deploy and rollback workflows are still placeholders that intentionally
+fail until the Cloudflare account, API tokens and D1 databases exist; filling
+them is a workflow-only change (Helix issue #11). A green application build is
+not evidence of a deployment.
 
 The project release path is staging deployment, staging verification, business
 approval, production deployment and production verification. Approval refers

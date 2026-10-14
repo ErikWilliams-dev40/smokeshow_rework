@@ -44,6 +44,17 @@ Thumbs.db
 .npm/
 *.log
 
+# Cloudflare Workers toolchain output and local state (vinext, the Vite
+# plugin and the cf CLI). .cloudflare/state holds the local D1 database.
+.vinext/
+.cloudflare/
+.wrangler/
+
+# Local Worker secrets. The tracked .dev.vars.example lists the keys.
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
 # Exported builds and tooling caches
 out/
 dist/

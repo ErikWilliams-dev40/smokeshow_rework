@@ -4,6 +4,10 @@
 design_handoff_wholesale_b2b/
 
 .next/
+.cloudflare/
+.vinext/
+.wrangler/
+dist/
 node_modules/
 pnpm-lock.yaml
 
