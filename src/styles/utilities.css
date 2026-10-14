@@ -1,0 +1,27 @@
+/**
+ * Utilities — deliberately only two.
+ *
+ * `.ov` and `.sl` are the handoff's two lettering treatments. They recur on
+ * every screen and carry no layout of their own, which is why they are global
+ * rather than repeated in each component's module. Everything else belongs to
+ * the component that uses it: this file is not a place to accumulate helpers.
+ */
+
+/* Overline — section eyebrows. */
+.ov {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+/* Micro label — spec-table keys, figure captions, legal footnotes. */
+.sl {
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
