@@ -1,21 +1,9 @@
+import { ThreeSmoke } from './ThreeSmoke'
 import styles from './SmokeStage.module.css'
 
-/**
- * The handoff's hero smoke stage (README § Hero smoke stage), minus the grain
- * tile and the cursor trail: four blurred copies of the mark drifting behind
- * the content, a scrim that keeps copy legible, and the crisp mark breathing
- * over a pink-to-cyan halo. Decorative only, so hidden from assistive tech.
- */
+/** The shared low-opacity WebGL haze behind the splash copy. */
 export function SmokeStage() {
-  return (
-    <div className={styles.stage} aria-hidden="true">
-      <div className={`${styles.plume} ${styles.p1}`} />
-      <div className={`${styles.plume} ${styles.p2}`} />
-      <div className={`${styles.plume} ${styles.p3}`} />
-      <div className={`${styles.plume} ${styles.p4}`} />
-      <div className={styles.scrim} />
-    </div>
-  )
+  return <ThreeSmoke />
 }
 
 /** The crisp mark with its halo, for the right-hand figure. */

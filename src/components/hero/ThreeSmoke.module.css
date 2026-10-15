@@ -1,0 +1,21 @@
+.smoke {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: var(--intro-haze);
+  pointer-events: none;
+}
+
+.smoke[data-renderer='webgl'] {
+  background: transparent;
+}
+
+.smoke canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.smoke[data-renderer='fallback'] canvas {
+  visibility: hidden;
+}
