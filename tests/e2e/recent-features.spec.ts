@@ -283,6 +283,7 @@ test.describe('consented frontend', () => {
     })
     await page.goto('/')
     await page.getByRole('link', { name: 'Ask about Helix' }).click()
+    await expect(page).toHaveURL(/\/wholesale$/)
     await page
       .getByRole('textbox', { name: 'Email', exact: true })
       .fill('buyer@example.com')
