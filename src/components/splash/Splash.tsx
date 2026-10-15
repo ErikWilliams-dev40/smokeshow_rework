@@ -5,7 +5,7 @@ import { SmokeStage } from '@/components/hero/SmokeStage'
 import { CompactForm } from '@/components/wholesale/CompactForm'
 import { InterestLink } from '@/components/wholesale/InterestLink'
 import { Brands } from './Brands'
-import { splash } from '@/content/splash'
+import { salesContact, splash } from '@/content/splash'
 import { categories, signupCopy, steps } from '@/content/wholesale'
 import styles from './Splash.module.css'
 
@@ -103,7 +103,13 @@ export function Splash() {
         </section>
       </main>
 
-      <footer className={styles.footer}>
+      <footer id="contact" className={styles.footer}>
+        <div className={styles.contact}>
+          <h2>Let’s talk</h2>
+          <a href={salesContact.phone.href}>{salesContact.phone.display}</a>
+          <a href={salesContact.email.href}>{salesContact.email.display}</a>
+          <p>{salesContact.hours}</p>
+        </div>
         <p className="sl">© {new Date().getFullYear()} Smoke Show Labs</p>
         <nav aria-label="Legal" className={styles.legal}>
           <a className="sl" href="/privacy">
