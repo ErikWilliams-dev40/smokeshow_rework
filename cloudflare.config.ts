@@ -2,8 +2,10 @@ import { bindings, defineConfig, defineWorker } from 'cf/config'
 
 /**
  * Worker configuration for every environment. The mode comes from Vite
- * (`vite build --mode staging|production`; `vite dev` and `vite preview` run
- * as local development). Bindings do not inherit between modes, so each one
+ * (`vite build --mode staging|production`). Any other mode resolves to local:
+ * `vite dev`, and `pnpm build:local` (`--mode local-preview`, because Vite
+ * reserves `local`) for `vite preview`. Bare `vite build` is production mode,
+ * so it binds the production ids. Bindings do not inherit between modes, so each one
  * is declared once here and parameterised below. See docs/decisions/0001.
  *
  * D1 ids: the local id is a fixed placeholder that `pnpm db:migrate:local`

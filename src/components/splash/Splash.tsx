@@ -103,39 +103,17 @@ export function Splash() {
           ))}
         </section>
       </main>
-      <footer id="contact" className={styles.footer}>
-        <div>
-          <Link
-            href="/"
-            className={styles.footerLogo}
-            aria-label="Smoke Show Labs home"
-          >
-            <Wordmark />
-          </Link>
-          <p>
-            Products. Possibilities. People.
-            <br />
-            Make your shelves a Smoke Show.
-          </p>
-          <small>
-            © {new Date().getFullYear()} Smoke Show Labs · For adults 21+ and licensed
-            businesses.
-          </small>
-        </div>
-        <div>
-          <h2>Let’s talk</h2>
-          <a href={salesContact.phone.href}>{salesContact.phone.display}</a>
-          <a href={salesContact.email.href}>{salesContact.email.display}</a>
-          <p>{salesContact.hours}</p>
-        </div>
-        <div>
-          <h2>Wholesale</h2>
-          <Link href="/wholesale">Get the menu</Link>
-          <a href={`mailto:${salesContact.email.display}?subject=Request%20a%20COA`}>
-            Request a COA
+
+      <footer className={styles.footer}>
+        <p className="sl">© {new Date().getFullYear()} Smoke Show Labs</p>
+        <nav aria-label="Legal" className={styles.legal}>
+          <a className="sl" href="/privacy">
+            Privacy
           </a>
-          <a href={salesContact.email.href}>Existing customers</a>
-        </div>
+          <a className="sl" href="/terms">
+            Terms
+          </a>
+        </nav>
       </footer>
     </>
   )
