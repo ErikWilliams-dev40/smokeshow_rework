@@ -30,7 +30,11 @@ async function noOverflow(page: Page) {
 test.describe('server consent and no-JavaScript fallback', () => {
   test.use({ javaScriptEnabled: false })
   for (const route of ['/', '/wholesale']) {
-    test(`refusal and acceptance preserve ${route}`, async ({ page, context }) => {
+    test(`refusal and acceptance preserve ${route}`, async ({
+      page,
+      context,
+      baseURL,
+    }) => {
       await page.goto(route)
       await expect(
         page.getByRole('heading', { name: 'Are you 21 or older?' }),
@@ -41,7 +45,7 @@ test.describe('server consent and no-JavaScript fallback', () => {
         (await context.cookies()).some((cookie) => cookie.name === 'ss_gate'),
       ).toBe(false)
       await page.getByRole('button', { name: 'Yes, I’m 21+' }).click()
-      await expect(page).toHaveURL(`http://localhost:4173${route}`)
+      await expect(page).toHaveURL(new URL(route, baseURL).href)
       const cookie = (await context.cookies()).find((item) => item.name === 'ss_gate')
       expect(cookie?.httpOnly).toBe(true)
       expect(cookie?.sameSite).toBe('Lax')
@@ -59,10 +63,8 @@ test.describe('server consent and no-JavaScript fallback', () => {
 })
 
 test.describe('consented frontend', () => {
-  test.beforeEach(async ({ context }) => {
-    await context.addCookies([
-      { name: 'ss_gate', value: '1', domain: 'localhost', path: '/' },
-    ])
+  test.beforeEach(async ({ context, baseURL }) => {
+    await context.addCookies([{ name: 'ss_gate', value: '1', url: baseURL! }])
   })
 
   test('reduced motion bypasses the intro for the rest of the session', async ({

@@ -9,13 +9,12 @@ import { bindings, defineConfig, defineWorker } from 'cf/config'
  * is declared once here and parameterised below. See docs/decisions/0001.
  *
  * D1 ids: the local id is a fixed placeholder that `pnpm db:migrate:local`
- * targets in .cloudflare/state. Staging and production ids come from
- * `cf d1 create` once the account exists and replace the placeholders in a
- * small follow-up PR.
+ * targets in .cloudflare/state. Staging is a design-only preview in the Dev40
+ * account. Production remains unprovisioned. See README for staging commands.
  */
 const D1_IDS = {
   local: '00000000-0000-4000-8000-000000000001',
-  staging: 'REPLACE-WITH-cf-d1-create-staging',
+  staging: 'b98400fb-eae4-45db-ad1d-71c5d73ca22c',
   production: 'REPLACE-WITH-cf-d1-create-production',
 } as const
 
@@ -30,6 +29,7 @@ export default defineConfig((ctx) => {
   const suffix = mode === 'production' ? '' : `-${mode}`
 
   return {
+    accountId: mode === 'staging' ? '8441cc5cfd234da96da8cdf090d94658' : undefined,
     worker: defineWorker({
       name: `smokeshow-web${suffix}`,
       entrypoint: 'vinext/server/fetch-handler',
@@ -37,6 +37,16 @@ export default defineConfig((ctx) => {
       // runtime refuses to start. Raise it together with the toolchain.
       compatibilityDate: '2026-10-07',
       compatibilityFlags: ['nodejs_compat'],
+      workersDev: mode === 'staging' ? true : undefined,
+      observability:
+        mode === 'staging'
+          ? {
+              enabled: true,
+              redactQueryString: true,
+              logs: { enabled: true },
+              traces: { enabled: true, headSamplingRate: 0.01 },
+            }
+          : undefined,
       assets: {
         htmlHandling: 'none',
         notFoundHandling: 'none',
@@ -48,33 +58,35 @@ export default defineConfig((ctx) => {
         // Lead records. One database per environment; migrations in ./migrations.
         DB: bindings.d1({ name: `smokeshow-leads${suffix}`, id: D1_IDS[mode] }),
 
-        // Sales notification and buyer acknowledgment. Staging may only send
-        // to the test inbox so a staging bug can never email a real buyer.
-        EMAIL:
-          mode === 'production'
-            ? bindings.sendEmail()
-            : bindings.sendEmail({
-                destinationAddress: 'staging-leads@example.invalid',
+        // Staging has no email capability or lead secrets while its forms are
+        // previews. Issue #15 must add a restricted test mailer before enabling
+        // real submission there. Local/production retain the pipeline scaffold.
+        ...(mode === 'staging'
+          ? {}
+          : {
+              EMAIL:
+                mode === 'production'
+                  ? bindings.sendEmail()
+                  : bindings.sendEmail({
+                      destinationAddress: 'staging-leads@example.invalid',
+                    }),
+              LEAD_RATE: bindings.rateLimit({
+                namespace: mode === 'production' ? '1002' : '1001',
+                simple: { limit: 5, period: 60 },
               }),
-
-        // Signup throttle, keyed per client IP in code. Period must be 10 or 60.
-        LEAD_RATE: bindings.rateLimit({
-          namespace: mode === 'production' ? '1002' : '1001',
-          simple: { limit: 5, period: 60 },
-        }),
-
-        // Plain configuration. Real addresses are filled in when the client
-        // confirms the sales inbox and sending domain.
+              SALES_INBOX: bindings.text(''),
+              MAIL_FROM: bindings.text(''),
+              LEAD_TOKEN_SECRET: bindings.secret(),
+              CSV_EXPORT_USER: bindings.secret(),
+              CSV_EXPORT_PASSWORD: bindings.secret(),
+            }),
         SITE_URL: bindings.text(
-          mode === 'production' ? 'https://smokeshowlabs.com' : 'http://localhost:4173',
+          mode === 'production'
+            ? 'https://smokeshowlabs.com'
+            : mode === 'staging'
+              ? (process.env.STAGING_SITE_URL ?? '')
+              : 'http://localhost:4173',
         ),
-        SALES_INBOX: bindings.text(''),
-        MAIL_FROM: bindings.text(''),
-
-        // Secrets: set with `cf workers secrets update`; local values in .dev.vars.
-        LEAD_TOKEN_SECRET: bindings.secret(),
-        CSV_EXPORT_USER: bindings.secret(),
-        CSV_EXPORT_PASSWORD: bindings.secret(),
       },
     }),
   }
