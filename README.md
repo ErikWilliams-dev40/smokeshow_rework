@@ -29,7 +29,7 @@ in separate draft PRs under issue #1; they are pending merge into `main`.
 | Governance | Vendored policies, standards, security guidance and onboarding documents |
 | Brand assets | Local HOUSE OF HELIX logo variants in `public/brand/` |
 | Signup, lead storage and email | Frontend validation and preview/edit states implemented; server storage and email remain unimplemented |
-| Hosting and deployment | Cloudflare Workers via vinext and the `cf` CLI ([ADR-0001](docs/decisions/0001-cloudflare-workers-adapter.md)); deploy and rollback workflows remain placeholders until account access exists |
+| Hosting and deployment | Cloudflare Workers via vinext and the `cf` CLI ([ADR-0001](docs/decisions/0001-cloudflare-workers-adapter.md)); Dev40 staging preview configuration is available; automated deploy and rollback workflows remain placeholders |
 
 The recent frontend foundation is reusable for the launch. The quote/pricing
 prototype on local branch `chore/23-park-quote-pricing` is parked for later and
@@ -84,19 +84,21 @@ Lint includes TypeScript, ESLint, Stylelint and Prettier. `pnpm format` writes
 formatting changes; Markdown, workflow YAML and the design handoff are excluded
 from formatting. `pnpm test:watch` runs Vitest interactively.
 
-After building, `corepack pnpm preview` serves the production build locally.
+After `corepack pnpm build:local`, `corepack pnpm preview` serves the built Worker locally.
 Check `/` for the age gate and homepage, `/wholesale` for the signup preview,
 and `/api/health` for readiness.
 These checks do not verify lead storage or email delivery. Browser regression
-tests use the production build:
+tests build the Worker in local-preview mode:
 
 ```sh
 corepack pnpm exec playwright install chromium
-corepack pnpm build
 corepack pnpm test:e2e
 ```
 
-The test runner starts `pnpm preview`, or reuses it on port 4173 locally. Set
+The test runner builds fresh and starts its own preview on port 4173. It never
+reuses an existing server. Set `PLAYWRIGHT_PORT=4185` when that port is occupied,
+or `PLAYWRIGHT_BASE_URL=https://<staging-worker-url>` to test a deployed preview
+without building or starting a local server. Set
 `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to use an already installed Chromium binary.
 Tests cover consent with JavaScript disabled, intro timing and focus, signup
 validation and verification previews, temporary interest cleanup, mobile
@@ -222,9 +224,41 @@ Project-specific guidance and known differences are listed in
 
 The host is Cloudflare Workers ([ADR-0001](docs/decisions/0001-cloudflare-workers-adapter.md)).
 The deploy and rollback workflows are still placeholders that intentionally
-fail until the Cloudflare account, API tokens and D1 databases exist; filling
-them is a workflow-only change (Helix issue #11). A green application build is
-not evidence of a deployment.
+fail; filling them and configuring GitHub Environment credentials is a separate
+workflow-only change (Helix issue #11). A green application build is not evidence
+of a deployment.
+
+### Dev40 design preview (issue #23)
+
+Preview URL: <https://smokeshow-web-staging.dev40.workers.dev>.
+
+The `staging` mode targets account `8441cc5cfd234da96da8cdf090d94658`, Worker
+`smokeshow-web-staging`, and D1 `smokeshow-leads-staging`
+(`b98400fb-eae4-45db-ad1d-71c5d73ca22c`). The database is empty: `/api/health`
+only checks connectivity. No lead storage or email delivery is implemented.
+Staging deliberately has no email, rate-limit, or secret bindings until #15
+implements the real pipeline. Production configuration remains unprovisioned.
+
+For an authorized staging preview deployment, use Node 22 and the local `cf`
+OAuth login (or a scoped API token). Select the Dev40 account explicitly; do not
+reuse the read-only Helix admin account. Do not use a production build artifact.
+
+```sh
+export CLOUDFLARE_ACCOUNT_ID=8441cc5cfd234da96da8cdf090d94658
+export COMMIT_SHA="$(git rev-parse HEAD)"
+corepack pnpm exec vite build --mode staging
+corepack pnpm exec cf deploy --mode staging --prebuilt --provision=false --dry-run
+# Verify the output targets smokeshow-web-staging and the staging database above.
+corepack pnpm exec cf deploy --mode staging --prebuilt --provision=false \
+  --tag "${COMMIT_SHA:0:12}" --message "design-preview sha=$COMMIT_SHA"
+```
+
+Check the deployed `/api/health` JSON for `status: "ok"`, `checks.d1: "ok"`,
+and `commit` equal to the full deployed SHA. Test the preview with
+`PLAYWRIGHT_BASE_URL=<deployed-url> corepack pnpm test:e2e` and check `/privacy`
+and `/terms` (both still placeholder copy). The workers.dev address needs no
+custom-domain DNS. This preview does not constitute a production release or
+business approval; the normal production gates below still apply.
 
 The project release path is staging deployment, staging verification, business
 approval, production deployment and production verification. Approval refers
