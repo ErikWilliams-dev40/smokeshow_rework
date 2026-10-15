@@ -194,6 +194,11 @@
 }
 
 .footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 28px;
+  align-items: baseline;
+  justify-content: space-between;
   padding: 28px var(--gutter);
   border-top: 1px solid var(--line-slab);
   background: var(--slab);
@@ -202,6 +207,15 @@
 
 .footer p {
   margin: 0;
+}
+
+.legal {
+  display: flex;
+  gap: 24px;
+}
+
+.legal a {
+  color: var(--on-slab-quiet);
 }
 
 @media (width <= 900px) {

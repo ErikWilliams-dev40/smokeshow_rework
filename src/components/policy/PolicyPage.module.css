@@ -1,0 +1,46 @@
+.page {
+  min-height: 100dvh;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--band) var(--gutter);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.back {
+  margin: 0;
+}
+
+.back a {
+  color: var(--faded);
+}
+
+.title {
+  margin: 24px 0 0;
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 1.05;
+}
+
+/* A rule, not an icon: the placeholder state is marked by colour and border. */
+.notice {
+  margin: 28px 0 0;
+  padding: 16px 20px;
+  border-left: 3px solid var(--promo);
+  background: var(--paper-tint);
+  font-weight: 600;
+}
+
+.section {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.heading {
+  margin: 0;
+  font-size: 20px;
+}
+
+.pending {
+  margin: 8px 0 0;
+  color: var(--faded);
+}

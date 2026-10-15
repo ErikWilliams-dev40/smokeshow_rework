@@ -87,6 +87,14 @@ export function Splash() {
 
       <footer className={styles.footer}>
         <p className="sl">© {new Date().getFullYear()} Smoke Show Labs</p>
+        <nav aria-label="Legal" className={styles.legal}>
+          <a className="sl" href="/privacy">
+            Privacy
+          </a>
+          <a className="sl" href="/terms">
+            Terms
+          </a>
+        </nav>
       </footer>
     </>
   )
