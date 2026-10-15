@@ -115,6 +115,29 @@
   white-space: nowrap;
 }
 
+@supports (background-clip: text) {
+  .brands[data-shimmer='true'] > span {
+    background-image: linear-gradient(
+      100deg,
+      var(--form-ink) 36%,
+      var(--brand-cyan) 44%,
+      var(--brand-pink) 52%,
+      var(--form-ink) 60%
+    );
+    background-position: var(--brand-shimmer-position, 100%) 50%;
+    background-size: 300% 100%;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce), (forced-colors: active) {
+  .brands[data-shimmer='true'] > span {
+    background: none;
+    color: inherit;
+  }
+}
+
 .brands .flav {
   font-size: 26px;
   letter-spacing: -0.07em;

@@ -5,6 +5,7 @@ import { Wordmark } from '@/components/brand/Wordmark'
 import { SmokeStage } from '@/components/hero/SmokeStage'
 import { CompactForm } from '@/components/wholesale/CompactForm'
 import { InterestLink } from '@/components/wholesale/InterestLink'
+import { Brands } from './Brands'
 import { salesContact, splash } from '@/content/splash'
 import { categories, signupCopy, steps } from '@/content/wholesale'
 import styles from './Splash.module.css'
@@ -42,18 +43,7 @@ export function Splash() {
             <CompactForm />
           </div>
         </section>
-        <section
-          id="brands"
-          className={styles.brands}
-          aria-label="A few names in the lineup"
-        >
-          <p>A few names in the lineup</p>
-          <span>SMOKE SHOW</span>
-          <span className={styles.flav}>flav.</span>
-          <span className={styles.boutiq}>BOUTIQ</span>
-          <span className={styles.blackheart}>BLACKHEART</span>
-          <span>DOPE ROPE</span>
-        </section>
+        <Brands />
         <section id="products" className={styles.supply} aria-labelledby="supply-title">
           <p className={styles.eyebrow}>Your shelves. Your selection.</p>
           <div className={styles.sectionHeading}>
