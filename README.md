@@ -4,7 +4,7 @@ Smoke Show Labs is a wholesale lead-generation website for buyers of bulk
 flower, vapes, edibles, joints and pre-rolls, concentrates, and HOUSE OF HELIX
 peptide strips. The first launch centers on **Get the Wholesale Menu**:
 
-**Signup → Menu → Dedicated salesperson → Confirmed order → Payment link.**
+**Signup → Confirm email → Team follow-up → Current wholesale materials.**
 
 The salesperson confirms availability, quantities and the final total before
 sending a payment link. Menu delivery can be manual at launch; the website
@@ -15,19 +15,20 @@ Built from the Project Helix application template.
 
 ## Current status
 
-This is an early Next.js implementation, not a working wholesale signup site.
+The four-screen frontend design is implemented: age gate, session intro, homepage
+and `/wholesale` signup preview. This is not yet a working lead-capture service.
 The frontend foundation and governance import described below are submitted
 in separate draft PRs under issue #1; they are pending merge into `main`.
 
 | Area | Current state |
 | --- | --- |
-| Frontend foundation | Two-theme CSS tokens, base styles, motion utilities and self-hosted fonts |
-| Homepage | Placeholder exercising the tokens; the launch homepage is not built |
+| Frontend foundation | Cyan/pink Brand tokens, base styles, ambient motion and self-hosted fonts |
+| Homepage | Responsive screenshot recreation with hero form, brands, categories, Helix, process and contact footer |
 | Health endpoint | Uncached `GET /api/health` reports the deployed commit and a D1 check; 503 when D1 does not answer |
-| Tests | Vitest with a toolchain smoke test; no signup or browser tests yet |
+| Tests | Vitest guards, validation, draft and smoke-clock tests; Playwright regressions against the production preview |
 | Governance | Vendored policies, standards, security guidance and onboarding documents |
 | Brand assets | Local HOUSE OF HELIX logo variants in `public/brand/` |
-| Signup, lead storage and email | Not implemented; providers and configuration remain to be chosen |
+| Signup, lead storage and email | Frontend validation and preview/edit states implemented; server storage and email remain unimplemented |
 | Hosting and deployment | Cloudflare Workers via vinext and the `cf` CLI ([ADR-0001](docs/decisions/0001-cloudflare-workers-adapter.md)); deploy and rollback workflows remain placeholders until account access exists |
 
 The recent frontend foundation is reusable for the launch. The quote/pricing
@@ -83,10 +84,52 @@ Lint includes TypeScript, ESLint, Stylelint and Prettier. `pnpm format` writes
 formatting changes; Markdown, workflow YAML and the design handoff are excluded
 from formatting. `pnpm test:watch` runs Vitest interactively.
 
-After building, `corepack pnpm start` serves the production build locally.
-Check `/` for the placeholder and `/api/health` for the readiness stub.
-These checks do not verify lead storage or email delivery. Playwright and
-end-to-end tests are planned, not installed or configured.
+After building, `corepack pnpm preview` serves the production build locally.
+Check `/` for the age gate and homepage, `/wholesale` for the signup preview,
+and `/api/health` for readiness.
+These checks do not verify lead storage or email delivery. Browser regression
+tests use the production build:
+
+```sh
+corepack pnpm exec playwright install chromium
+corepack pnpm build
+corepack pnpm test:e2e
+```
+
+The test runner starts `pnpm preview`, or reuses it on port 4173 locally. Set
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to use an already installed Chromium binary.
+Tests cover consent with JavaScript disabled, intro timing and focus, signup
+validation and verification previews, temporary interest cleanup, mobile
+navigation, 320/390/768px layouts, desktop placement, and smoke motion/fallbacks.
+Screenshots and failure traces are written to the ignored `test-results/` directory.
+
+## Frontend preview flow
+
+Age consent uses the existing 30-day cookie on both `/` and `/wholesale`.
+The intro runs for three seconds once per tab session, supports Skip intro
+and Escape, and is bypassed for reduced motion. Direct signup visits return
+to `/wholesale` after consent. Skipping cancels the intro timer so it cannot
+interrupt form entry. Without JavaScript the page and sales contact links remain
+usable; preview forms are disabled to prevent accidental native submissions.
+
+The intro and homepage splash use a locally bundled Three.js smoke shader:
+subtle cyan-to-magenta haze with slow drift. Open Tweaks and switch Motion off
+to hold its current frame. Reduced motion, hidden tabs and off-screen sections
+also pause rendering. A static gradient remains available without WebGL.
+
+Both signup forms require only email, name and phone. The homepage keeps email
+and Go in the desktop hero, then reveals name and phone. `/wholesale` shows
+all three fields together. Business name, state, type, volume and other business
+details are collected by the team during follow-up, outside the website form.
+Category and Helix links transfer only an optional inquiry interest through
+session storage. The form consumes it on arrival, shows a removable selection,
+and clears it on Start again. Personal contact details never enter that storage.
+
+Valid forms open an inbox-verification preview. Visitors can simulate a verified
+state or a resend, edit their details, or start again. Every state explicitly says
+that no verification email or lead has been sent and no address has actually been
+verified. Contact details stay in component memory, outside URLs and storage.
+Real email verification, lead storage and delivery remain separate backend work.
 
 ## Launch requirements
 
@@ -95,8 +138,8 @@ callout, how-it-works explanation, wholesale inquiry form and footer. Every
 menu button leads to the same form. Use the provided Smoke Show branding and
 minimal photography; HOUSE OF HELIX assets are a separate brand.
 
-The form requires name, business name, email, phone, state and business type,
-with optional product interests and notes. Each submission must save a
+The latest client direction requires only email, name and phone, followed by
+inbox email verification. Business details are collected during team follow-up. Each submission must save a
 retrievable record, notify the sales inbox, send an acknowledgment email and
 show a clear confirmation. Basic validation, spam protection and desktop/mobile
 verification are required before staging review.
@@ -125,7 +168,8 @@ architecture/decisions/         Place for architecture decision records
 
 The stack is Next.js App Router, React, TypeScript and plain CSS/CSS Modules.
 Brand (dark) is the default root class; Editorial (light) uses the root tokens.
-Both themes share one markup tree. There is no database or authentication.
+The launch screens share one markup tree. There is no customer authentication.
+The existing D1 health binding is not used to store inquiry submissions.
 
 ## Design references and constraints
 
@@ -135,15 +179,17 @@ flows exceed the simplified launch scope. Treat those screens as visual
 references rather than a requirement to build a catalogue or quote builder.
 
 The `.dc.html` prototype uses a bespoke runtime and must not be copied into
-Next.js. Screenshots show the light Editorial theme, while the app defaults to
-dark Brand. They are human review references, not pixel-test baselines.
+Next.js. The four replacement screenshots define the launch design: a dark cyan/pink
+Brand theme with a light signup panel. The mobile client references guide
+responsive styling; their catalogue and ordering interactions remain outside
+launch scope. They are human review references, not pixel-test baselines.
 
 - Serve assets locally. No runtime CDN, analytics or third-party widgets.
   Prototype hotlinks are reference material that must be replaced before use.
 - Use token-based CSS and the animation `translate`, `rotate` and `scale`
   longhands; Stylelint enforces the animation restriction.
-- Keep approved compliance wording unchanged. The planned compliance module
-  and verbatim tests have not been implemented.
+- Keep approved compliance wording unchanged. The age-gate sentence is rendered
+  through the compliance module and protected by a verbatim guard test.
 - Any future pricing calculation belongs on the server. A licence-consent
   cookie is never authorization for account data.
 

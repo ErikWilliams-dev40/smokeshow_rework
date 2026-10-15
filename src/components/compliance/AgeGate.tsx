@@ -1,54 +1,43 @@
 import Link from 'next/link'
 
+import { Wordmark } from '@/components/brand/Wordmark'
 import { confirmAge } from '@/server/session/gate-actions'
-
 import { ComplianceText } from './ComplianceText'
 import styles from './AgeGate.module.css'
 
-type Props = {
-  /** True after the visitor chose "Exit". */
-  declined: boolean
-}
+type Props = { declined: boolean; destination?: '/' | '/wholesale' }
 
-/**
- * The trade-only doorway (handoff screen 1d), re-expressed for the splash.
- * "Enter" posts to a server action, so it works without client JavaScript.
- */
-export function AgeGate({ declined }: Props) {
+export function AgeGate({ declined, destination = '/' }: Props) {
+  const declineHref =
+    destination === '/wholesale' ? '/wholesale?declined=1' : '/?declined=1'
   return (
     <main className={styles.page}>
       <section className={styles.card} aria-labelledby="gate-title">
-        <div>
-          <p className={styles.wordmark}>
-            <span className={styles.cyan}>Smoke</span>{' '}
-            <span className={styles.pink}>Show</span> Labs
+        <Wordmark large />
+        <p className={styles.eyebrow}>Wholesale, with some personality.</p>
+        <h1 id="gate-title" className={styles.title}>
+          Are you 21
+          <br />
+          or older?
+        </h1>
+        <div className={styles.actions}>
+          <form action={confirmAge}>
+            <input type="hidden" name="destination" value={destination} />
+            <button type="submit" className={styles.enter}>
+              Yes, I’m 21+
+            </button>
+          </form>
+          <Link href={declineHref} className={styles.exit}>
+            No
+          </Link>
+        </div>
+        {declined ? (
+          <p className={styles.declined} role="status">
+            This site is for trade buyers aged 21 and over.
           </p>
-          <div className={styles.rule} aria-hidden="true">
-            <span />
-            <span />
-          </div>
-          <h1 id="gate-title" className={styles.title}>
-            Trade access only.
-          </h1>
-          <ComplianceText id="gate" className={styles.body} />
-        </div>
-        <div className={styles.panel}>
-          {declined ? (
-            <p className={styles.declined} role="status">
-              This site is for trade buyers aged 21 and over.
-            </p>
-          ) : null}
-          <div className={styles.actions}>
-            <form action={confirmAge}>
-              <button type="submit" className={styles.enter}>
-                Enter
-              </button>
-            </form>
-            <Link href="/?declined=1" className={styles.exit}>
-              Exit
-            </Link>
-          </div>
-        </div>
+        ) : null}
+        <ComplianceText id="gate" className={styles.body} />
+        <p className={styles.footnote}>For licensed retailers and distributors.</p>
       </section>
     </main>
   )

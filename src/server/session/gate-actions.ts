@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation'
 import { GATE_COOKIE, GATE_MAX_AGE_SECONDS } from './gate'
 
 /** "Enter" on the age gate: remember the confirmation and reload the page. */
-export async function confirmAge(): Promise<never> {
+export async function confirmAge(formData: FormData): Promise<never> {
   const jar = await cookies()
   jar.set(GATE_COOKIE, '1', {
     httpOnly: true,
@@ -15,5 +15,5 @@ export async function confirmAge(): Promise<never> {
     path: '/',
     maxAge: GATE_MAX_AGE_SECONDS,
   })
-  redirect('/')
+  redirect(formData.get('destination') === '/wholesale' ? '/wholesale' : '/')
 }

@@ -153,10 +153,35 @@ textarea {
 }
 
 button {
-  min-height: 42px;
+  min-height: 44px;
 }
 
 :focus-visible {
   outline: 2px solid var(--violet);
   outline-offset: 4px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
+section[id],
+footer[id] {
+  scroll-margin-top: 24px;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
 }

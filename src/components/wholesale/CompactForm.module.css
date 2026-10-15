@@ -1,0 +1,216 @@
+.card {
+  padding: 32px;
+  scroll-margin-top: 24px;
+  border: 1px solid var(--line-card);
+  background: rgb(23 19 28 / 94%);
+  color: var(--brand-white);
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  color: var(--brand-cyan);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.card h2 {
+  margin-bottom: 22px;
+  font-size: 30px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+
+.field {
+  display: block;
+  padding-top: 8px;
+  color: #b4b2c0;
+  font-size: 13px;
+}
+
+.field input,
+.field select {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 6px 0;
+  border: 0;
+  border-bottom: 1px solid #63596a;
+  border-radius: 0;
+  background: transparent;
+  color: var(--brand-white);
+  font-size: 16px;
+}
+
+.field input::placeholder {
+  color: #93909f;
+}
+
+.field select option {
+  background: var(--brand-night);
+}
+
+.submit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  margin-top: 24px;
+  padding: 15px 22px;
+  border: 0;
+  background: var(--brand-action);
+  color: var(--brand-white);
+  font-size: 16px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.submit span {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.note {
+  margin: 16px 0 0;
+  color: #aaa6b4;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@media (width <= 560px) {
+  .card {
+    padding: 24px;
+  }
+
+  .card h2 {
+    font-size: 26px;
+  }
+}
+
+.cardTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.cardTop .eyebrow {
+  margin: 0;
+}
+
+.progress {
+  color: #aaa6b4;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.description {
+  margin: -6px 0 20px;
+  color: var(--on-slab);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.emailRow {
+  display: flex;
+  align-items: end;
+  gap: 16px;
+}
+
+.emailRow .field {
+  flex: 1;
+  min-width: 0;
+}
+
+.go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-width: 86px;
+  min-height: 48px;
+  padding: 10px 16px;
+  border: 0;
+  background: var(--brand-action);
+  color: var(--brand-white);
+  font-size: 16px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.emailSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line-card);
+}
+
+.emailSummary > span {
+  min-width: 0;
+  color: var(--brand-cyan);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.emailSummary button {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--brand-white);
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (width <= 560px) {
+  .emailRow {
+    gap: 10px;
+  }
+
+  .go {
+    min-width: 68px;
+    padding-inline: 12px;
+  }
+}
+
+.error {
+  display: block;
+  margin-top: 6px;
+  color: #ff9dcc;
+  font-size: 13px;
+}
+
+.field input[aria-invalid='true'] {
+  border-color: #ff9dcc;
+}
+
+.errorSummary {
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid #ff9dcc;
+  color: #ff9dcc;
+  font-size: 14px;
+}
+
+.errorSummary h3 {
+  font-size: 20px;
+}
+
+.errorSummary ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.errorSummary a {
+  display: inline-block;
+  padding-block: 4px;
+}

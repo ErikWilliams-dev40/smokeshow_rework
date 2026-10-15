@@ -1,3 +1,4 @@
+import { MotionProvider } from '@/components/motion/MotionSettings'
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 
@@ -14,19 +15,13 @@ export const metadata: Metadata = {
     'Wholesale bulk flower, vapes, edibles, pre-rolls, concentrates and HOUSE OF HELIX peptide strips for retailers, distributors and brands.',
 }
 
-/**
- * The design handoff ships two real themes over one markup tree, applied as a
- * root class. Theme B ("Brand", dark) is the shipping default; Theme A
- * ("Editorial", light) is the `:root` token set.
- *
- * The class stays hardcoded until the theme becomes a cookie-backed provider.
- * Swapping it to no class renders the whole tree in Editorial — no markup is
- * forked per theme, which is the property that has to keep holding.
- */
+/** Shared theme tokens keep all launch screens on the screenshot palette. */
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="brand">
-      <body>{children}</body>
+      <body>
+        <MotionProvider>{children}</MotionProvider>
+      </body>
     </html>
   )
 }

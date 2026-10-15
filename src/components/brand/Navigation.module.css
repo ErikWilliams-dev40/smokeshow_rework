@@ -1,0 +1,163 @@
+.announcement {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 10px var(--gutter);
+  background: var(--brand-cyan);
+  color: var(--brand-night);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.announcement > span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.announcement a {
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 22px var(--gutter);
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.logo {
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.desktop {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.desktop a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--on-slab);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.cta {
+  padding: 13px 22px;
+  background: var(--brand-action);
+  color: var(--brand-white);
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.toggle {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.mobile {
+  position: absolute;
+  inset: 100% 0 auto;
+  display: grid;
+  padding: 20px var(--gutter);
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.mobile a {
+  padding: 12px 0;
+  font-size: 17px;
+  text-decoration: none;
+}
+
+.desktop a:hover {
+  color: var(--brand-cyan);
+}
+
+@media (width > 900px) {
+  .mobile {
+    display: none;
+  }
+}
+
+@media (width <= 1100px) {
+  .desktop {
+    gap: 16px;
+  }
+
+  .desktop a {
+    font-size: 12px;
+  }
+
+  .header {
+    gap: 16px;
+  }
+}
+
+@media (width <= 900px) {
+  .desktop {
+    display: none;
+  }
+
+  .toggle {
+    display: flex;
+  }
+
+  .cta {
+    margin-left: auto;
+  }
+}
+
+@media (width <= 560px) {
+  .announcement {
+    padding: 10px 20px;
+  }
+
+  .announcement > span {
+    max-width: 200px;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+  }
+
+  .announcement a {
+    font-size: 10px;
+  }
+
+  .header {
+    padding: 22px 20px;
+  }
+
+  .cta {
+    display: none;
+  }
+
+  .toggle {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  .mobile {
+    padding-inline: 20px;
+  }
+}

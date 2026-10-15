@@ -5,8 +5,8 @@
  * and the shipping default, so the root element carries that class. Nothing
  * here selects on markup: a screen never knows which theme it is rendering in.
  *
- * Values are lifted verbatim from design_handoff_wholesale_b2b/README.md
- * § Token table, § Spacing scale and § Typography. Do not "tidy" them.
+ * Editorial retains the original handoff tokens. Brand follows the four
+ * replacement launch screenshots: cyan, pink, near-black and square corners.
  */
 
 :root {
@@ -53,7 +53,6 @@
    *   1.4 to 2.4:1, so decoration only (dots, rules, gradients) in that theme.
    */
   --brand-magenta: #ed038d;
-  --brand-cyan: #72ecf2;
   --brand-teal: #24768f;
   --brand-green: #71b94f;
   --brand-slate: #b7cbd9;
@@ -92,66 +91,70 @@
    */
   --h-weight: 400;
   --h-tracking: 0;
+  --brand-cyan: #6ce7ec;
+  --brand-pink: #ec008c;
+
+  /* White button labels meet 4.5:1 while decorative pink stays vivid. */
+  --brand-action: #d80080;
+  --brand-night: #0e0e12;
+  --brand-white: #ffffff;
+  --brand-muted: #a1a1ad;
+  --form-paper: #f6f6f2;
+  --form-ink: #171717;
+  --form-line: #8c8c85;
+  --brand-haze:
+    radial-gradient(ellipse at 56% 22%, rgb(236 0 140 / 25%), transparent 48%),
+    radial-gradient(ellipse at 72% 80%, rgb(108 231 236 / 20%), transparent 33%),
+    var(--brand-night);
+  --intro-haze:
+    radial-gradient(ellipse at 28% 20%, rgb(236 0 140 / 31%), transparent 52%),
+    radial-gradient(ellipse at 80% 66%, rgb(108 231 236 / 24%), transparent 36%),
+    var(--brand-night);
+  --home-haze:
+    radial-gradient(ellipse at 92% 2%, rgb(236 0 140 / 24%), transparent 48%),
+    radial-gradient(ellipse at 95% 92%, rgb(108 231 236 / 18%), transparent 28%),
+    radial-gradient(ellipse at 6% 95%, rgb(108 231 236 / 8%), transparent 26%),
+    var(--brand-night);
 }
 
+/* Screenshot palette: shared by the four launch screens. */
 .brand {
-  /* Grounds */
-  --paper: #292929;
-  --paper-raised: #343434;
-  --paper-tint: #393939;
-  --paper-well: #252131;
-  --slab: #000000;
-  --coal: #231f20;
-
-  /* Text */
+  --paper: #0e0e12;
+  --paper-raised: #17171d;
+  --paper-tint: #1d1522;
+  --paper-well: #211a27;
+  --slab: #0e0e12;
   --ink: #ffffff;
-  --faded: #bdbdbd;
+  --faded: #a1a1ad;
   --inv-fg: #ffffff;
-  --on-slab: #c8c8c8;
-  --on-slab-quiet: #b5b5b5;
-
-  /* Accents */
-  --violet: #78d6f1;
-  --violet-light: #78d6f1;
+  --on-slab: #c8c8d0;
+  --on-slab-quiet: #a1a1ad;
+  --violet: #6ce7ec;
+  --violet-light: #6ce7ec;
   --uv: #8f7ec4;
   --uv-light: #b9a8e0;
-  --ember: #f7b829;
-  --stock: #78d6f1;
-  --promo: #f00036;
-  --blush: #ec8ebe;
-  --azure: #3086c8;
-  --promo-on-slab: #c8002c;
-
-  /* Rules and hairlines */
-  --line: #474252;
-  --line-strong: #645d74;
-  --line-card: #524c60;
-  --line-slab: rgba(255, 255, 255, 0.2);
-  --line-slab-quiet: rgba(255, 255, 255, 0.12);
-
-  /* Shape — Brand deliberately breaks the zero-radius, no-shadow house rules. */
-  --r-card: 12px;
-  --r-btn: 150px;
-  --r-badge: 150px;
-  --r-input: 6px;
-  --sh-card: 0 20px 70px rgba(0, 0, 0, 0.28);
-  --sh-input: none;
-  --fld-bg: #242424;
-  --fld-pad: 14px;
-
-  /* Vertical rhythm and gutters — tighter than Editorial throughout. */
-  --band: 80px;
+  --ember: #ec008c;
+  --stock: #6ce7ec;
+  --promo: #ec008c;
+  --blush: #bc88c0;
+  --line: #2e2e35;
+  --line-strong: #64616c;
+  --line-card: #46384b;
+  --line-slab: rgb(255 255 255 / 16%);
+  --line-slab-quiet: rgb(255 255 255 / 10%);
+  --r-card: 0px;
+  --r-btn: 0px;
+  --r-badge: 0px;
+  --r-input: 0px;
+  --sh-card: none;
+  --fld-bg: #17131c;
+  --fld-pad: 16px;
+  --band: 96px;
   --gutter: 56px;
-  --gap-col: 44px;
+  --gap-col: 56px;
   --gap-card: 16px;
-  --pad-card: 26px;
-
-  /*
-   * The brand has no serif. Its display face is the same sans at weight 650,
-   * so `--serif` is reassigned rather than dropped — screens keep asking for
-   * `var(--serif)` and get the right face in either theme.
-   */
-  --serif: 'Jost', 'Helvetica Neue', 'Arial', sans-serif;
-  --h-weight: 650;
-  --h-tracking: -0.025em;
+  --pad-card: 32px;
+  --serif: 'Jost', 'Helvetica Neue', arial, sans-serif;
+  --h-weight: 700;
+  --h-tracking: -0.035em;
 }
