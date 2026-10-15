@@ -84,7 +84,7 @@ export default defineConfig((ctx) => {
           mode === 'production'
             ? 'https://smokeshowlabs.com'
             : mode === 'staging'
-              ? (process.env.STAGING_SITE_URL ?? '')
+              ? 'https://smokeshow-web-staging.dev40.workers.dev'
               : 'http://localhost:4173',
         ),
       },

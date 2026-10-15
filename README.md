@@ -230,6 +230,8 @@ of a deployment.
 
 ### Dev40 design preview (issue #23)
 
+Preview URL: <https://smokeshow-web-staging.dev40.workers.dev>.
+
 The `staging` mode targets account `8441cc5cfd234da96da8cdf090d94658`, Worker
 `smokeshow-web-staging`, and D1 `smokeshow-leads-staging`
 (`b98400fb-eae4-45db-ad1d-71c5d73ca22c`). The database is empty: `/api/health`
@@ -244,8 +246,6 @@ reuse the read-only Helix admin account. Do not use a production build artifact.
 ```sh
 export CLOUDFLARE_ACCOUNT_ID=8441cc5cfd234da96da8cdf090d94658
 export COMMIT_SHA="$(git rev-parse HEAD)"
-# For redeploys, set STAGING_SITE_URL to the workers.dev URL printed by cf.
-# This is unused by the current preview; real email must never use an empty URL.
 corepack pnpm exec vite build --mode staging
 corepack pnpm exec cf deploy --mode staging --prebuilt --provision=false --dry-run
 # Verify the output targets smokeshow-web-staging and the staging database above.
