@@ -80,8 +80,8 @@
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    rgb(236 142 190 / 55%) 0%,
-    rgb(120 214 241 / 18%) 42%,
+    color-mix(in srgb, var(--brand-magenta) 55%, transparent) 0%,
+    color-mix(in srgb, var(--brand-cyan) 18%, transparent) 42%,
     rgb(9 5 9 / 0%) 70%
   );
   filter: blur(24px);

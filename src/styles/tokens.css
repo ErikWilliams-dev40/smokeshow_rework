@@ -42,6 +42,22 @@
    */
   --promo-on-slab: #c8002c;
 
+  /*
+   * Brand palette — confirmed by the client (issue #13), identical in both
+   * themes. Not from the handoff. Contrast limits (WCAG AA, 4.5:1 body text):
+   * - magenta: text only on pure black (5.0:1); 3.5:1 on Brand --paper, so
+   *   large type only there. Button fills carry black labels (5.0:1); white
+   *   labels reach only 4.2:1.
+   * - teal: hover fill with white labels (5.2:1).
+   * - cyan, green, slate: fine as text in Brand; on Editorial white they reach
+   *   1.4 to 2.4:1, so decoration only (dots, rules, gradients) in that theme.
+   */
+  --brand-magenta: #ed038d;
+  --brand-cyan: #72ecf2;
+  --brand-teal: #24768f;
+  --brand-green: #71b94f;
+  --brand-slate: #b7cbd9;
+
   /* Rules and hairlines */
   --line: rgba(95, 75, 139, 0.16);
   --line-strong: rgba(95, 75, 139, 0.24);
