@@ -52,10 +52,12 @@ corepack pnpm dev
 
 `nvm` is optional; another version manager can install the same Node version.
 Open <http://localhost:3000>. `pnpm dev` runs vinext on Vite with local
-Cloudflare bindings (D1, email, rate limit) simulated by workerd. `pnpm build`
-then `pnpm preview` serves the production Worker locally; run it for any
-change that touches server code, because `vite dev` is not proof that the
-Workers build works. Corepack invokes the pinned pnpm without writing
+Cloudflare bindings (D1, email, rate limit) simulated by workerd. `pnpm build:local`,
+`pnpm db:migrate:local`, then `pnpm preview` serves the production Worker
+locally against the migrated local D1; run it for any change that touches
+server code, because `vite dev` is not proof that the Workers build works.
+Bare `pnpm build` is a production-mode build and binds the production D1 id,
+so do not preview it locally. Corepack invokes the pinned pnpm without writing
 system-wide shims. If your Node installation lacks Corepack, install the exact
 pnpm version declared in `package.json` and run the same commands with `pnpm`.
 
