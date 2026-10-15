@@ -328,15 +328,6 @@
   line-height: 1.7;
 }
 
-.footer {
-  display: grid;
-  grid-template-columns: 1.65fr 0.85fr 0.85fr;
-  gap: 56px;
-  padding: 56px var(--gutter);
-  border-top: 1px solid var(--line);
-  color: var(--faded);
-}
-
 .footerLogo {
   text-decoration: none;
 }
@@ -362,6 +353,7 @@
 
 .footer {
   display: flex;
+  grid-template-columns: 1.65fr 0.85fr 0.85fr;
   flex-wrap: wrap;
   gap: 16px 28px;
   align-items: baseline;

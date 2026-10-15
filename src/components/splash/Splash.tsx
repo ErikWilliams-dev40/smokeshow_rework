@@ -1,12 +1,11 @@
 import { MotionTweaks } from '@/components/motion/MotionSettings'
 import Link from 'next/link'
 import { Navigation } from '@/components/brand/Navigation'
-import { Wordmark } from '@/components/brand/Wordmark'
 import { SmokeStage } from '@/components/hero/SmokeStage'
 import { CompactForm } from '@/components/wholesale/CompactForm'
 import { InterestLink } from '@/components/wholesale/InterestLink'
 import { Brands } from './Brands'
-import { salesContact, splash } from '@/content/splash'
+import { splash } from '@/content/splash'
 import { categories, signupCopy, steps } from '@/content/wholesale'
 import styles from './Splash.module.css'
 
