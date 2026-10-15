@@ -13,11 +13,13 @@ Guidance for Claude Code working in this repository.
   Node 24. Styling is plain CSS with CSS Modules over a custom-property token
   system — deliberately not Tailwind, see below. Vitest for units, Playwright
   for end-to-end and visual review.
-- **Hosting:** not yet decided. Server rendering is a hard requirement — route
-  handlers, middleware and server actions all need a Node runtime, so a
-  static-export host is not an option. `docs/CUSTOMIZATION.md` notes this is the
-  decision that determines how the project deploys and rolls back, so settle it
-  before filling in the deploy workflows.
+- **Hosting:** Cloudflare Workers through vinext, configured by
+  `cloudflare.config.ts` and operated with the `cf` CLI; D1 for records, the
+  `send_email` binding for mail, a rate-limit binding for the form. See
+  `docs/decisions/0001-cloudflare-workers-adapter.md`. Environments are Vite
+  modes (`--mode staging|production`). All binding access goes through
+  `src/server/cloudflare/env.ts`. `pnpm preview` is part of verifying any
+  server change: `vite dev` alone is not proof the Workers build works.
 - **Owner:** not yet assigned. `CODEOWNERS.example` stays a template until real
   teams exist and have repository access — see `docs/CUSTOMIZATION.md` step 2.
 
@@ -29,10 +31,11 @@ scripts, so there is one definition of each command rather than two.
 | Task | Command |
 | --- | --- |
 | Install | `pnpm install --frozen-lockfile` |
-| Lint | `pnpm lint` (`tsc --noEmit`, ESLint, Stylelint, Prettier `--check`) |
+| Lint | `pnpm lint` (`cf workers types`, `tsc --noEmit`, ESLint, Stylelint, Prettier `--check`) |
 | Test | `pnpm test` (Vitest) |
-| Build | `pnpm build` (`next build`) |
-| Run locally | `pnpm dev` |
+| Build | `pnpm build` (`vite build`, the production Worker) |
+| Run locally | `pnpm dev`; `pnpm preview` serves the built Worker |
+| Local D1 | `pnpm db:migrate:local` |
 | Audit | `pnpm audit --audit-level=high` |
 | Format | `pnpm format` |
 

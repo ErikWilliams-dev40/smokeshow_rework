@@ -31,7 +31,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    ".cloudflare/types"
   ],
   "exclude": ["node_modules", "design_handoff_wholesale_b2b"]
 }

@@ -66,6 +66,7 @@ explicitly rather than leaving two rules standing:
 | Branch types | includes `test` ([engineering workflow](../standards/engineering-workflow.md#stages)) | `feat`, `fix`, `chore`, `docs`, `refactor` ([CLAUDE.md](../CLAUDE.md)) |
 | Merge | Squash merge ([pull request policy](pull-request-policy.md#merging)) | Squash unless a curated commit series ([CONTRIBUTING.md](../CONTRIBUTING.md)) |
 | Release record | Semver tag + release notes ([release process](../standards/release-process.md#versioning)) | Append-only `releases/` records keyed by `commit_sha` ([docs/RELEASE_METADATA.md](../docs/RELEASE_METADATA.md)) |
+| ADR location | `architecture/decisions/` ([architecture/README.md](../architecture/README.md)) | `docs/decisions/`, because `architecture/` is vendored and must not be edited here ([docs/decisions/](../docs/decisions/)) |
 
 ## Known caveats
 

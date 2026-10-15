@@ -1,0 +1,6 @@
+# Local values for the secrets declared in cloudflare.config.ts. Copy to
+# .dev.vars (ignored) and fill in. Production and staging values are set with
+# `cf workers secrets update <NAME> --mode <mode>`, never committed.
+LEAD_TOKEN_SECRET=
+CSV_EXPORT_USER=
+CSV_EXPORT_PASSWORD=

@@ -73,6 +73,17 @@ repository interfaces — there is no database and no authentication yet.
    workflows are what make an approval refer to a specific commit — treat any
    weakening of them as a serious finding.
 
+7. **Cloudflare configuration and bindings.** `cloudflare.config.ts` is
+   infrastructure: a changed `compatibilityDate` or flag, a new binding, a
+   widened `send_email` destination (staging is restricted to a test inbox on
+   purpose), a rate-limit raised or removed, or a secret turned into a plain
+   `text` var is a finding. All binding access must go through
+   `src/server/cloudflare/env.ts`; a direct `cloudflare:workers` import
+   elsewhere is a finding. D1 queries must be parameterised (`.bind()`), never
+   string-built. `/api/health` may report a commit SHA and a boolean per
+   dependency and nothing else. Migrations are additive unless the PR says
+   otherwise and sets `rollback_safe: false`.
+
 ### Two things that are intended, so do not report them
 
 - **The compliance-copy module.** Six strings are duplicated between

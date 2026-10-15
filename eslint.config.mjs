@@ -6,6 +6,11 @@ export default tseslint.config(
   {
     ignores: [
       '.next/**',
+      // Cloudflare build output, generated Worker types and local state.
+      '.cloudflare/**',
+      '.vinext/**',
+      '.wrangler/**',
+      'dist/**',
       'node_modules/**',
       'next-env.d.ts',
       // Reference material from the design handoff: a prototype built on a
