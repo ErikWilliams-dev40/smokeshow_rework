@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { ThreeSmoke } from '@/components/hero/ThreeSmoke'
 import { MotionTweaks } from '@/components/motion/MotionSettings'
+import { Wordmark } from './Wordmark'
 import styles from './Intro.module.css'
 
 const INTRO_KEY = 'ss_intro_seen'
@@ -91,10 +92,9 @@ export function Intro({ children }: { children: ReactNode }) {
         </div>
         <div className={styles.center}>
           <h1 className={styles.title}>
-            <span>SMOKE</span> <span>SHOW</span>
+            <Wordmark />
           </h1>
           <div className={styles.bottom}>
-            <span className={styles.labs}>LABS</span>
             <span className={styles.rule} />
             <p>
               Make your shelves a <strong>Smoke Show.</strong>
