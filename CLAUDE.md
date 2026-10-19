@@ -91,6 +91,9 @@ design_handoff_wholesale_b2b/
 - **No icons, no emoji, no CDN, no analytics, no external requests.** Every
   indicator is a coloured square, dot, bar or rule. `next.config.ts` keeps
   `images.remotePatterns` empty so `next/image` can only serve local files.
+  One client-approved exception: the inline SVG shield in the heading of
+  `src/components/layout/HempNotice.tsx` (issue #39). It does not license icons
+  anywhere else.
 - **Two themes over one markup tree**, applied as a root class. Brand (dark) is
   the shipping default; Editorial (light) is the `:root` token set. Never fork
   the markup per theme.
