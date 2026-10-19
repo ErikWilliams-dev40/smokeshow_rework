@@ -15,46 +15,95 @@ export function Brands() {
 
     const names = Array.from(section.querySelectorAll<HTMLElement>(':scope > span'))
     let frame = 0
+    let visible = false
+    let distance = 0
+    let beam = 0
+    let current = 0
+    let target = 0
+    let lastTime = 0
+
+    const paint = () => {
+      section.style.setProperty('--brand-shimmer-position', `${current}px`)
+    }
+
+    const animate = (time: number) => {
+      const elapsed = lastTime ? Math.min(time - lastTime, 64) : 16
+      lastTime = time
+      // A short, frame-rate-independent catch-up softens wheel and touch steps.
+      current += (target - current) * (1 - Math.exp(-elapsed / 90))
+      if (Math.abs(target - current) < 0.1) current = target
+      paint()
+      frame = current === target ? 0 : requestAnimationFrame(animate)
+      if (!frame) lastTime = 0
+    }
 
     const update = () => {
-      frame = 0
       const viewportHeight = window.innerHeight
+      const bounds = section.getBoundingClientRect()
       const progress = Math.min(
         1,
         Math.max(
           0,
-          (viewportHeight * 0.95 - section.getBoundingClientRect().top) /
-            (viewportHeight * 0.55),
+          (viewportHeight * 0.9 - bounds.top) /
+            (viewportHeight * 0.65 + bounds.height * 0.5),
         ),
       )
+      target = -beam + progress * (distance + beam)
+      if (!visible) {
+        current = target
+        paint()
+      } else if (!frame) {
+        frame = requestAnimationFrame(animate)
+      }
+    }
 
-      names.forEach((name, index) => {
-        // Overlapping passes carry the highlight across the whole lineup.
-        const localProgress = Math.min(
-          1,
-          Math.max(0, progress * 2 - index / names.length),
-        )
-        name.style.setProperty(
-          '--brand-shimmer-position',
-          `${(1 - localProgress) * 100}%`,
-        )
+    const measure = () => {
+      // Lay out a virtual single line so the pass follows reading order even
+      // when the actual names wrap. Width-based spacing avoids overlapping flashes.
+      const measurements = names.map((name) => ({
+        name,
+        width: name.getBoundingClientRect().width,
+      }))
+      distance = 0
+      measurements.forEach(({ name, width }, index) => {
+        name.style.setProperty('--brand-shimmer-offset', `${-distance}px`)
+        distance += width + (index < names.length - 1 ? 28 : 0)
       })
+      beam = Math.min(180, Math.max(80, distance * 0.2))
+      section.style.setProperty('--brand-shimmer-width', `${beam}px`)
+      update()
     }
 
-    const scheduleUpdate = () => {
-      if (!frame) frame = requestAnimationFrame(update)
-    }
-
-    update()
+    measure()
     section.dataset.shimmer = 'true'
-    window.addEventListener('scroll', scheduleUpdate, { passive: true })
-    window.addEventListener('resize', scheduleUpdate)
+    const visibility = new IntersectionObserver(([entry]) => {
+      visible = entry?.isIntersecting ?? false
+      if (!visible) {
+        cancelAnimationFrame(frame)
+        frame = 0
+        lastTime = 0
+      }
+      update()
+    })
+    visibility.observe(section)
+    const size = new ResizeObserver(measure)
+    size.observe(section)
+    names.forEach((name) => size.observe(name))
+    const onScroll = () => {
+      if (visible) update()
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', update)
     return () => {
       cancelAnimationFrame(frame)
-      window.removeEventListener('scroll', scheduleUpdate)
-      window.removeEventListener('resize', scheduleUpdate)
+      visibility.disconnect()
+      size.disconnect()
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', update)
       delete section.dataset.shimmer
-      names.forEach((name) => name.style.removeProperty('--brand-shimmer-position'))
+      section.style.removeProperty('--brand-shimmer-position')
+      section.style.removeProperty('--brand-shimmer-width')
+      names.forEach((name) => name.style.removeProperty('--brand-shimmer-offset'))
     }
   }, [enabled])
 

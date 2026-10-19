@@ -208,14 +208,21 @@
 @supports (background-clip: text) {
   .brands[data-shimmer='true'] > span {
     background-image: linear-gradient(
-      100deg,
-      var(--form-ink) 36%,
-      var(--brand-cyan) 44%,
-      var(--brand-pink) 52%,
-      var(--form-ink) 60%
+      105deg,
+      transparent 0%,
+      #8a1455 24%,
+      var(--brand-action) 48%,
+      var(--brand-action) 52%,
+      #8a1455 76%,
+      transparent 100%
     );
-    background-position: var(--brand-shimmer-position, 100%) 50%;
-    background-size: 300% 100%;
+    background-color: var(--form-ink);
+    background-position: calc(
+        var(--brand-shimmer-position, 0px) + var(--brand-shimmer-offset, 0px)
+      )
+      50%;
+    background-size: var(--brand-shimmer-width, 120px) 100%;
+    background-repeat: no-repeat;
     background-clip: text;
     color: transparent;
   }
