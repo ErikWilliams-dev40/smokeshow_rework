@@ -50,7 +50,16 @@ export default defineConfig((ctx) => {
       assets: {
         htmlHandling: 'none',
         notFoundHandling: 'none',
-        runWorkerFirst: ['/*', '!/_next/static/*', '!/*/_next/static/*'],
+        runWorkerFirst: [
+          '/*',
+          '!/_next/static/*',
+          '!/*/_next/static/*',
+          // `vite dev` serves modules, CSS and the RSC browser entry itself.
+          // With "/*" alone the Worker answers those with the app's 404.
+          ...(mode === 'local'
+            ? ['!/src/*', '!/@*', '!/node_modules/*', '!/__debug']
+            : []),
+        ],
       },
       env: {
         ASSETS: bindings.assets(),
