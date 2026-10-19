@@ -145,6 +145,20 @@ textarea {
   color: inherit;
 }
 
+input,
+select,
+textarea {
+  border-radius: var(--r-input);
+}
+
+input[type='checkbox'] {
+  border-radius: 4px;
+}
+
+input[type='radio'] {
+  border-radius: 50%;
+}
+
 /* Anything below 16px makes iOS Safari zoom the viewport on focus. */
 input,
 textarea {

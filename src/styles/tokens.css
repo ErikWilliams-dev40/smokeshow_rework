@@ -6,7 +6,7 @@
  * here selects on markup: a screen never knows which theme it is rendering in.
  *
  * Editorial retains the original handoff tokens. Brand follows the four
- * replacement launch screenshots: cyan, pink, near-black and square corners.
+ * replacement launch screenshots: cyan, pink, near-black and 12px card corners.
  */
 
 :root {
@@ -66,10 +66,10 @@
   --line-slab-quiet: rgba(255, 255, 255, 0.1);
 
   /* Shape */
-  --r-card: 0px;
-  --r-btn: 0px;
-  --r-badge: 0px;
-  --r-input: 0px;
+  --r-card: 12px;
+  --r-btn: 150px;
+  --r-badge: 150px;
+  --r-input: 6px;
   --sh-card: none;
   --sh-input: none;
   --fld-bg: transparent;
@@ -143,11 +143,11 @@
   --line-card: #46384b;
   --line-slab: rgb(255 255 255 / 16%);
   --line-slab-quiet: rgb(255 255 255 / 10%);
-  --r-card: 0px;
-  --r-btn: 0px;
-  --r-badge: 0px;
-  --r-input: 0px;
-  --sh-card: none;
+  --r-card: 12px;
+  --r-btn: 150px;
+  --r-badge: 150px;
+  --r-input: 6px;
+  --sh-card: 0 20px 70px rgb(0 0 0 / 28%);
   --fld-bg: #17131c;
   --fld-pad: 16px;
   --band: 96px;

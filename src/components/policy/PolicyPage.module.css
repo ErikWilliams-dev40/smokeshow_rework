@@ -26,6 +26,7 @@
   margin: 28px 0 0;
   padding: 16px 20px;
   border-left: 3px solid var(--promo);
+  border-radius: var(--r-card);
   background: var(--paper-tint);
   font-weight: 600;
 }

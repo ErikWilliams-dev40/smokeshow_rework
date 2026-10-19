@@ -140,7 +140,7 @@
   margin-top: 8px;
   padding: 14px 16px;
   border: 1px solid var(--form-line);
-  border-radius: 0;
+  border-radius: var(--r-input);
   background: var(--brand-white);
   color: var(--form-ink);
   font-size: 16px;

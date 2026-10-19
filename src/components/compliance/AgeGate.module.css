@@ -10,6 +10,7 @@
 
 .card {
   width: min(100%, 640px);
+  border-radius: var(--r-card);
   text-align: center;
 }
 

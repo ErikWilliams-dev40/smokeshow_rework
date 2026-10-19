@@ -7,11 +7,21 @@
   --brand-cyan: var(--splash-cyan);
   --brand-pink: var(--brand-magenta);
 
+  box-sizing: border-box;
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  margin: 12px;
+  border: 1px solid var(--line-slab-quiet);
+  border-radius: var(--r-card);
   background: var(--brand-night);
   color: var(--brand-white);
+}
+
+@media (width < 640px) {
+  .hero {
+    margin: 8px;
+  }
 }
 
 .heroInner {
@@ -290,11 +300,14 @@
   justify-content: space-between;
   min-height: 346px;
   padding: 22px;
+  overflow: hidden;
   border: 1px solid var(--line-card);
+  border-radius: var(--r-card);
   background:
     radial-gradient(ellipse at 90% 0%, rgb(236 0 140 / 32%), transparent 42%),
     radial-gradient(ellipse at 0% 100%, rgb(108 231 236 / 30%), transparent 42%),
     var(--paper-raised);
+  box-shadow: var(--sh-card);
   color: var(--brand-white);
   text-decoration: none;
   transition:
@@ -355,8 +368,11 @@
   gap: 50px;
   margin: 0 var(--gutter);
   padding: 48px 56px;
+  overflow: hidden;
   border: 1px solid var(--line-card);
+  border-radius: var(--r-card);
   background: var(--paper-tint);
+  box-shadow: var(--sh-card);
 }
 
 .helixArt img {

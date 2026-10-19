@@ -1,8 +1,11 @@
 .card {
   padding: 32px;
   scroll-margin-top: 24px;
+  overflow: hidden;
   border: 1px solid var(--line-card);
+  border-radius: var(--r-card);
   background: rgb(23 19 28 / 94%);
+  box-shadow: var(--sh-card);
   color: var(--brand-white);
 }
 
@@ -37,7 +40,7 @@
   padding: 6px 0;
   border: 0;
   border-bottom: 1px solid #63596a;
-  border-radius: 0;
+  border-radius: var(--r-input);
   background: transparent;
   color: var(--brand-white);
   font-size: 16px;
