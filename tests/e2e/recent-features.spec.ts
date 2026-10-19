@@ -351,6 +351,8 @@ test.describe('consented frontend', () => {
       await page.goto('/')
       const smoke = page.locator('main [data-renderer]')
       await expect(smoke).toHaveAttribute('data-renderer', 'webgl')
+      // Let the decorative mount fade finish before comparing frozen pixels.
+      await expect(smoke.locator('canvas')).toHaveCSS('opacity', '1')
       await page.locator('summary:visible').filter({ hasText: 'Tweaks' }).click()
       const motion = page.getByRole('switch', { name: 'Motion', exact: true })
       await motion.uncheck()
@@ -373,7 +375,7 @@ test.describe('consented frontend', () => {
       const loss = await smoke
         .locator('canvas')
         .evaluateHandle((canvas: HTMLCanvasElement) =>
-          canvas.getContext('webgl2')?.getExtension('WEBGL_lose_context'),
+          canvas.getContext('webgl')?.getExtension('WEBGL_lose_context'),
         )
       expect(await loss.evaluate((extension) => !!extension)).toBe(true)
       await loss.evaluate((extension) => extension?.loseContext())

@@ -1,4 +1,12 @@
+.header {
+  position: relative;
+  z-index: 2;
+}
+
 .hero {
+  --brand-cyan: var(--splash-cyan);
+  --brand-pink: var(--brand-magenta);
+
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -7,6 +15,7 @@
 }
 
 .heroInner {
+  box-sizing: border-box;
   position: relative;
   z-index: 1;
   display: grid;
@@ -90,6 +99,87 @@
   display: none;
 }
 
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--dy, 10px));
+    filter: blur(var(--blur, 4px));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.header,
+.hero .eyebrow,
+.line,
+.tagline,
+.subtitle,
+.body,
+.mobileCta,
+.signup,
+.footer {
+  --delay: 150ms;
+
+  animation: rise var(--dur, 900ms) cubic-bezier(0.2, 0.7, 0.2, 1) var(--delay) both;
+}
+
+.line {
+  --delay: 450ms;
+  --dur: 1400ms;
+  --dy: 18px;
+  --blur: 14px;
+}
+
+.line + .line {
+  --delay: 750ms;
+}
+
+.tagline,
+.subtitle,
+.body {
+  --delay: 1250ms;
+}
+
+.mobileCta,
+.signup,
+.footer {
+  --delay: 1600ms;
+}
+
+/* The welcome dialog makes the page inert until the splash can be seen. */
+[inert]
+  :is(
+    .header,
+    .hero .eyebrow,
+    .line,
+    .tagline,
+    .subtitle,
+    .body,
+    .mobileCta,
+    .signup,
+    .footer
+  ) {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .hero .eyebrow,
+  .line,
+  .tagline,
+  .subtitle,
+  .body,
+  .mobileCta,
+  .signup,
+  .footer {
+    animation: none;
+  }
+}
+
 .brands {
   display: flex;
   align-items: center;
@@ -118,14 +208,21 @@
 @supports (background-clip: text) {
   .brands[data-shimmer='true'] > span {
     background-image: linear-gradient(
-      100deg,
-      var(--form-ink) 36%,
-      var(--brand-cyan) 44%,
-      var(--brand-pink) 52%,
-      var(--form-ink) 60%
+      105deg,
+      transparent 0%,
+      #8a1455 24%,
+      var(--brand-action) 48%,
+      var(--brand-action) 52%,
+      #8a1455 76%,
+      transparent 100%
     );
-    background-position: var(--brand-shimmer-position, 100%) 50%;
-    background-size: 300% 100%;
+    background-color: var(--form-ink);
+    background-position: calc(
+        var(--brand-shimmer-position, 0px) + var(--brand-shimmer-offset, 0px)
+      )
+      50%;
+    background-size: var(--brand-shimmer-width, 120px) 100%;
+    background-repeat: no-repeat;
     background-clip: text;
     color: transparent;
   }
