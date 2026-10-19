@@ -8,8 +8,8 @@ export function Wordmark({ large = false }: { large?: boolean }) {
       className={`${styles.wordmark} ${large ? styles.large : ''}`}
       src="/brand/ss-logo.png"
       alt="Smoke Show Labs"
-      width={3840}
-      height={512}
+      width={2400}
+      height={320}
     />
   )
 }
