@@ -1,33 +1,11 @@
 .wordmark {
   display: inline-block;
-  color: var(--brand-cyan);
-  font-family: var(--sans);
-  font-size: clamp(19px, 2vw, 25px);
-  font-weight: 650;
-  line-height: 1.1;
-  letter-spacing: -0.045em;
-  white-space: nowrap;
-}
-
-.smoke,
-.show {
-  color: transparent;
-  -webkit-text-stroke: 1px var(--brand-cyan);
-}
-
-.smoke {
-  text-shadow: 0 0 12px rgb(108 231 236 / 30%);
-}
-
-.show {
-  -webkit-text-stroke-color: var(--brand-pink);
-}
-
-.labs {
-  font-weight: 500;
-  letter-spacing: -0.025em;
+  width: clamp(180px, 20vw, 260px);
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
 }
 
 .large {
-  font-size: clamp(25px, 3.5vw, 44px);
+  width: clamp(240px, 35vw, 440px);
 }
