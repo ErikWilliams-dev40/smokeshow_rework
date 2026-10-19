@@ -29,28 +29,28 @@ on:
       url:
         description: Base URL the deployment is reachable at, for the health check.
         value: ${{ jobs.deploy.outputs.url }}
+    secrets:
+      CLOUDFLARE_API_TOKEN:
+        description: Cloudflare API token for the Worker. Stored on the Environment.
+        # Fails the run if the caller omits it. It cannot tell whether the value
+        # is empty; the "Check deploy configuration" step below does that.
+        required: true
 
 # ── Where the deploy credential comes from ───────────────────────────────────
 # Store it as a secret on the GitHub Environment named by the `environment`
-# input (Settings → Environments → staging → Add secret), then read it in the
-# deploy step below as ${{ secrets.<NAME> }}.
+# input (Settings → Environments → staging → Add secret).
 #
-# It is read here rather than passed in by the caller because `environment:` is
-# not allowed on a job that calls a reusable workflow — so a caller job cannot
-# see environment-scoped secrets, and forwarding one would pass an empty string
-# with no error. The job below binds the environment, so it can read them.
+# The caller must still pass it by name. A reusable workflow receives only the
+# secrets its caller passes, environment secrets included, and an unpassed one
+# resolves to an empty string with no error. The job below binds the
+# environment, and the Environment secret overrides whatever the caller passed,
+# so the caller job needs no environment. That holds only while the Environment
+# has its own secret of this name, so never create a repo- or org-level
+# CLOUDFLARE_API_TOKEN: it would silently stand in for a missing staging one.
 #
 # Use the SAME secret name on the staging and production Environments with
 # different values. That is what keeps a staging run unable to read production
 # credentials: the environment binding, not the secret's name.
-#
-# NOT YET VERIFIED. This design is sound in principle but has not been exercised
-# in a real repository. An unset or unreachable secret resolves to an EMPTY STRING
-# rather than failing, so a misplaced secret looks like working config.
-#
-# Verify in GitHub with a DUMMY, NON-PRODUCTION value: put a throwaway secret on
-# the staging Environment, echo its length (never its value) from this job, and
-# confirm the length is non-zero. Do not use a real credential for this test.
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Least privilege: deny everything here, grant the minimum per job.
