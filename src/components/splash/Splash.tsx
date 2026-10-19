@@ -12,7 +12,9 @@ import styles from './Splash.module.css'
 export function Splash() {
   return (
     <>
-      <Navigation />
+      <div className={styles.header}>
+        <Navigation />
+      </div>
       <MotionTweaks />
       <main id="main-content">
         <section className={styles.hero} aria-labelledby="home-title">
@@ -24,8 +26,8 @@ export function Splash() {
                 Wholesale, with some personality.
               </p>
               <h1 id="home-title" className={styles.title}>
-                <span>STOCK UP.</span>
-                <span>STAND OUT.</span>
+                <span className={styles.line}>STOCK UP.</span>
+                <span className={styles.line}>STAND OUT.</span>
               </h1>
               <p className={styles.tagline}>
                 Make your shelves a <strong>Smoke Show.</strong>
@@ -39,7 +41,9 @@ export function Splash() {
                 Get the Wholesale Menu <span aria-hidden="true">→</span>
               </Link>
             </div>
-            <CompactForm />
+            <div className={styles.signup}>
+              <CompactForm />
+            </div>
           </div>
         </section>
         <Brands />

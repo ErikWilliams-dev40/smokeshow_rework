@@ -1,9 +1,13 @@
-import { ThreeSmoke } from './ThreeSmoke'
+import { SmokeCanvas } from './SmokeCanvas'
 import styles from './SmokeStage.module.css'
 
-/** The shared low-opacity WebGL haze behind the splash copy. */
+/** Keep the CSS haze visible until WebGL has painted, or if it fails. */
 export function SmokeStage() {
-  return <ThreeSmoke />
+  return (
+    <div className={styles.smoke} data-renderer="fallback" aria-hidden="true">
+      <SmokeCanvas />
+    </div>
+  )
 }
 
 /** The crisp mark with its halo, for the right-hand figure. */

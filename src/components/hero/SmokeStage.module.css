@@ -1,3 +1,39 @@
+.smoke {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.smoke::before {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse at 28% 20%,
+      color-mix(in srgb, var(--brand-magenta) 31%, transparent),
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse at 80% 66%,
+      color-mix(in srgb, var(--brand-cyan) 24%, transparent),
+      transparent 36%
+    );
+  content: '';
+  transition: opacity 2400ms ease-out;
+}
+
+.smoke[data-renderer='webgl']::before {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .smoke::before {
+    transition: none;
+  }
+}
+
 .figure {
   position: relative;
   display: grid;
