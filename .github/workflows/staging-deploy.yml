@@ -1,7 +1,9 @@
 name: Staging deploy (reusable)
 
-# PLACEHOLDER. This workflow does not know the hosting environment or deploy
-# provider. Replace the step marked CUSTOMIZE with a real deploy command.
+# Builds the reviewed commit in staging mode and deploys it to the Worker
+# `smokeshow-web-staging` with the `cf` CLI. The account, Worker name and D1
+# binding come from cloudflare.config.ts; nothing here names them. See
+# docs/decisions/0001-cloudflare-workers-adapter.md and Helix issue #11.
 #
 # Reusable workflow: it is called by another workflow, never triggered directly.
 # Called by: .github/workflows/deploy.yml
@@ -64,12 +66,14 @@ jobs:
     environment:
       name: ${{ inputs.environment }}
       url: ${{ steps.deploy.outputs.url }}
+    env:
+      # Corepack otherwise prompts before downloading the pinned pnpm, which
+      # would hang a non-interactive runner.
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
     permissions:
       contents: read # required only so actions/checkout can read the repository
-      # id-token: write  # ONLY if the provider supports OIDC. Prefer this over a
-      #   long-lived stored token: the job exchanges a short-lived credential at
-      #   run time, so there is nothing standing to leak. The caller must grant
-      #   it too — a called workflow cannot widen the caller's token.
+      # No id-token: Cloudflare does not accept GitHub OIDC for Workers deploys,
+      # so the credential is a scoped API token held as an Environment secret.
     outputs:
       url: ${{ steps.deploy.outputs.url }}
     steps:
@@ -91,24 +95,92 @@ jobs:
         with:
           ref: ${{ inputs.commit-sha }}
           persist-credentials: false
+          # Full history, so origin/main is present for the ancestry check below.
+          fetch-depth: 0
 
-      # ── CUSTOMIZE ─────────────────────────────────────────────────────────
-      # Replace this step with the real staging deploy.
-      # Per-stack guidance: docs/CUSTOMIZATION.md
-      #
-      # Set the `url` output to the deployed base URL so staging-health-check
-      # has something to probe:
-      #
-      #   echo "url=https://staging.example.com" >> "$GITHUB_OUTPUT"
-      #
-      # If the project runs database migrations, run them here and record
-      # database_migration: true in the release metadata.
+      - name: Refuse commits not on main
+        # The SHA check above proves the format, not that anyone reviewed it.
+        # checkout fetches any SHA in the repository network, unmerged branches
+        # included, and the deploy step runs that commit's config and
+        # dependencies with the Cloudflare token in its environment. Only
+        # merged code gets that far.
+        env:
+          COMMIT_SHA: ${{ inputs.commit-sha }}
+        run: |
+          if ! git merge-base --is-ancestor "$COMMIT_SHA" origin/main; then
+            echo "::error title=Unmerged commit::$COMMIT_SHA is not on main. Only merged commits are deployed."
+            exit 1
+          fi
+          echo "$COMMIT_SHA is on main"
+
+      # ── Toolchain ─────────────────────────────────────────────────────────
+      # Same as build.yml: setup-node reads .nvmrc, and corepack resolves the
+      # pnpm pinned by `packageManager`. See the notes there.
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # actions/setup-node v7.0.0
+        # Pinned to a full commit SHA, not the mutable @v7 tag. Published by
+        # GitHub; see docs/RECOMMENDED_ACTIONS.md.
+        with:
+          node-version-file: .nvmrc
+
+      - name: Verify Node matches .nvmrc
+        run: |
+          actual="$(node -p 'process.versions.node.split(".")[0]')"
+          expected="$(tr -d '[:space:]' < .nvmrc)"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error title=Node version mismatch::Node ${actual} is active; .nvmrc pins ${expected}. setup-node did not install the pinned version."
+            exit 1
+          fi
+          echo "node $(node --version), pnpm $(corepack pnpm --version)"
+
+      - name: Check deploy configuration
+        # An unset Environment secret or variable resolves to an empty string,
+        # not an error. Fail here rather than let cf fall back to an interactive
+        # login or the health check probe an empty URL. Lengths only, never values.
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          DEPLOY_URL: ${{ vars.DEPLOY_URL }}
+          ENVIRONMENT: ${{ inputs.environment }}
+        run: |
+          missing=0
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error title=Missing secret::CLOUDFLARE_API_TOKEN is not set on the '$ENVIRONMENT' Environment."
+            missing=1
+          fi
+          if [ -z "$DEPLOY_URL" ]; then
+            echo "::error title=Missing variable::DEPLOY_URL is not set on the '$ENVIRONMENT' Environment."
+            missing=1
+          fi
+          [ "$missing" -eq 0 ] || exit 1
+          echo "CLOUDFLARE_API_TOKEN length ${#CLOUDFLARE_API_TOKEN}; DEPLOY_URL $DEPLOY_URL"
+
+      - name: Install dependencies
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Build (staging mode)
+        # COMMIT_SHA is compiled into /api/health, which is how the health check
+        # can tell this release from the version it replaced.
+        env:
+          COMMIT_SHA: ${{ inputs.commit-sha }}
+        run: corepack pnpm exec vite build --mode staging
+
+      # D1 migrations are deliberately not applied here. The staging database
+      # stays empty until issue #15 implements the lead pipeline; /api/health
+      # only checks that D1 answers.
       - name: Deploy
         id: deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          COMMIT_SHA: ${{ inputs.commit-sha }}
+          DEPLOY_URL: ${{ vars.DEPLOY_URL }}
+          RUN_ID: ${{ github.run_id }}
+          CF_QUIET: "1"
+        # --provision=false: resources are created by an admin, never as a side
+        # effect of a deploy. The message carries the full SHA so rollback can
+        # find this version again.
         run: |
-          echo "::error title=Template not configured::.github/workflows/staging-deploy.yml is still a placeholder."
-          echo "Replace the 'Deploy' step with this project's staging deploy command,"
-          echo "and set the 'url' step output to the deployed base URL."
-          echo "See docs/CUSTOMIZATION.md for the section matching your stack."
-          exit 1
-      # ──────────────────────────────────────────────────────────────────────
+          set -euo pipefail
+          corepack pnpm exec cf deploy --mode staging --prebuilt --provision=false \
+            --tag "${COMMIT_SHA:0:12}" \
+            --message "sha=$COMMIT_SHA run=$RUN_ID"
+          echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
