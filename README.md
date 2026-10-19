@@ -17,8 +17,7 @@ Built from the Project Helix application template.
 
 The four-screen frontend design is implemented: age gate, session intro, homepage
 and `/wholesale` signup preview. This is not yet a working lead-capture service.
-The frontend foundation and governance import described below are submitted
-in separate draft PRs under issue #1; they are pending merge into `main`.
+The frontend foundation and governance import are merged into `main`.
 
 | Area | Current state |
 | --- | --- |
@@ -28,13 +27,15 @@ in separate draft PRs under issue #1; they are pending merge into `main`.
 | Tests | Vitest guards, validation, draft and smoke-clock tests; Playwright regressions against the production preview |
 | Governance | Vendored policies, standards, security guidance and onboarding documents |
 | Brand assets | Local HOUSE OF HELIX logo variants in `public/brand/` |
+| Compliance copy | Age-gate sentence and a site-wide hemp product notice (21+) on every route, frozen in `src/content/compliance.ts` and guarded verbatim |
+| Pricing (not launched) | Server-only quote and discount modules, product data and domain schemas with unit tests (#36); not wired into any route |
 | Signup, lead storage and email | Frontend validation and preview/edit states implemented; server storage and email remain unimplemented |
-| Hosting and deployment | Cloudflare Workers via vinext and the `cf` CLI ([ADR-0001](docs/decisions/0001-cloudflare-workers-adapter.md)); Dev40 staging preview configuration is available; automated deploy and rollback workflows remain placeholders |
+| Hosting and deployment | Cloudflare Workers via vinext and the `cf` CLI ([ADR-0001](docs/decisions/0001-cloudflare-workers-adapter.md)); staging deploys run in CI through the Deploy workflow (#37, #38); production deploy and rollback workflows remain placeholders |
 
 The recent frontend foundation is reusable for the launch. The quote/pricing
-prototype on local branch `chore/23-park-quote-pricing` is parked for later and
-is not included here. Accounts, checkout, live inventory, pricing tiers and a
-full product catalogue are outside the first launch.
+prototype was merged in #36 as server-side code that no page uses yet. It is
+parked for later and is not part of the first launch. Accounts, checkout, live
+inventory, pricing tiers and a full product catalogue are outside the first launch.
 
 ## Run locally
 
@@ -65,9 +66,11 @@ pnpm version declared in `package.json` and run the same commands with `pnpm`.
 Worker secrets are declared in `cloudflare.config.ts` and listed with empty
 values in the tracked `.dev.vars.example`. Local values go in the ignored
 `.dev.vars`. Staging and production values are Worker secrets, set with
-`cf workers secrets update <NAME> --mode <mode>` by a technical admin; the
-deploy credentials (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`) are GitHub
-Environment secrets. Nothing secret is ever committed.
+`cf workers secrets update <NAME> --mode <mode>` by a technical admin. The
+deploy credential `CLOUDFLARE_API_TOKEN` is a GitHub Environment secret; the
+staging account id comes from `cloudflare.config.ts`. Never create a repo- or
+org-level `CLOUDFLARE_API_TOKEN`: it would silently stand in for a missing
+Environment secret. Nothing secret is ever committed.
 
 ## Checks
 
@@ -190,8 +193,10 @@ launch scope. They are human review references, not pixel-test baselines.
   Prototype hotlinks are reference material that must be replaced before use.
 - Use token-based CSS and the animation `translate`, `rotate` and `scale`
   longhands; Stylelint enforces the animation restriction.
-- Keep approved compliance wording unchanged. The age-gate sentence is rendered
-  through the compliance module and protected by a verbatim guard test.
+- Keep approved compliance wording unchanged. The age-gate sentence and the
+  hemp product notice are rendered through the compliance module and protected
+  by a verbatim guard test. The notice's shield is the only permitted icon
+  (client-approved, #39).
 - Any future pricing calculation belongs on the server. A licence-consent
   cookie is never authorization for account data.
 
@@ -223,10 +228,35 @@ Project-specific guidance and known differences are listed in
 ## Deployment and security
 
 The host is Cloudflare Workers ([ADR-0001](docs/decisions/0001-cloudflare-workers-adapter.md)).
-The deploy and rollback workflows are still placeholders that intentionally
-fail; filling them and configuring GitHub Environment credentials is a separate
-workflow-only change (Helix issue #11). A green application build is not evidence
-of a deployment.
+Staging deploys run in CI. The production deploy and rollback workflows are still
+placeholders that intentionally fail; filling them is the rest of Helix issue #11.
+A green application build is not evidence of a deployment.
+
+### Staging deploy (CI)
+
+Run **Actions → Deploy → Run workflow** on `main`, with `commit-sha` and
+`approved-sha` both set to the full SHA of a merged commit and
+`deploy-production` left unchecked. From the CLI:
+
+```sh
+SHA=<full 40-character merged SHA>
+gh workflow run deploy.yml -R House-of-Helix-CMD/smokeshow_rework --ref main \
+  -f commit-sha=$SHA -f approved-sha=$SHA -f deploy-production=false
+```
+
+`staging-deploy.yml` refuses any commit that is not on `main`. It fails early if
+the `staging` Environment is missing `CLOUDFLARE_API_TOKEN` or `DEPLOY_URL`,
+builds in staging mode with the SHA compiled into `/api/health`, and deploys with
+`cf deploy --prebuilt --provision=false`. The Worker version is tagged with
+the 12-character short SHA, and its message is `sha=<sha> run=<id>`.
+`staging-health-check` then probes `/api/health`. No D1
+migrations are applied.
+
+The `staging` GitHub Environment accepts deployments from `main` only. It holds
+the secret `CLOUDFLARE_API_TOKEN` and the variable `DEPLOY_URL`. `deploy.yml`
+passes the token to the reusable workflow by name, never with `secrets: inherit`.
+A reusable workflow receives an Environment secret only when its caller passes
+it; otherwise the secret is silently empty.
 
 ### Dev40 design preview (issue #23)
 
@@ -239,8 +269,10 @@ only checks connectivity. No lead storage or email delivery is implemented.
 Staging deliberately has no email, rate-limit, or secret bindings until #15
 implements the real pipeline. Production configuration remains unprovisioned.
 
-For an authorized staging preview deployment, use Node 22 and the local `cf`
-OAuth login (or a scoped API token). Select the Dev40 account explicitly; do not
+The CI deploy above is the normal path. For a manual preview deployment, for
+example when CI is unavailable, use Node 22 and the local `cf` OAuth login (or a
+scoped API token). The commands must run from a clean checkout of a merged
+commit. Select the Dev40 account explicitly; do not
 reuse the read-only Helix admin account. Do not use a production build artifact.
 
 ```sh
