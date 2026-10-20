@@ -1,4 +1,6 @@
 .intro {
+  --brand-cyan: var(--splash-cyan);
+
   box-sizing: border-box;
   position: fixed;
   inset: 0;
@@ -11,10 +13,12 @@
   border: 0;
   background: var(--brand-night);
   color: var(--brand-white);
+  opacity: 1;
+  transition: opacity var(--intro-exit-duration, 800ms) ease-out;
 }
 
 .intro::backdrop {
-  background: var(--brand-night);
+  background: transparent;
 }
 
 .content:focus {

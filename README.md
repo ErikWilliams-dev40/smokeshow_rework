@@ -111,13 +111,14 @@ Screenshots and failure traces are written to the ignored `test-results/` direct
 ## Frontend preview flow
 
 Age consent uses the existing 30-day cookie on both `/` and `/wholesale`.
-The intro runs for three seconds once per tab session, supports Skip intro
-and Escape, and is bypassed for reduced motion. Direct signup visits return
-to `/wholesale` after consent. Skipping cancels the intro timer so it cannot
+The intro runs once per tab session: a 2.2-second hold followed by an 800ms fade
+revealing the page underneath. Skip intro and Escape use a 200ms fade. Reduced
+motion bypasses the intro or immediately closes it if already showing. Direct
+signup visits return to `/wholesale` after consent. Skipping cancels the intro timer so it cannot
 interrupt form entry. Without JavaScript the page and sales contact links remain
 usable; preview forms are disabled to prevent accidental native submissions.
 
-The intro and homepage splash use a locally bundled Three.js smoke shader:
+The intro and homepage splash use a shared, locally bundled WebGL smoke shader:
 subtle cyan-to-magenta haze with slow drift. Open Tweaks and switch Motion off
 to hold its current frame. Reduced motion, hidden tabs and off-screen sections
 also pause rendering. A static gradient remains available without WebGL.

@@ -1,10 +1,16 @@
 .smoke {
+  --smoke-reveal-duration: 2400ms;
+
   position: absolute;
   inset: 0;
   z-index: 0;
   overflow: hidden;
   border-radius: inherit;
   pointer-events: none;
+}
+
+.smoke[data-variant='intro'] {
+  --smoke-reveal-duration: 400ms;
 }
 
 .smoke::before {
@@ -22,7 +28,7 @@
       transparent 36%
     );
   content: '';
-  transition: opacity 2400ms ease-out;
+  transition: opacity var(--smoke-reveal-duration) ease-out;
 }
 
 .smoke[data-renderer='webgl']::before {

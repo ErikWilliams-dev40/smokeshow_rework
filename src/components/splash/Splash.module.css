@@ -160,8 +160,8 @@
   --delay: 1600ms;
 }
 
-/* The welcome dialog makes the page inert until the splash can be seen. */
-[inert]
+/* Prepare the complete page beneath the intro before its overlay fades away. */
+[data-intro-presented='true']
   :is(
     .header,
     .hero .eyebrow,
@@ -173,7 +173,7 @@
     .signup,
     .footer
   ) {
-  animation-play-state: paused;
+  animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
