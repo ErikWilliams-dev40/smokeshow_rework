@@ -14,9 +14,10 @@ export function Brands() {
       return
 
     const names = Array.from(section.querySelectorAll<HTMLElement>(':scope > span'))
+    if (!names.length) return
     let frame = 0
     let visible = false
-    let distance = 0
+    let centers: number[] = []
     let beam = 0
     let current = 0
     let target = 0
@@ -40,15 +41,26 @@ export function Brands() {
     const update = () => {
       const viewportHeight = window.innerHeight
       const bounds = section.getBoundingClientRect()
+      // The strip may already be visible on load on taller desktop screens.
+      const entryTop = Math.min(viewportHeight, bounds.top + window.scrollY)
       const progress = Math.min(
         1,
-        Math.max(
-          0,
-          (viewportHeight * 0.9 - bounds.top) /
-            (viewportHeight * 0.65 + bounds.height * 0.5),
-        ),
+        Math.max(0, (entryTop - bounds.top) / (entryTop + bounds.height)),
       )
-      target = -beam + progress * (distance + beam)
+      // Give every name the same share of the strip's entire visible journey.
+      // Half a slot at either end keeps the first and last brands in the spotlight.
+      const step = Math.min(
+        centers.length - 1,
+        Math.max(0, progress * centers.length - 0.5),
+      )
+      const index = Math.floor(step)
+      const fraction = step - index
+      // Ease between name centers, lingering over each name instead of moving
+      // at a constant speed through short names and the gaps between them.
+      const eased = fraction * fraction * (3 - 2 * fraction)
+      const start = centers[index] ?? 0
+      const end = centers[index + 1] ?? start
+      target = start + (end - start) * eased - beam / 2
       if (!visible) {
         current = target
         paint()
@@ -64,12 +76,14 @@ export function Brands() {
         name,
         width: name.getBoundingClientRect().width,
       }))
-      distance = 0
-      measurements.forEach(({ name, width }, index) => {
+      let distance = 0
+      centers = measurements.map(({ name, width }, index) => {
         name.style.setProperty('--brand-shimmer-offset', `${-distance}px`)
+        const center = distance + width / 2
         distance += width + (index < names.length - 1 ? 28 : 0)
+        return center
       })
-      beam = Math.min(180, Math.max(80, distance * 0.2))
+      beam = Math.max(140, ...measurements.map(({ width }) => width * 1.5))
       section.style.setProperty('--brand-shimmer-width', `${beam}px`)
       update()
     }
