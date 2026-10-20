@@ -82,6 +82,10 @@ for (const width of [320, 390, 1440]) {
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true)
+    await expect(page.locator('main')).toHaveCSS(
+      'padding-left',
+      width <= 560 ? '20px' : '56px',
+    )
     await page.screenshot({
       path: testInfo.outputPath('shipping-policy.png'),
       fullPage: true,

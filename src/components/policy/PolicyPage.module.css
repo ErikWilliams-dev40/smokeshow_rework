@@ -72,3 +72,10 @@
   margin: 8px 0 0;
   color: var(--faded);
 }
+
+/* Narrow screens use the same 20px side gutter as the splash. */
+@media (width <= 560px) {
+  .page {
+    padding-inline: 20px;
+  }
+}

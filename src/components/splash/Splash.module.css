@@ -466,7 +466,6 @@
 
 .footer {
   display: flex;
-  grid-template-columns: 1.65fr 0.85fr 0.85fr;
   flex-wrap: wrap;
   gap: 16px 28px;
   align-items: baseline;
@@ -565,12 +564,7 @@
   }
 
   .footer {
-    grid-template-columns: 1.3fr 1fr;
     gap: 32px;
-  }
-
-  .footer > div:first-child {
-    grid-column: 1 / -1;
   }
 }
 
