@@ -122,6 +122,9 @@ export function Splash() {
           <a className="sl" href="/terms">
             Terms
           </a>
+          <a className="sl" href="/shipping">
+            Shipping Policy
+          </a>
           <a className="sl" href="/returns">
             Return Policy
           </a>

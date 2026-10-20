@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 
 import { compliance } from '@/content/compliance'
 
-const routes = ['/', '/wholesale', '/privacy', '/terms', '/returns']
+const routes = ['/', '/wholesale', '/privacy', '/terms', '/returns', '/shipping']
 
 async function expectNotice(page: Page) {
   const notice = page.getByRole('contentinfo', { name: 'Hemp product notice' })

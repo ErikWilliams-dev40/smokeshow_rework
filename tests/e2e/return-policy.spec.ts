@@ -89,6 +89,7 @@ for (const width of [320, 390, 1440]) {
     await expect(legal.getByRole('link')).toHaveText([
       'Privacy',
       'Terms',
+      'Shipping Policy',
       'Return Policy',
     ])
     await legal.scrollIntoViewIfNeeded()

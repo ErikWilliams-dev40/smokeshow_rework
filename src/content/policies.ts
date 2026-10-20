@@ -1,6 +1,6 @@
 /**
  * Policy copy shared by the public legal pages.
- * Privacy and terms remain placeholders; returns uses the supplied final copy.
+ * Privacy and terms remain placeholders; returns and shipping use supplied final copy.
  *
  * Until the client supplies final privacy and terms copy, those pages plainly
  * state that nothing is in effect. To replace a placeholder, supply section
@@ -328,6 +328,270 @@ export const returns: PolicyPageCopy = {
         {
           kind: 'paragraph',
           content: ['For returns, exchanges, or order concerns:'],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            {
+              emphasis: 'Smoke Show Distro LLC',
+            },
+            {
+              break: true,
+            },
+            'Doing Business As: Smoke Show Labs',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Email: ',
+            {
+              label: 'info@smokeshowlabs.com',
+              href: 'mailto:info@smokeshowlabs.com',
+            },
+            {
+              break: true,
+            },
+            'Website: ',
+            {
+              label: 'https://smokeshowlabs.com',
+              href: 'https://smokeshowlabs.com',
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  copyright: '© 2026 Smoke Show Distro LLC. All rights reserved.',
+}
+
+// Transcribed from ./shipping_policy.txt, excluding its editorial preface.
+export const shipping: PolicyPageCopy = {
+  placeholder: false,
+  brand: 'SMOKE SHOW LABS',
+  title: 'SHIPPING POLICY',
+  effectiveDate: {
+    label: 'Effective Date: October 19, 2026',
+    dateTime: '2026-10-19',
+  },
+  introduction: [
+    {
+      kind: 'paragraph',
+      content: [
+        'Smoke Show Labs, operated by Smoke Show Distro LLC, is committed to processing and shipping orders accurately, efficiently, and securely.',
+      ],
+    },
+    {
+      kind: 'paragraph',
+      content: [
+        'This Shipping Policy applies to orders placed directly with our sales team, account managers, or authorized representatives.',
+      ],
+    },
+  ],
+  sections: [
+    {
+      heading: '1. ORDER PROCESSING',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'Most in-stock orders are processed within ',
+            {
+              emphasis: '1–2 business days',
+            },
+            ' following order confirmation and receipt of any required payment.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Processing times may vary depending on product availability, order size, verification requirements, and shipping volume.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Business days are Monday through Friday, excluding applicable holidays.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Orders received outside regular business hours may begin processing on the next business day.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '2. SHIPPING METHODS & RATES',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'We primarily ship through USPS and UPS. Alternative carriers or freight services may be used when appropriate.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Shipping methods, rates, and estimated delivery times are determined by the destination, package size, weight, and applicable carrier requirements.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Shipping charges will be communicated before an order is finalized.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: ['Expedited shipping may be available upon request.'],
+        },
+      ],
+    },
+    {
+      heading: '3. DELIVERY ESTIMATES',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'Delivery estimates are provided for convenience and are not guaranteed unless expressly agreed in writing.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Once an order has been transferred to the carrier, delivery may be affected by weather, transportation disruptions, carrier delays, or other circumstances outside our reasonable control.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'We will assist customers with reasonable shipment inquiries, tracking issues, and carrier claims.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Nothing in this policy limits rights or remedies required by applicable law.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '4. SHIPPING RESTRICTIONS',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'Smoke Show Labs reserves the right to restrict or decline shipments based on product availability, carrier requirements, applicable laws, or regulatory considerations.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Customers are responsible for providing complete and accurate shipping information.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'We may require additional verification before fulfilling certain orders.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '5. BACKORDERS & SHIPPING DELAYS',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'If an ordered product becomes unavailable, we may contact you to discuss a replacement, revised shipping date, partial shipment, or cancellation.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Where applicable law requires consent to a shipping delay or provides a right to cancellation and refund, we will honor those requirements.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: ['Substitutions will not be made without customer authorization.'],
+        },
+      ],
+    },
+    {
+      heading: '6. DAMAGED, MISSING OR INCORRECT SHIPMENTS',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: ['Please inspect your shipment promptly upon delivery.'],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'If an order arrives damaged, incomplete, or incorrect, contact us ',
+            {
+              emphasis: 'within 5 business days of delivery whenever possible',
+            },
+            '.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Provide your order or invoice number, a description of the issue, and photographs of the affected products and packaging.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: ['Retain the original packaging until the claim has been reviewed.'],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'We will investigate and arrange an appropriate replacement, credit, refund, or other resolution based on the circumstances and applicable law.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Failure to report an issue within the requested timeframe does not eliminate rights that cannot legally be waived.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '7. LOST OR MISDELIVERED PACKAGES',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'If tracking indicates that your shipment is delayed, lost, or delivered but cannot be located, contact our team.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'We will review the tracking information and coordinate with the carrier as appropriate.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Claims are evaluated individually based on delivery confirmation, shipment circumstances, and applicable legal obligations.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '8. CONTACT INFORMATION',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: ['For shipping questions or assistance:'],
         },
         {
           kind: 'paragraph',
