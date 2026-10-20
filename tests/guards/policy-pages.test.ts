@@ -7,19 +7,16 @@ import { privacy, returns, shipping, terms } from '@/content/policies'
 const root = new URL('../../', import.meta.url)
 
 /**
- * Public policy routes are reachable from the footer. Only terms remains a
- * placeholder until the client's final text replaces it.
+ * Public policy routes contain final supplied copy and are reachable from the footer.
  */
 describe('policy pages', () => {
-  it.each([['terms', terms]])(
-    '/%s has a route and is marked as a placeholder',
-    (slug, copy) => {
-      expect(existsSync(new URL(`src/app/${slug}/page.tsx`, root))).toBe(true)
-      expect(copy.placeholder).toBe(true)
-      expect(copy.notice).toMatch(/^Placeholder\./)
-      expect(copy.notice).toContain('Nothing here is in effect yet.')
-    },
-  )
+  it('provides final website terms with all sixteen sections', () => {
+    expect(existsSync(new URL('src/app/terms/page.tsx', root))).toBe(true)
+    expect(terms.placeholder).toBe(false)
+    expect(terms.notice).toBeUndefined()
+    expect(terms.effectiveDate?.dateTime).toBe('2026-10-19')
+    expect(terms.sections).toHaveLength(16)
+  })
 
   it('provides a final return policy with all ten sections', () => {
     expect(existsSync(new URL('src/app/returns/page.tsx', root))).toBe(true)

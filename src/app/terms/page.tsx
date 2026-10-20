@@ -3,11 +3,9 @@ import type { Metadata } from 'next'
 import { PolicyPage } from '@/components/policy/PolicyPage'
 import { terms } from '@/content/policies'
 
-// Placeholder text is not for search engines; drop the robots rule when the
-// client's final copy replaces it.
 export const metadata: Metadata = {
-  title: `${terms.title} · Smoke Show Labs`,
-  robots: terms.placeholder ? { index: false } : undefined,
+  title: 'Terms of Website Use · Smoke Show Labs',
+  robots: { index: true },
 }
 
 export default function TermsPage() {

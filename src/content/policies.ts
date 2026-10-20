@@ -1,11 +1,4 @@
-/**
- * Policy copy shared by the public legal pages.
- * Terms remains a placeholder; privacy, returns, and shipping use supplied final copy.
- *
- * Until the client supplies final terms copy, that page plainly states that
- * nothing is in effect. To replace a placeholder, supply section
- * bodies, remove `notice`, and set `placeholder` to false.
- */
+/** Final client-supplied copy shared by the public policy pages. */
 
 export type PolicyInline =
   | string
@@ -32,9 +25,6 @@ export type PolicyPageCopy = {
   readonly sections: readonly (string | PolicySection)[]
   readonly copyright?: string
 }
-
-const notice =
-  'Placeholder. This page will carry Smoke Show Labs’ final text once the client supplies it. Nothing here is in effect yet.'
 
 // Transcribed from ./privacy_policy.txt; normalize the mismatched email emphasis markers.
 export const privacy: PolicyPageCopy = {
@@ -386,18 +376,494 @@ export const privacy: PolicyPageCopy = {
   copyright: '© 2026 Smoke Show Distro LLC. All rights reserved.',
 }
 
+// Transcribed from ./termsOfWebsite.txt; preserve the supplied policy wording.
 export const terms: PolicyPageCopy = {
-  placeholder: true,
-  title: 'Terms of Use',
-  notice,
-  sections: [
-    'Who may use this site',
-    'Wholesale enquiries',
-    'Intellectual property',
-    'Limitation of liability',
-    'Governing law',
-    'Contact',
+  placeholder: false,
+  brand: 'SMOKE SHOW LABS',
+  title: 'TERMS OF WEBSITE USE',
+  effectiveDate: {
+    label: 'Effective Date: October 19, 2026',
+    dateTime: '2026-10-19',
+  },
+  introduction: [
+    {
+      kind: 'paragraph',
+      content: [
+        'Welcome to Smoke Show Labs. This website is owned and operated by Smoke Show Distro LLC, doing business as Smoke Show Labs ("Company," "we," "us," or "our").',
+      ],
+    },
+    {
+      kind: 'paragraph',
+      content: [
+        'These Terms of Website Use ("Terms") govern your access to and use of smokeshowlabs.com, including its product catalog, information, communications, and related services.',
+      ],
+    },
+    {
+      kind: 'paragraph',
+      content: [
+        'By accessing or using this website, you agree to these Terms. If you do not agree, please discontinue use.',
+      ],
+    },
   ],
+  sections: [
+    {
+      heading: '1. AGE REQUIREMENTS',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'This website is intended exclusively for individuals 21 years of age or older.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'By accessing this website, you represent that you meet this age requirement. We reserve the right to restrict access, request age verification, or refuse inquiries from individuals who do not meet applicable age or legal requirements.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '2. PRODUCT CATALOG & INFORMATION',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'Smoke Show Labs provides information about products, services, brands, and business opportunities through this website.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            {
+              emphasis:
+                'This website serves as a product catalog and informational resource. It does not currently process online purchases.',
+            },
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Product listings, descriptions, images, specifications, pricing, and availability are provided for informational purposes and may change without notice.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'We make reasonable efforts to maintain accurate information but do not guarantee that every listing is complete, current, or error-free.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'The inclusion of a product in our catalog does not guarantee its availability, suitability, or legality in any particular jurisdiction.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '3. PRODUCT INQUIRIES & COMMERCIAL TRANSACTIONS',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'Customers interested in purchasing products may contact Smoke Show Labs directly.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Submitting an inquiry, requesting pricing, or communicating with our sales team does not establish a purchase agreement or obligate either party to complete a transaction.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'All sales are subject to separate confirmation of applicable terms, including pricing, availability, payment, shipping, and regulatory requirements.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Written quotations, invoices, purchase orders, distribution agreements, or other sales agreements may establish additional contractual obligations when properly accepted.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'In the event of a conflict, a separately executed written agreement controls the transaction to which it applies.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '4. LEGAL & REGULATORY COMPLIANCE',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'Products displayed on this website may be subject to federal, state, and local laws, regulations, and restrictions.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Prospective purchasers, distributors, and resellers are responsible for understanding the legal requirements applicable to their intended activities.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Smoke Show Labs reserves the right to decline inquiries, restrict distribution, or refuse transactions based on legal, regulatory, safety, or legitimate business considerations.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Nothing on this website constitutes a representation that any product is legal for purchase, possession, distribution, or use in every jurisdiction.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '5. PRODUCT REPRESENTATIONS & USE',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'Product descriptions and related information are provided for general commercial and informational purposes.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Unless expressly stated and legally authorized, product information should not be interpreted as medical advice, therapeutic claims, or representations concerning the diagnosis, treatment, prevention, or cure of any disease.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Customers and commercial partners must comply with applicable product instructions, warnings, labeling requirements, and laws.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Unauthorized modification, misrepresentation, or unlawful distribution of our products is prohibited.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '6. INTELLECTUAL PROPERTY',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'All website content, including text, logos, trademarks, product photographs, graphics, designs, and other materials, is owned by Smoke Show Distro LLC or its respective licensors.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'This content is protected by applicable copyright, trademark, and intellectual property laws.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'No website content may be reproduced, modified, distributed, republished, or commercially exploited without prior written authorization, except as permitted by law.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Access to this website does not grant ownership of or a license to our intellectual property.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '7. ACCEPTABLE WEBSITE USE',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: ['You agree not to:'],
+        },
+        {
+          kind: 'list',
+          items: [
+            ['Use this website for unlawful or fraudulent purposes.'],
+            ['Misrepresent your identity or business affiliation.'],
+            ['Interfere with website operations or security.'],
+            ['Introduce viruses, malware, or harmful code.'],
+            ['Attempt unauthorized access to systems or information.'],
+            ['Infringe intellectual property or privacy rights.'],
+            ['Collect or commercially exploit website content without authorization.'],
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'We reserve the right to restrict access or take appropriate action in response to violations.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '8. THIRD-PARTY WEBSITES & SERVICES',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'This website may contain links to third-party websites, manufacturers, service providers, or other external resources.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'These websites operate independently and may have their own terms and privacy practices.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Smoke Show Labs does not control or necessarily endorse third-party content and is not responsible for the independent conduct of unaffiliated third parties, except as required by law.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '9. PRIVACY & COMMUNICATIONS',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'Our collection, use, and handling of personal information are addressed in our Privacy Policy.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'By submitting an inquiry or contacting us, you authorize us to use the information provided to respond to your request and conduct related business communications, consistent with applicable law and our Privacy Policy.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Submitting an inquiry does not automatically constitute consent to receive promotional emails or text messages where separate consent is legally required.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '10. DISCLAIMER OF WARRANTIES',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'To the maximum extent permitted by law, this website and its informational content are provided ',
+            {
+              emphasis: '"as is" and "as available."',
+            },
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Smoke Show Labs disclaims implied warranties concerning website operation, accuracy, availability, merchantability, fitness for a particular purpose, and non-infringement, except where such disclaimers are prohibited by law.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'We do not guarantee uninterrupted access, error-free performance, or continuous availability of website materials.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Nothing in these Terms excludes rights or warranties that cannot lawfully be waived.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '11. LIMITATION OF LIABILITY',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'To the maximum extent permitted by applicable law, Smoke Show Distro LLC, its affiliates, officers, employees, and representatives shall not be liable for indirect, incidental, special, consequential, or punitive damages arising from the use of or inability to use this website.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'This includes loss of profits, business opportunities, or data resulting from website interruptions, inaccuracies, or technical failures.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Nothing in these Terms excludes or limits liability that cannot lawfully be excluded, including liability for fraud or willful misconduct where prohibited by law.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Any separate product purchase or commercial agreement may contain its own applicable warranties and limitations of liability.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '12. INDEMNIFICATION',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'To the extent permitted by law, you agree to indemnify and hold harmless Smoke Show Distro LLC and its representatives against third-party claims, liabilities, damages, and reasonable legal expenses arising from your unlawful use of this website, infringement of third-party rights, or material violations of these Terms.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'This provision does not require indemnification for our own negligence, unlawful conduct, or other liabilities that cannot legally be transferred.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '13. GOVERNING LAW & DISPUTES',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            {
+              emphasis:
+                'These Terms shall be governed by the laws of the State of Montana',
+            },
+            ', without regard to conflict-of-law principles, except where applicable law requires otherwise.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'The parties agree to make reasonable, good-faith efforts to resolve disputes informally before initiating legal proceedings.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Subject to applicable jurisdictional requirements and non-waivable legal rights, disputes arising from these Terms shall be brought before courts of competent jurisdiction located in Montana.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Separate commercial agreements may establish their own dispute-resolution procedures.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '14. MODIFICATIONS TO THE WEBSITE & TERMS',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'Smoke Show Labs reserves the right to modify, suspend, or discontinue website content, features, or services at any time.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'We may update these Terms to reflect operational, business, or legal changes.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Updated Terms will be posted with a revised effective date. Material changes will be communicated when required by law.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Continued website use following the effective date of revised Terms constitutes acceptance to the extent permitted by law.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '15. SEVERABILITY & ENFORCEMENT',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            'If any provision of these Terms is determined to be invalid or unenforceable, the remaining provisions shall remain in effect.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Failure to enforce a provision does not constitute a waiver of future enforcement.',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'These Terms, together with applicable referenced website policies, govern website access and use. They do not replace separate written commercial agreements.',
+          ],
+        },
+      ],
+    },
+    {
+      heading: '16. CONTACT INFORMATION',
+      blocks: [
+        {
+          kind: 'paragraph',
+          content: [
+            {
+              emphasis: 'Smoke Show Distro LLC',
+            },
+            {
+              break: true,
+            },
+            'Doing Business As: Smoke Show Labs',
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            'Website: ',
+            {
+              label: 'https://smokeshowlabs.com',
+              href: 'https://smokeshowlabs.com',
+            },
+            {
+              break: true,
+            },
+            'Email: ',
+            {
+              label: 'info@smokeshowlabs.com',
+              href: 'mailto:info@smokeshowlabs.com',
+            },
+          ],
+        },
+        {
+          kind: 'paragraph',
+          content: [
+            {
+              emphasis: 'Governing Law: Montana, United States',
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  copyright: '© 2026 Smoke Show Distro LLC. All rights reserved.',
 }
 
 // Transcribed from ./return_policy.txt; preserve the supplied policy wording.
