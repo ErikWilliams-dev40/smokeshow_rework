@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 
 import { describe, expect, it } from 'vitest'
 
-import { privacy, terms } from '@/content/policies'
+import { privacy, returns, terms } from '@/content/policies'
 
 const root = new URL('../../', import.meta.url)
 
@@ -21,12 +21,21 @@ describe('policy pages', () => {
     expect(copy.notice).toContain('Nothing here is in effect yet.')
   })
 
-  it('links both pages from the splash footer', () => {
+  it('provides a final return policy with all ten sections', () => {
+    expect(existsSync(new URL('src/app/returns/page.tsx', root))).toBe(true)
+    expect(returns.placeholder).toBe(false)
+    expect(returns.notice).toBeUndefined()
+    expect(returns.effectiveDate?.dateTime).toBe('2026-10-19')
+    expect(returns.sections).toHaveLength(10)
+  })
+
+  it('links all policy pages from the splash footer', () => {
     const splash = readFileSync(
       new URL('src/components/splash/Splash.tsx', root),
       'utf8',
     )
     expect(splash).toContain('href="/privacy"')
     expect(splash).toContain('href="/terms"')
+    expect(splash).toContain('href="/returns"')
   })
 })

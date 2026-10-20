@@ -41,6 +41,33 @@
   font-size: 20px;
 }
 
+.brand {
+  margin: 28px 0 0;
+  font-weight: 600;
+}
+
+.body,
+.list {
+  margin: 16px 0 0;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.list {
+  padding-left: 24px;
+}
+
+.list li + li {
+  margin-top: 8px;
+}
+
+/* Jost ships no italic and font-synthesis is off, so emphasis is carried by weight. */
+.body em,
+.list em {
+  font-style: normal;
+  font-weight: 600;
+}
+
 .pending {
   margin: 8px 0 0;
   color: var(--faded);
