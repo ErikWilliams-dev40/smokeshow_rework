@@ -7,19 +7,19 @@ import { privacy, returns, shipping, terms } from '@/content/policies'
 const root = new URL('../../', import.meta.url)
 
 /**
- * /privacy and /terms exist, are reachable from the footer, and say plainly
- * that they are placeholders until the client's text replaces them (issue #14).
+ * Public policy routes are reachable from the footer. Only terms remains a
+ * placeholder until the client's final text replaces it.
  */
 describe('policy pages', () => {
-  it.each([
-    ['privacy', privacy],
-    ['terms', terms],
-  ])('/%s has a route and is marked as a placeholder', (slug, copy) => {
-    expect(existsSync(new URL(`src/app/${slug}/page.tsx`, root))).toBe(true)
-    expect(copy.placeholder).toBe(true)
-    expect(copy.notice).toMatch(/^Placeholder\./)
-    expect(copy.notice).toContain('Nothing here is in effect yet.')
-  })
+  it.each([['terms', terms]])(
+    '/%s has a route and is marked as a placeholder',
+    (slug, copy) => {
+      expect(existsSync(new URL(`src/app/${slug}/page.tsx`, root))).toBe(true)
+      expect(copy.placeholder).toBe(true)
+      expect(copy.notice).toMatch(/^Placeholder\./)
+      expect(copy.notice).toContain('Nothing here is in effect yet.')
+    },
+  )
 
   it('provides a final return policy with all ten sections', () => {
     expect(existsSync(new URL('src/app/returns/page.tsx', root))).toBe(true)
@@ -27,6 +27,14 @@ describe('policy pages', () => {
     expect(returns.notice).toBeUndefined()
     expect(returns.effectiveDate?.dateTime).toBe('2026-10-19')
     expect(returns.sections).toHaveLength(10)
+  })
+
+  it('provides a final privacy policy with all eleven sections', () => {
+    expect(existsSync(new URL('src/app/privacy/page.tsx', root))).toBe(true)
+    expect(privacy.placeholder).toBe(false)
+    expect(privacy.notice).toBeUndefined()
+    expect(privacy.effectiveDate?.dateTime).toBe('2026-10-19')
+    expect(privacy.sections).toHaveLength(11)
   })
 
   it('links all policy pages from the splash footer', () => {
