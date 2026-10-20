@@ -635,13 +635,23 @@ export const terms: PolicyPageCopy = {
         {
           kind: 'paragraph',
           content: [
-            'Our collection, use, and handling of personal information are addressed in our Privacy Policy.',
+            'Our collection, use, and handling of personal information are addressed in our ',
+            {
+              label: 'Privacy Policy',
+              href: '/privacy',
+            },
+            '.',
           ],
         },
         {
           kind: 'paragraph',
           content: [
-            'By submitting an inquiry or contacting us, you authorize us to use the information provided to respond to your request and conduct related business communications, consistent with applicable law and our Privacy Policy.',
+            'By submitting an inquiry or contacting us, you authorize us to use the information provided to respond to your request and conduct related business communications, consistent with applicable law and our ',
+            {
+              label: 'Privacy Policy',
+              href: '/privacy',
+            },
+            '.',
           ],
         },
         {

@@ -42,6 +42,11 @@ test.describe('public terms policy', () => {
     for (const link of await emailLinks.all()) {
       await expect(link).toHaveAttribute('href', 'mailto:info@smokeshowlabs.com')
     }
+    const privacyLinks = main.getByRole('link', { name: 'Privacy Policy' })
+    await expect(privacyLinks).toHaveCount(2)
+    for (const link of await privacyLinks.all()) {
+      await expect(link).toHaveAttribute('href', '/privacy')
+    }
     await expect(
       main.getByRole('link', { name: 'https://smokeshowlabs.com' }),
     ).toHaveAttribute('href', 'https://smokeshowlabs.com')
@@ -60,6 +65,10 @@ test.describe('public terms policy', () => {
     await expect(
       main.getByRole('link', { name: 'Smoke Show Labs', exact: true }),
     ).toBeFocused()
+    for (const link of await privacyLinks.all()) {
+      await page.keyboard.press('Tab')
+      await expect(link).toBeFocused()
+    }
     await page.keyboard.press('Tab')
     await expect(
       main.getByRole('link', { name: 'https://smokeshowlabs.com' }),
