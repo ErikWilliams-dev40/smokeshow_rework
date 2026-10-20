@@ -12,24 +12,18 @@ const root = new URL('../../', import.meta.url)
 describe('policy pages', () => {
   it('provides final website terms with all sixteen sections', () => {
     expect(existsSync(new URL('src/app/terms/page.tsx', root))).toBe(true)
-    expect(terms.placeholder).toBe(false)
-    expect(terms.notice).toBeUndefined()
     expect(terms.effectiveDate?.dateTime).toBe('2026-10-19')
     expect(terms.sections).toHaveLength(16)
   })
 
   it('provides a final return policy with all ten sections', () => {
     expect(existsSync(new URL('src/app/returns/page.tsx', root))).toBe(true)
-    expect(returns.placeholder).toBe(false)
-    expect(returns.notice).toBeUndefined()
     expect(returns.effectiveDate?.dateTime).toBe('2026-10-19')
     expect(returns.sections).toHaveLength(10)
   })
 
   it('provides a final privacy policy with all eleven sections', () => {
     expect(existsSync(new URL('src/app/privacy/page.tsx', root))).toBe(true)
-    expect(privacy.placeholder).toBe(false)
-    expect(privacy.notice).toBeUndefined()
     expect(privacy.effectiveDate?.dateTime).toBe('2026-10-19')
     expect(privacy.sections).toHaveLength(11)
   })
@@ -47,8 +41,6 @@ describe('policy pages', () => {
 
   it('provides a final shipping policy with all eight sections', () => {
     expect(existsSync(new URL('src/app/shipping/page.tsx', root))).toBe(true)
-    expect(shipping.placeholder).toBe(false)
-    expect(shipping.notice).toBeUndefined()
     expect(shipping.effectiveDate?.dateTime).toBe('2026-10-19')
     expect(shipping.sections).toHaveLength(8)
   })

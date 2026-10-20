@@ -21,16 +21,6 @@
   line-height: 1.05;
 }
 
-/* A rule, not an icon: the placeholder state is marked by colour and border. */
-.notice {
-  margin: 28px 0 0;
-  padding: 16px 20px;
-  border-left: 3px solid var(--promo);
-  border-radius: var(--r-card);
-  background: var(--paper-tint);
-  font-weight: 600;
-}
-
 .section {
   padding: 24px 0;
   border-bottom: 1px solid var(--line);
@@ -66,11 +56,6 @@
 .list em {
   font-style: normal;
   font-weight: 600;
-}
-
-.pending {
-  margin: 8px 0 0;
-  color: var(--faded);
 }
 
 /* Narrow screens use the same 20px side gutter as the splash. */

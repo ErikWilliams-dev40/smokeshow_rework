@@ -16,19 +16,16 @@ export type PolicySection = {
 }
 
 export type PolicyPageCopy = {
-  readonly placeholder: boolean
   readonly title: string
-  readonly notice?: string
   readonly brand?: string
   readonly effectiveDate?: { readonly label: string; readonly dateTime: string }
   readonly introduction?: readonly PolicyBlock[]
-  readonly sections: readonly (string | PolicySection)[]
+  readonly sections: readonly PolicySection[]
   readonly copyright?: string
 }
 
 // Transcribed from ./privacy_policy.txt; normalize the mismatched email emphasis markers.
 export const privacy: PolicyPageCopy = {
-  placeholder: false,
   brand: 'SMOKE SHOW LABS',
   title: 'PRIVACY POLICY',
   effectiveDate: {
@@ -378,7 +375,6 @@ export const privacy: PolicyPageCopy = {
 
 // Transcribed from ./termsOfWebsite.txt; preserve the supplied policy wording.
 export const terms: PolicyPageCopy = {
-  placeholder: false,
   brand: 'SMOKE SHOW LABS',
   title: 'TERMS OF WEBSITE USE',
   effectiveDate: {
@@ -868,7 +864,6 @@ export const terms: PolicyPageCopy = {
 
 // Transcribed from ./return_policy.txt; preserve the supplied policy wording.
 export const returns: PolicyPageCopy = {
-  placeholder: false,
   brand: 'SMOKE SHOW LABS',
   title: 'RETURN & EXCHANGE POLICY',
   effectiveDate: {
@@ -1169,7 +1164,6 @@ export const returns: PolicyPageCopy = {
 
 // Transcribed from ./shipping_policy.txt, excluding its editorial preface.
 export const shipping: PolicyPageCopy = {
-  placeholder: false,
   brand: 'SMOKE SHOW LABS',
   title: 'SHIPPING POLICY',
   effectiveDate: {

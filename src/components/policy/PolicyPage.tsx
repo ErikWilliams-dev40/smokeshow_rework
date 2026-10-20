@@ -28,25 +28,12 @@ export function PolicyPage({ copy }: { copy: PolicyPageCopy }) {
         </p>
       ) : null}
       <PolicyBlocks blocks={copy.introduction ?? []} />
-      {copy.placeholder ? (
-        <p className={styles.notice} role="note">
-          {copy.notice}
-        </p>
-      ) : null}
-      {copy.sections.map((section) => {
-        const heading = typeof section === 'string' ? section : section.heading
-        return (
-          <section key={heading} className={styles.section}>
-            <h2 className={styles.heading}>{heading}</h2>
-            {copy.placeholder ? (
-              <p className={styles.pending}>Text to follow.</p>
-            ) : null}
-            {typeof section !== 'string' ? (
-              <PolicyBlocks blocks={section.blocks} />
-            ) : null}
-          </section>
-        )
-      })}
+      {copy.sections.map((section) => (
+        <section key={section.heading} className={styles.section}>
+          <h2 className={styles.heading}>{section.heading}</h2>
+          <PolicyBlocks blocks={section.blocks} />
+        </section>
+      ))}
       {copy.copyright ? <p className={styles.body}>{copy.copyright}</p> : null}
     </main>
   )
