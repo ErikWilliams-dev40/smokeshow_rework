@@ -2,6 +2,9 @@ import 'server-only'
 
 import { cookies } from 'next/headers'
 
+export { GATE_DESTINATIONS, gateDestination } from '@/domain/gate'
+export type { GateDestination } from '@/domain/gate'
+
 /**
  * The age gate is a consent interstitial, not access control: any visitor can
  * set this cookie by hand. It records that the visitor confirmed they are 21+

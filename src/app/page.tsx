@@ -2,6 +2,7 @@ import { Intro } from '@/components/brand/Intro'
 import { AgeGate } from '@/components/compliance/AgeGate'
 import { Splash } from '@/components/splash/Splash'
 import { hasPassedGate } from '@/server/session/gate'
+import { confirmAge } from '@/server/session/gate-actions'
 
 type Props = {
   searchParams: Promise<{ declined?: string }>
@@ -16,5 +17,5 @@ export default async function HomePage({ searchParams }: Props) {
     )
   }
   const { declined } = await searchParams
-  return <AgeGate declined={declined === '1'} />
+  return <AgeGate declined={declined === '1'} confirmAge={confirmAge} />
 }

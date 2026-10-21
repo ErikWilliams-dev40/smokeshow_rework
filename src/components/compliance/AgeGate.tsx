@@ -1,15 +1,18 @@
 import Link from 'next/link'
 
 import { Wordmark } from '@/components/brand/Wordmark'
-import { confirmAge } from '@/server/session/gate-actions'
+import type { GateDestination } from '@/domain/gate'
 import { ComplianceText } from './ComplianceText'
 import styles from './AgeGate.module.css'
 
-type Props = { declined: boolean; destination?: '/' | '/wholesale' }
+type Props = {
+  declined: boolean
+  destination?: GateDestination
+  confirmAge: (formData: FormData) => Promise<never>
+}
 
-export function AgeGate({ declined, destination = '/' }: Props) {
-  const declineHref =
-    destination === '/wholesale' ? '/wholesale?declined=1' : '/?declined=1'
+export function AgeGate({ declined, destination = '/', confirmAge }: Props) {
+  const declineHref = `${destination}?declined=1`
   return (
     <main className={styles.page}>
       <section className={styles.card} aria-labelledby="gate-title">
