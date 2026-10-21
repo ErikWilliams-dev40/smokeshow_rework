@@ -2,7 +2,15 @@ import { expect, test } from '@playwright/test'
 
 import { salesContact } from '@/content/splash'
 
-const routes = ['/', '/wholesale', '/privacy', '/terms', '/returns', '/shipping']
+const routes = [
+  '/',
+  '/wholesale',
+  '/blog',
+  '/privacy',
+  '/terms',
+  '/returns',
+  '/shipping',
+]
 const { phone } = salesContact
 
 test.beforeEach(async ({ context, baseURL, page }) => {
