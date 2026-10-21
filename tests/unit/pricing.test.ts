@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 import { discountFor } from '../../src/server/pricing/discount.server'
-import { estimateQuote } from '../../src/server/pricing/estimate.server'
+import {
+  estimateQuote,
+  UnknownOptionError,
+} from '../../src/server/pricing/estimate.server'
 import type { QuoteSelection } from '../../src/domain'
 
 /**
@@ -64,5 +67,36 @@ describe('pricing / estimateQuote', () => {
     expect(() => estimateQuote({ ...defaultSelection, hardware: 'nope' })).toThrow(
       'Unknown hardware option: nope',
     )
+  })
+})
+
+describe('quote input boundary', () => {
+  it.each([
+    null,
+    undefined,
+    1,
+    {},
+    [],
+    { volume: 1000 },
+    {
+      hardware: 'aio-2g',
+      oil: 'distillate',
+      terpenes: 'botanical',
+      packaging: 'cr-box',
+      volume: 1,
+    },
+  ])('rejects malformed selections: %j', (input) => {
+    expect(() => estimateQuote(input)).toThrow()
+  })
+  it('distinguishes unknown options from malformed input', () => {
+    expect(() =>
+      estimateQuote({
+        hardware: 'nope',
+        oil: 'distillate',
+        terpenes: 'botanical',
+        packaging: 'cr-box',
+        volume: 5000,
+      }),
+    ).toThrow(UnknownOptionError)
   })
 })

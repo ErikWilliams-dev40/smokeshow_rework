@@ -18,50 +18,58 @@
 import 'server-only'
 
 import { quote } from '../../data/quote'
-import type { QuoteEstimate, QuoteOptionGroupKey, QuoteSelection } from '../../domain'
+import type { QuoteEstimate, QuoteOptionGroupKey } from '../../domain'
+import { quoteSelection } from '../../domain/quote'
 import { discountFor } from './discount.server'
 
 /** Round to cents. */
 const round2 = (n: number): number => Math.round(n * 100) / 100
 
+export class UnknownOptionError extends Error {
+  override name = 'UnknownOptionError'
+}
+
 function findOption(groupKey: QuoteOptionGroupKey, optionKey: string) {
   const group = quote.groups.find((g) => g.key === groupKey)
   const option = group?.options.find((o) => o.key === optionKey)
   if (!option) {
-    throw new Error(`Unknown ${groupKey} option: ${optionKey}`)
+    throw new UnknownOptionError(`Unknown ${groupKey} option: ${optionKey}`)
   }
   return option
 }
 
-export function estimateQuote(selection: QuoteSelection): QuoteEstimate {
-  const hardware = findOption('hardware', selection.hardware).unitPrice
-  const oil = findOption('oil', selection.oil).unitPrice
-  const terpenes = findOption('terpenes', selection.terpenes).unitPrice
-  const packaging = findOption('packaging', selection.packaging).unitPrice
+export function estimateQuote(input: unknown): QuoteEstimate {
+  const selection = quoteSelection.parse(input)
+  const hardware = findOption('hardware', selection.hardware)
+  const oil = findOption('oil', selection.oil)
+  const terpenes = findOption('terpenes', selection.terpenes)
+  const packaging = findOption('packaging', selection.packaging)
 
   const discount = discountFor(selection.volume)
-  const rawUnitPrice = (hardware + oil + terpenes + packaging) * discount
+  const rawUnitPrice =
+    (hardware.unitPrice + oil.unitPrice + terpenes.unitPrice + packaging.unitPrice) *
+    discount
 
   const lineItems = [
     {
       label: 'Hardware',
-      name: findOption('hardware', selection.hardware).name,
-      amount: round2(hardware * discount),
+      name: hardware.name,
+      amount: round2(hardware.unitPrice * discount),
     },
     {
       label: 'Oil',
-      name: findOption('oil', selection.oil).name,
-      amount: round2(oil * discount),
+      name: oil.name,
+      amount: round2(oil.unitPrice * discount),
     },
     {
       label: 'Terpenes',
-      name: findOption('terpenes', selection.terpenes).name,
-      amount: round2(terpenes * discount),
+      name: terpenes.name,
+      amount: round2(terpenes.unitPrice * discount),
     },
     {
       label: 'Packaging',
-      name: findOption('packaging', selection.packaging).name,
-      amount: round2(packaging * discount),
+      name: packaging.name,
+      amount: round2(packaging.unitPrice * discount),
     },
   ]
 
