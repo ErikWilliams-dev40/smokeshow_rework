@@ -21,3 +21,6 @@ pnpm-lock.yaml
 # rewrites them on every run is exactly that side effect.
 .github/
 .claude/
+
+# Developer handoff is reference material, not application source.
+smokeshow-dev-handoff/

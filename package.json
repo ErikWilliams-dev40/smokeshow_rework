@@ -25,7 +25,8 @@
     "cf:types": "cf workers types",
     "db:migrate:local": "cf d1 migrations apply 00000000-0000-4000-8000-000000000001 --local --dir migrations --persist-to .cloudflare/state",
     "db:migrate:staging": "cf d1 migrations apply $DB_ID_STAGING --mode staging --dir migrations",
-    "db:migrate:prod": "cf d1 migrations apply $DB_ID_PRODUCTION --mode production --dir migrations"
+    "db:migrate:prod": "cf d1 migrations apply $DB_ID_PRODUCTION --mode production --dir migrations",
+    "test:blog-api": "node scripts/test-blog-api.mjs"
   },
   "dependencies": {
     "@vinext/cloudflare": "1.1.0",

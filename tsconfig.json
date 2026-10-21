@@ -34,5 +34,5 @@
     ".next/dev/types/**/*.ts",
     ".cloudflare/types"
   ],
-  "exclude": ["node_modules", "design_handoff_wholesale_b2b"]
+  "exclude": ["node_modules", "design_handoff_wholesale_b2b", "smokeshow-dev-handoff"]
 }

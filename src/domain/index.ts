@@ -2,3 +2,4 @@
 export * from './pricing'
 export * from './product'
 export * from './quote'
+export * from './article'

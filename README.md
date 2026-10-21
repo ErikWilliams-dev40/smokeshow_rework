@@ -108,6 +108,14 @@ validation and verification previews, temporary interest cleanup, mobile
 navigation, 320/390/768px layouts, desktop placement, and smoke motion/fallbacks.
 Screenshots and failure traces are written to the ignored `test-results/` directory.
 
+## Public blog
+
+The public `/blog` pages render approved structured articles through a private
+server-side API and proxy images through the same origin. Local development
+uses sample articles when no API URL is set; deployed environments fail closed
+until configured. See [blog setup and testing](docs/BLOG.md) and the
+[draft approval checklist](docs/BLOG_COMPLIANCE.md).
+
 ## Frontend preview flow
 
 Age consent uses the existing 30-day cookie on both `/` and `/wholesale`.

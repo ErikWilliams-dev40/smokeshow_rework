@@ -32,7 +32,7 @@ export default defineConfig((ctx) => {
     accountId: mode === 'staging' ? '8441cc5cfd234da96da8cdf090d94658' : undefined,
     worker: defineWorker({
       name: `smokeshow-web${suffix}`,
-      entrypoint: 'vinext/server/fetch-handler',
+      entrypoint: './src/worker.ts',
       // Must not exceed the date the installed workerd supports, or the local
       // runtime refuses to start. Raise it together with the toolchain.
       compatibilityDate: '2026-10-07',
@@ -63,6 +63,10 @@ export default defineConfig((ctx) => {
       },
       env: {
         ASSETS: bindings.assets(),
+        // Non-secret URL is supplied at build time; runtime access uses getEnv().
+        BLOG_API_URL: bindings.text(process.env.BLOG_API_URL ?? ''),
+        BLOG_API_TOKEN: bindings.secret(),
+        BLOG_ALLOW_FIXTURES: bindings.text(mode === 'local' ? 'true' : 'false'),
 
         // Lead records. One database per environment; migrations in ./migrations.
         DB: bindings.d1({ name: `smokeshow-leads${suffix}`, id: D1_IDS[mode] }),

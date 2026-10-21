@@ -16,9 +16,27 @@ export default tseslint.config(
       // Reference material from the design handoff: a prototype built on a
       // bespoke template runtime, deliberately not part of the build.
       'design_handoff_wholesale_b2b/**',
+      'smokeshow-dev-handoff/**',
     ],
   },
 
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/server/cloudflare/env.ts'],
+    rules: { 'no-restricted-imports': ['error', { paths: ['cloudflare:workers'] }] },
+  },
+  {
+    files: ['src/components/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: ['cloudflare:workers', '@/server'],
+          patterns: ['@/server/**', '**/server/**'],
+        },
+      ],
+    },
+  },
   js.configs.recommended,
   ...next,
 
