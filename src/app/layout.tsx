@@ -1,4 +1,5 @@
 import { HempNotice } from '@/components/layout/HempNotice'
+import { PhoneBar } from '@/components/layout/PhoneBar'
 import { MotionProvider } from '@/components/motion/MotionSettings'
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="brand">
       <body>
+        <PhoneBar />
         <MotionProvider>{children}</MotionProvider>
         <HempNotice />
       </body>
