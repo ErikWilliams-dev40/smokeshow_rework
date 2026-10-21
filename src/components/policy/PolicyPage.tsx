@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Fragment } from 'react'
 
 import type { PolicyBlock, PolicyInline, PolicyPageCopy } from '@/content/policies'
@@ -12,9 +13,9 @@ export function PolicyPage({ copy }: { copy: PolicyPageCopy }) {
   return (
     <main className={styles.page}>
       <p className={styles.back}>
-        <a className="sl" href="/">
+        <Link className="sl" href="/">
           Smoke Show Labs
-        </a>
+        </Link>
       </p>
       {copy.brand ? <p className={styles.brand}>{copy.brand}</p> : null}
       <h1 className={styles.title}>{copy.title}</h1>

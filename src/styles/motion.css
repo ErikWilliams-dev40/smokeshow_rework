@@ -92,34 +92,6 @@
   }
 }
 
-/* The crisp mark, breathing behind the hero figure. */
-@keyframes ss-breathe {
-  0%,
-  100% {
-    scale: 1;
-    rotate: -1.4deg;
-  }
-
-  50% {
-    scale: 1.05;
-    rotate: 1.4deg;
-  }
-}
-
-/* The halo behind the mark, on a slower clock than the breathe. */
-@keyframes ss-halo {
-  0%,
-  100% {
-    opacity: 0.5;
-    scale: 1;
-  }
-
-  50% {
-    opacity: 0.95;
-    scale: 1.12;
-  }
-}
-
 /* Film grain. Stepped, so it jitters rather than slides. */
 @keyframes ss-grain {
   0% {

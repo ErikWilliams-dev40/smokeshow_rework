@@ -40,32 +40,3 @@
     transition: none;
   }
 }
-
-.figure {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 100%;
-  aspect-ratio: 1;
-}
-
-.halo {
-  position: absolute;
-  width: 88%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--brand-magenta) 55%, transparent) 0%,
-    color-mix(in srgb, var(--brand-cyan) 18%, transparent) 42%,
-    rgb(9 5 9 / 0%) 70%
-  );
-  filter: blur(24px);
-  animation: ss-halo 11s ease-in-out infinite;
-}
-
-.mark {
-  position: relative;
-  width: 78%;
-  animation: ss-breathe 13s ease-in-out infinite;
-}

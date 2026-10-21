@@ -12,7 +12,6 @@ import type { quoteSelection } from './quote'
 
 /** Prices and totals are plain USD numbers; rounding/formatting is server-owned. */
 export const money = z.number().nonnegative().finite()
-export type Money = z.infer<typeof money>
 
 /** A line in the estimate's `<dl>` ("Hardware", "Oil", …). */
 export const priceLineItem = z.object({
