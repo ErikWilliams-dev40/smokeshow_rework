@@ -1,4 +1,5 @@
 import { getEnv } from '@/server/cloudflare/env'
+import { safeError } from '@/server/logging'
 
 /**
  * Readiness probe. `staging-health-check` and `production-health-check` point
@@ -18,8 +19,9 @@ export async function GET() {
   let d1: 'ok' | 'error' = 'ok'
   try {
     await getEnv().DB.prepare('select 1').first()
-  } catch {
+  } catch (error) {
     d1 = 'error'
+    console.error('D1 readiness failed', safeError(error))
   }
   const ok = d1 === 'ok'
   return Response.json(
