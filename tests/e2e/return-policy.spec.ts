@@ -2,6 +2,9 @@ import { readFileSync } from 'node:fs'
 
 import { expect, test } from '@playwright/test'
 
+import { salesContact } from '@/content/splash'
+
+const { phone } = salesContact
 const suppliedPolicy = readFileSync(
   new URL('../../src/content/return_policy.txt', import.meta.url),
   'utf8',
@@ -59,6 +62,11 @@ test('complete final policy is publicly readable without JavaScript or consent',
       page.getByRole('heading', { name: 'Are you 21 or older?' }),
     ).toHaveCount(0)
     await expect(main.getByRole('note')).toHaveCount(0)
+    // The site-wide phone strip is body's first child, so it owns the first
+    // Tab stop; the policy's own links start on the second.
+    const call = page.getByRole('link', { name: `Call sales at ${phone.display}` })
+    await page.keyboard.press('Tab')
+    await expect(call).toBeFocused()
     await page.keyboard.press('Tab')
     await expect(
       main.getByRole('link', { name: 'Smoke Show Labs', exact: true }),

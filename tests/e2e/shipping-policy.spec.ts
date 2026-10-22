@@ -2,6 +2,10 @@ import { readFileSync } from 'node:fs'
 
 import { expect, test } from '@playwright/test'
 
+import { salesContact } from '@/content/splash'
+
+const { phone } = salesContact
+
 // The supplied file starts with an editorial label before the Markdown title.
 const suppliedPolicy = readFileSync(
   new URL('../../src/content/shipping_policy.txt', import.meta.url),
@@ -51,6 +55,11 @@ test.describe('public shipping policy', () => {
     expect((await context.cookies()).some((cookie) => cookie.name === 'ss_gate')).toBe(
       false,
     )
+    // The site-wide phone strip is body's first child, so it owns the first
+    // Tab stop; the policy's own links start on the second.
+    const call = page.getByRole('link', { name: `Call sales at ${phone.display}` })
+    await page.keyboard.press('Tab')
+    await expect(call).toBeFocused()
     await page.keyboard.press('Tab')
     await expect(
       main.getByRole('link', { name: 'Smoke Show Labs', exact: true }),
