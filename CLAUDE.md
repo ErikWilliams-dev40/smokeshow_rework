@@ -10,9 +10,10 @@ Guidance for Claude Code working in this repository.
   licensed cannabis operators specify and price white-label vape products
   (hardware, terpenes, blending and filling, packaging).
 - **Stack:** TypeScript on Next.js (App Router, server rendering), React, pnpm,
-  Node 24. Styling is plain CSS with CSS Modules over a custom-property token
-  system — deliberately not Tailwind, see below. Vitest for units, Playwright
-  for end-to-end and visual review.
+  Node 22 (`.nvmrc` pins the major, `engines` requires >=22.12). Styling is
+  plain CSS with CSS Modules over a custom-property token system — deliberately
+  not Tailwind, see below. Vitest for units, Playwright for end-to-end and
+  visual review.
 - **Hosting:** Cloudflare Workers through vinext, configured by
   `cloudflare.config.ts` and operated with the `cf` CLI; D1 for records, the
   `send_email` binding for mail, a rate-limit binding for the form. See
@@ -42,10 +43,11 @@ scripts, so there is one definition of each command rather than two.
 Keep this table and the workflows in sync. If they drift, CI and local runs stop
 agreeing and the AI review gate loses its reference point.
 
-CI has no `setup-*` action: it uses the runner's preinstalled Node and reaches
-pnpm through `corepack pnpm ...`, which resolves the version pinned by
-`packageManager` in `package.json`. Each job asserts the runner's Node major
-matches `.nvmrc` and fails if it does not.
+Every CI job that runs Node installs it with `actions/setup-node`, pinned to a
+commit and reading `node-version-file: .nvmrc`, so the file is the single source
+of truth for the major; each job then asserts the active Node still matches
+`.nvmrc` before doing any work. pnpm is reached through `corepack pnpm ...`,
+which resolves the version pinned by `packageManager` in `package.json`.
 
 ## Layout
 

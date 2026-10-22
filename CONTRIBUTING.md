@@ -97,8 +97,9 @@ PR title.
 
 ## Local setup
 
-**Prerequisites:** Node 24 (the version in `.nvmrc`) and pnpm. pnpm is pinned by
-the `packageManager` field, so you do not need to choose a version:
+**Prerequisites:** Node 22.12 or later within Node 22 (`.nvmrc` pins the major)
+and pnpm. pnpm is pinned by the `packageManager` field, so you do not need to
+choose a version:
 
 ```sh
 corepack enable pnpm     # or: npm install -g pnpm
@@ -119,9 +120,9 @@ pnpm dev                # http://localhost:3000
 **Before opening a pull request**, run what CI runs:
 
 ```sh
-pnpm lint               # tsc --noEmit, ESLint, Stylelint, Prettier --check
+pnpm lint               # cf workers types, tsc --noEmit, ESLint, Stylelint, Prettier
 pnpm test               # Vitest
-pnpm build              # next build
+pnpm build              # vite build (the production Worker)
 pnpm audit --audit-level=high
 ```
 

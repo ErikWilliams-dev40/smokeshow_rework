@@ -39,9 +39,9 @@ inventory, pricing tiers and a full product catalogue are outside the first laun
 
 ## Run locally
 
-Use **Node 22.12 or later within Node 22** (`.nvmrc` pins major 22) and
-**pnpm 12.3.4** (`package.json` pins the package manager). Older template
-references to Node 24 are stale; use the manifest and `.nvmrc`.
+Use **Node 22.12 or later within Node 22** (`.nvmrc` pins major 22, `engines`
+requires >=22.12) and **pnpm 12.3.4** (`package.json` pins the package
+manager). CI installs Node from `.nvmrc`, so keep the two in step.
 
 ```sh
 nvm install

@@ -14,7 +14,7 @@ review process, not the decision. A human owner still approves.
 
 Smoke Show Labs: a Next.js (App Router, server rendering) TypeScript storefront
 through which licensed cannabis operators price and specify white-label vape
-products. pnpm, Node 24. Data currently comes from typed fixtures behind
+products. pnpm, Node 22. Data currently comes from typed fixtures behind
 repository interfaces — there is no database and no authentication yet.
 
 ### Trust boundaries, in the order they matter here
