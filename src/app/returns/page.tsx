@@ -1,11 +1,10 @@
-import type { Metadata } from 'next'
+import { pageMetadata } from '@/server/seo/metadata'
 
 import { PolicyPage } from '@/components/policy/PolicyPage'
 import { returns } from '@/content/policies'
 
-export const metadata: Metadata = {
-  title: 'Return & Exchange Policy · Smoke Show Labs',
-  robots: { index: true },
+export function generateMetadata() {
+  return pageMetadata('/returns', 'Return & Exchange Policy', undefined, true)
 }
 
 export default function ReturnsPage() {

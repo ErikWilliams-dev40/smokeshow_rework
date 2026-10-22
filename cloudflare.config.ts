@@ -63,6 +63,7 @@ export default defineConfig((ctx) => {
       },
       env: {
         ASSETS: bindings.assets(),
+        DEPLOYMENT_ENV: bindings.text(mode),
         // Non-secret URL is supplied at build time; runtime access uses getEnv().
         BLOG_API_URL: bindings.text(process.env.BLOG_API_URL ?? ''),
         BLOG_API_TOKEN: bindings.secret(),
