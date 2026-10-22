@@ -1,8 +1,13 @@
+import { pageMetadata } from '@/server/seo/metadata'
 import { Intro } from '@/components/brand/Intro'
 import { AgeGate } from '@/components/compliance/AgeGate'
 import { Splash } from '@/components/splash/Splash'
 import { hasPassedGate } from '@/server/session/gate'
 import { confirmAge } from '@/server/session/gate-actions'
+
+export function generateMetadata() {
+  return pageMetadata('/', 'Wholesale inquiries', undefined, false)
+}
 
 type Props = {
   searchParams: Promise<{ declined?: string }>

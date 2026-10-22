@@ -1,11 +1,10 @@
-import type { Metadata } from 'next'
+import { pageMetadata } from '@/server/seo/metadata'
 
 import { PolicyPage } from '@/components/policy/PolicyPage'
 import { shipping } from '@/content/policies'
 
-export const metadata: Metadata = {
-  title: 'Shipping Policy · Smoke Show Labs',
-  robots: { index: true },
+export function generateMetadata() {
+  return pageMetadata('/shipping', 'Shipping Policy', undefined, true)
 }
 
 export default function ShippingPage() {

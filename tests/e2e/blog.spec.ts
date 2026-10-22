@@ -23,7 +23,7 @@ test('public fixture blog supports pagination, article rendering and real 404s',
   await expect(
     page.getByRole('heading', { name: 'Planning a wholesale inquiry', exact: true }),
   ).toBeVisible()
-  await expect(page).toHaveTitle('Planning a wholesale inquiry | Smoke Signals')
+  await expect(page).toHaveTitle('Planning a wholesale inquiry | Smoke Show Labs')
   await expect(page.locator('blockquote')).toHaveText(/Start with a clear brief/)
   for (const image of await page.locator('main img').all()) {
     await expect(image).toHaveJSProperty('naturalWidth', 2400)

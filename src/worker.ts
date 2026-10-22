@@ -1,3 +1,4 @@
+import { indexingResponse, seoConfig } from './domain/seo'
 import handler from 'vinext/server/fetch-handler'
 import { blogResponse } from './server/blog/worker.server'
 
@@ -7,8 +8,14 @@ const delegate = handler as {
   fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response>
 }
 const worker: ExportedHandler<Env> = {
-  fetch(request, env, ctx) {
-    return blogResponse(request, () => delegate.fetch(request, env, ctx))
+  async fetch(request, env, ctx) {
+    const response = await blogResponse(request, () =>
+      delegate.fetch(request, env, ctx),
+    )
+    return indexingResponse(
+      response,
+      seoConfig(env.SITE_URL, env.DEPLOYMENT_ENV).indexable,
+    )
   },
 }
 export default worker

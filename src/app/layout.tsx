@@ -2,6 +2,7 @@ import { HempNotice } from '@/components/layout/HempNotice'
 import { PhoneBar } from '@/components/layout/PhoneBar'
 import { MotionProvider } from '@/components/motion/MotionSettings'
 import type { Metadata } from 'next'
+import { isIndexable, siteUrl } from '@/server/seo/metadata'
 import type { ReactNode } from 'react'
 
 // Order is load-bearing: tokens define the custom properties that base.css and
@@ -11,10 +12,19 @@ import '../styles/base.css'
 import '../styles/motion.css'
 import '../styles/utilities.css'
 
-export const metadata: Metadata = {
-  title: 'Smoke Show Labs',
-  description:
-    'Wholesale bulk flower, vapes, edibles, pre-rolls, concentrates and HOUSE OF HELIX peptide strips for retailers, distributors and brands.',
+export function generateMetadata(): Metadata {
+  return {
+    metadataBase: new URL(siteUrl()),
+    title: { default: 'Smoke Show Labs', template: '%s | Smoke Show Labs' },
+    description:
+      'Wholesale bulk flower, vapes, edibles, pre-rolls, concentrates and HOUSE OF HELIX peptide strips for retailers, distributors and brands.',
+    robots: { index: isIndexable(), follow: true },
+    openGraph: {
+      siteName: 'Smoke Show Labs',
+      type: 'website',
+      images: [{ url: '/brand/ss-logo.png', alt: 'Smoke Show Labs' }],
+    },
+  }
 }
 
 /** Shared theme tokens keep all launch screens on the screenshot palette. */

@@ -1,11 +1,10 @@
-import type { Metadata } from 'next'
+import { pageMetadata } from '@/server/seo/metadata'
 
 import { PolicyPage } from '@/components/policy/PolicyPage'
 import { privacy } from '@/content/policies'
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy · Smoke Show Labs',
-  robots: { index: true },
+export function generateMetadata() {
+  return pageMetadata('/privacy', 'Privacy Policy', undefined, true)
 }
 
 export default function PrivacyPage() {
