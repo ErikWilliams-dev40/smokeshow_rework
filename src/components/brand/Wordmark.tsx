@@ -2,11 +2,14 @@ import styles from './Brand.module.css'
 
 export function Wordmark({ large = false }: { large?: boolean }) {
   return (
-    // Supplied brand artwork with intrinsic dimensions to reserve its layout.
+    // Supplied brand artwork, sized for up to 440px at 2x, with intrinsic dimensions to reserve its layout.
     // eslint-disable-next-line @next/next/no-img-element
     <img
       className={`${styles.wordmark} ${large ? styles.large : ''}`}
-      src="/brand/ss-logo.png"
+      src="/brand/ss-logo-900.webp"
+      srcSet="/brand/ss-logo-450.webp 450w, /brand/ss-logo-900.webp 900w"
+      sizes={large ? '440px' : '260px'}
+      fetchPriority="high"
       alt="Smoke Show Labs"
       width={2400}
       height={320}

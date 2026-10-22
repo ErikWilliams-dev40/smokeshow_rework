@@ -33,6 +33,15 @@ export function generateMetadata(): Metadata {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="brand">
+      <head>
+        <link
+          rel="preload"
+          href="/fonts/jost-variable.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>
         <PhoneBar />
         <JsonLd data={organizationSchema(siteUrl())} />
