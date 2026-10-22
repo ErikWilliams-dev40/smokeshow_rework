@@ -63,8 +63,18 @@ test.describe('server consent and no-JavaScript fallback', () => {
 })
 
 test.describe('consented frontend', () => {
-  test.beforeEach(async ({ context, baseURL }) => {
+  test.beforeEach(async ({ context, baseURL, page }) => {
     await context.addCookies([{ name: 'ss_gate', value: '1', url: baseURL! }])
+    // UI state tests isolate transport; launch.spec.ts exercises real D1/API behavior.
+    await page.route(/\/api\/leads(?:\/(?:resend|status))?$/, (route) =>
+      route.fulfill({
+        status: 200,
+        json: {
+          status: route.request().url().endsWith('/status') ? 'confirmed' : 'pending',
+          delivery: 'sent',
+        },
+      }),
+    )
   })
 
   test('reduced motion bypasses the intro for the rest of the session', async ({
@@ -85,7 +95,7 @@ test.describe('consented frontend', () => {
   })
 
   for (const route of ['/', '/wholesale']) {
-    test(`${route}: validation, retained details and truthful verification previews`, async ({
+    test(`${route}: validation, retained details and server-backed verification states`, async ({
       page,
     }) => {
       const submissions: string[] = []
@@ -95,7 +105,7 @@ test.describe('consented frontend', () => {
       await page.goto(route)
       const scope = route === '/' ? page.locator('#menu-signup') : page.locator('main')
       const email = scope.getByRole('textbox', { name: 'Email', exact: true })
-      const submit = scope.getByRole('button', { name: 'Preview email verification' })
+      const submit = scope.getByRole('button', { name: 'Send verification email' })
       if (route === '/') {
         await scope.getByRole('button', { name: 'Go', exact: true }).click()
         await expect(scope.getByRole('alert')).toBeFocused()
@@ -125,24 +135,20 @@ test.describe('consented frontend', () => {
       }
       await submit.click()
       await expect(
-        scope.getByRole('heading', { name: 'Check your inbox — preview' }),
+        scope.getByRole('heading', { name: 'Check your inbox' }),
       ).toBeVisible()
       await expect(
-        scope.getByText('No email has been sent in this preview.'),
+        scope.getByText('Local email simulation. No email was sent.'),
       ).toBeVisible()
       await expect(
-        scope.getByRole('link', { name: 'contact our team' }),
+        scope.getByRole('link', { name: 'Contact our team' }),
       ).toHaveAttribute('href', /^mailto:/)
-      await scope.getByRole('button', { name: 'Preview resend', exact: true }).click()
+      await scope
+        .getByRole('button', { name: 'Resend verification email', exact: true })
+        .click()
+      await scope.getByRole('button', { name: 'Check verification status' }).click()
       await expect(
-        scope.getByRole('status').filter({ hasText: 'Resend preview only' }),
-      ).toBeVisible()
-      await scope.getByRole('button', { name: 'Preview verified state' }).click()
-      await expect(
-        scope.getByRole('heading', { name: 'Verification complete — preview' }),
-      ).toBeVisible()
-      await expect(
-        scope.getByText('No address has actually been verified', { exact: false }),
+        scope.getByRole('heading', { name: 'Your email is confirmed' }),
       ).toBeVisible()
       await scope.getByRole('button', { name: 'Edit details' }).click()
       await expect(
@@ -150,7 +156,7 @@ test.describe('consented frontend', () => {
       ).toHaveValue('Jordan Reyes')
       await submit.click()
       await expect(
-        scope.getByRole('heading', { name: 'Check your inbox — preview' }),
+        scope.getByRole('heading', { name: 'Check your inbox' }),
       ).toBeVisible()
       await scope.getByRole('button', { name: 'Start again' }).click()
       await expect(email).toHaveValue('')
@@ -158,7 +164,8 @@ test.describe('consented frontend', () => {
         await page.evaluate(() => sessionStorage.getItem('ss_wholesale_draft')),
       ).toBeNull()
       expect(page.url()).not.toContain('buyer')
-      expect(submissions).toEqual([])
+      expect(submissions.some((url) => url.endsWith('/api/leads'))).toBe(true)
+      expect(submissions.every((url) => !url.includes('buyer'))).toBe(true)
     })
   }
 
@@ -175,11 +182,11 @@ test.describe('consented frontend', () => {
       .getByRole('textbox', { name: 'Email', exact: true })
       .fill('buyer@example.com')
     await fillContact(page.locator('main'))
-    await page.getByRole('button', { name: 'Preview email verification' }).click()
+    await page.getByRole('button', { name: 'Send verification email' }).click()
     await expect(page.locator('dd').filter({ hasText: /^Flower$/ })).toBeVisible()
     await page.getByRole('button', { name: 'Edit details' }).click()
     await expect(page.getByText('Interested in Flower', { exact: true })).toBeVisible()
-    await page.getByRole('button', { name: 'Preview email verification' }).click()
+    await page.getByRole('button', { name: 'Send verification email' }).click()
     await page.getByRole('button', { name: 'Start again' }).click()
     await expect(page.getByRole('button', { name: 'Remove interest' })).toHaveCount(0)
     await page.getByRole('link', { name: 'Back to Smoke Show' }).click()
@@ -264,9 +271,9 @@ test.describe('consented frontend', () => {
         if (route === '/')
           await page.getByRole('button', { name: 'Go', exact: true }).click()
         await fillContact(page.locator('main'))
-        await page.getByRole('button', { name: 'Preview email verification' }).click()
+        await page.getByRole('button', { name: 'Send verification email' }).click()
         await expect(
-          page.getByRole('heading', { name: 'Check your inbox — preview' }),
+          page.getByRole('heading', { name: 'Check your inbox' }),
         ).toBeVisible()
         await noOverflow(page)
       }
@@ -288,10 +295,8 @@ test.describe('consented frontend', () => {
       .getByRole('textbox', { name: 'Email', exact: true })
       .fill('buyer@example.com')
     await fillContact(page.locator('main'))
-    await page.getByRole('button', { name: 'Preview email verification' }).click()
-    await expect(
-      page.getByRole('heading', { name: 'Check your inbox — preview' }),
-    ).toBeVisible()
+    await page.getByRole('button', { name: 'Send verification email' }).click()
+    await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeVisible()
   })
 
   test.describe('intro and motion', () => {
