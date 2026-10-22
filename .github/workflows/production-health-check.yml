@@ -22,6 +22,10 @@ on:
         description: Health endpoint path appended to the base URL.
         type: string
         default: /
+      expected-commit:
+        description: Exact approved release SHA expected from the readiness endpoint.
+        type: string
+        required: true
       expected-status:
         description: HTTP status code that means healthy.
         type: number
@@ -62,6 +66,7 @@ jobs:
           BASE_URL: ${{ inputs.url }}
           PROBE_PATH: ${{ inputs.path }}
           EXPECTED: ${{ inputs.expected-status }}
+          EXPECTED_COMMIT: ${{ inputs.expected-commit }}
           ATTEMPTS: ${{ inputs.attempts }}
           DELAY: ${{ inputs.delay-seconds }}
           REQ_TIMEOUT: ${{ inputs.timeout-seconds }}
@@ -77,6 +82,8 @@ jobs:
           target="${BASE_URL%/}/${PROBE_PATH#/}"
           echo "Probing $target — expecting HTTP $EXPECTED"
 
+          body="$(mktemp)"
+          trap 'rm -f "$body"' EXIT
           attempt=1
           while [ "$attempt" -le "$ATTEMPTS" ]; do
             # curl already emits 000 via --write-out when the request never got a
@@ -84,12 +91,13 @@ jobs:
             # `|| true` only stops set -e from aborting on curl's non-zero exit.
             code="$(curl --silent --show-error --location \
                          --max-time "$REQ_TIMEOUT" \
-                         --output /dev/null \
+                         --output "$body" \
                          --write-out '%{http_code}' \
                          "$target" || true)"
             code="${code:-000}"
 
-            if [ "$code" = "$EXPECTED" ]; then
+            if [ "$code" = "$EXPECTED" ] && jq -e --arg commit "$EXPECTED_COMMIT" \
+              '.status == "ok" and .commit == $commit and .checks.d1 == "ok"' "$body" >/dev/null 2>&1; then
               echo "Attempt $attempt/$ATTEMPTS: HTTP $code — healthy."
               echo "::notice title=Production healthy::$target returned HTTP $code"
               exit 0
@@ -105,10 +113,3 @@ jobs:
           echo "::error title=Production unhealthy::$target never returned HTTP $EXPECTED after $ATTEMPTS attempts."
           echo "If this release is marked rollback_safe, run the rollback workflow with the previous good SHA."
           exit 1
-
-      # ── CUSTOMIZE (optional) ──────────────────────────────────────────────
-      # See the equivalent note in staging-health-check.yml. For production,
-      # asserting that the deployed build reports the expected commit SHA is
-      # worth the effort: it catches a deploy that silently served the old
-      # version, which a plain 200 cannot detect.
-      # ──────────────────────────────────────────────────────────────────────

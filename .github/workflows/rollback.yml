@@ -1,9 +1,6 @@
 name: Rollback (reusable)
 
-# PLACEHOLDER for the redeploy step itself. This workflow does not know the
-# hosting environment or deploy provider — replace the step marked CUSTOMIZE.
-#
-# The safety guards below are FUNCTIONAL as shipped.
+# Rebuilds and redeploys a known-good merged SHA, retaining D1 data.
 #
 # Rollback is only meaningful if the target version can actually run against the
 # current state of the world. A release that ran a destructive or non-backward-
@@ -68,11 +65,21 @@ on:
         type: string
         default: ubuntu-latest
 
+    secrets:
+      CLOUDFLARE_API_TOKEN:
+        description: Environment-scoped deployment token; forwarded explicitly by callers.
+        required: true
+
 # Deploy credentials are read from the Environment named by the `environment`
 # input. See the explanation in staging-deploy.yml.
 
 # Least privilege: deny everything here, grant the minimum per job.
 permissions: {}
+
+# Share the deploy lock: never race a rollback with an in-flight migration/deploy.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
 
 jobs:
   rollback:
@@ -86,6 +93,20 @@ jobs:
     # Environment gate, so the same reviewers see it.
     environment:
       name: ${{ inputs.environment }}
+    env:
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      DB_ID_STAGING: ${{ vars.DB_ID_STAGING }}
+      DB_ID_PRODUCTION: ${{ vars.DB_ID_PRODUCTION }}
+      PRODUCTION_ZONE_ID: ${{ vars.PRODUCTION_ZONE_ID }}
+      DEPLOY_URL: ${{ vars.DEPLOY_URL }}
+      BLOG_API_URL: ${{ vars.BLOG_API_URL }}
+      LEADS_ENABLED: ${{ vars.LEADS_ENABLED || 'false' }}
+      MAIL_FROM: ${{ vars.MAIL_FROM }}
+      SALES_INBOX: ${{ vars.SALES_INBOX }}
+      LEAD_TEST_RECIPIENTS: ${{ vars.LEAD_TEST_RECIPIENTS }}
+      COMMIT_SHA: ${{ inputs.target-sha }}
+      DEPLOY_MODE: ${{ inputs.environment }}
     permissions:
       contents: read # required only so actions/checkout can read the repository
     steps:
@@ -112,6 +133,10 @@ jobs:
             exit 1
           fi
 
+          case "$ENVIRONMENT_NAME" in
+            staging|production) ;;
+            *) echo "::error::Rollback environment must be staging or production"; exit 1 ;;
+          esac
           echo "Rolling back $ENVIRONMENT_NAME to $TARGET_SHA"
           echo "Reason: $REASON"
 
@@ -122,29 +147,40 @@ jobs:
         with:
           ref: ${{ inputs.target-sha }}
           persist-credentials: false
+          fetch-depth: 0
 
-      # ── CUSTOMIZE ─────────────────────────────────────────────────────────
-      # Replace this step with the real rollback.
-      #
-      # The mechanism depends entirely on the platform, and the cheapest correct
-      # option is usually the platform's own:
-      #   - a provider that keeps immutable previous deployments: promote the
-      #     previous one, and no rebuild is needed;
-      #   - a container platform: redeploy the previously published image tag;
-      #   - anything else: redeploy target-sha the same way production-deploy
-      #     does.
-      #
-      # Do NOT reverse a database migration here. Schema recovery is planned by a
-      # human with the data in front of them.
-      #
-      # If this platform cannot roll back, delete this workflow rather than
-      # leaving a step that pretends to. State that plainly in the README so
-      # nobody plans around a capability that does not exist.
+      - name: Refuse unmerged rollback targets
+        run: git merge-base --is-ancestor "$COMMIT_SHA" origin/main
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # actions/setup-node v7.0.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Verify Node matches .nvmrc
+        run: test "$(node -p 'process.versions.node.split(".")[0]')" = "$(tr -d '[:space:]' < .nvmrc)"
+
+      - name: Check rollback configuration
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: node scripts/check-deploy-config.mjs "$DEPLOY_MODE"
+
+      - name: Install dependencies
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Rebuild the known-good commit
+        run: corepack pnpm exec vite build --mode "$DEPLOY_MODE"
+
+      # No D1 migration is reversed or applied during application rollback.
       - name: Redeploy previous version
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          RUN_ID: ${{ github.run_id }}
+          CF_QUIET: "1"
         run: |
-          echo "::error title=Template not configured::.github/workflows/rollback.yml is still a placeholder."
-          echo "Replace the 'Redeploy previous version' step with this project's rollback command,"
-          echo "or delete this workflow if the platform does not support rollback."
-          echo "See docs/CUSTOMIZATION.md for the section matching your stack."
-          exit 1
-      # ──────────────────────────────────────────────────────────────────────
+          set -euo pipefail
+          corepack pnpm exec cf deploy --mode "$DEPLOY_MODE" --prebuilt --provision=false \
+            --tag "${COMMIT_SHA:0:12}" --message "rollback sha=$COMMIT_SHA run=$RUN_ID"
+
+      - name: Verify restored release
+        run: node scripts/check-release-health.mjs "$DEPLOY_URL" "$COMMIT_SHA"
