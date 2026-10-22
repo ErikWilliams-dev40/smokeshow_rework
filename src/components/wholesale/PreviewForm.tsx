@@ -6,7 +6,7 @@ import styles from './PreviewForm.module.css'
 
 const subscribe = () => () => {}
 
-/** A preview must never fall back to a native form submission before hydration. */
+/** Signup must never fall back to a native form submission before hydration. */
 export function PreviewForm({ children, ...props }: ComponentProps<'form'>) {
   const ready = useSyncExternalStore(
     subscribe,
@@ -17,11 +17,18 @@ export function PreviewForm({ children, ...props }: ComponentProps<'form'>) {
     <form {...props} noValidate>
       {!ready ? (
         <p className={styles.fallback}>
-          This signup preview needs JavaScript. You can also{' '}
+          This signup needs JavaScript. You can also{' '}
           <a href={salesContact.email.href}>email our team</a>.
         </p>
       ) : null}
-      <fieldset className={styles.fields} disabled={!ready}>
+      <fieldset
+        className={styles.fields}
+        disabled={!ready || props['aria-busy'] === true}
+      >
+        <label className={styles.trap} aria-hidden="true">
+          Website
+          <input name="website" tabIndex={-1} autoComplete="off" />
+        </label>
         {children}
       </fieldset>
     </form>

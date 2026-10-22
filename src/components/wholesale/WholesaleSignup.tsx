@@ -9,7 +9,8 @@ import {
   type ContactDetails,
 } from '@/content/wholesale'
 import { clearDraft, readDraft } from './draft'
-import { VerificationPreview } from './VerificationPreview'
+import { VerificationStatus } from './VerificationStatus'
+import { useLeadSubmission } from './useLeadSubmission'
 import { PreviewForm } from './PreviewForm'
 import styles from './WholesaleSignup.module.css'
 
@@ -17,6 +18,7 @@ type Errors = Record<string, string>
 type Inquiry = ContactDetails & { interest?: string }
 
 export function WholesaleSignup() {
+  const lead = useLeadSubmission()
   const form = useRef<HTMLFormElement>(null)
   const summary = useRef<HTMLDivElement>(null)
   const [errors, setErrors] = useState<Errors>({})
@@ -40,7 +42,7 @@ export function WholesaleSignup() {
     })
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
     const text = (key: string) => {
@@ -64,9 +66,10 @@ export function WholesaleSignup() {
       return
     }
     setErrors({})
-    setPreview(result.data)
+    if (await lead.submit(result.data, text('website'))) setPreview(result.data)
   }
   function edit() {
+    lead.reset()
     clearDraft()
     setPreview(null)
     requestAnimationFrame(() =>
@@ -117,11 +120,15 @@ export function WholesaleSignup() {
           </Link>
         </div>
       </aside>
-      <section className={styles.formPanel} aria-label="Wholesale inquiry preview">
-        <p className={styles.previewLabel}>
-          Design preview · No details or emails are sent
-        </p>
-        <PreviewForm ref={form} onSubmit={submit} hidden={preview !== null}>
+      <section className={styles.formPanel} aria-label="Wholesale inquiry">
+        <p className={styles.previewLabel}>Get the Wholesale Menu</p>
+        <PreviewForm
+          ref={form}
+          onSubmit={submit}
+          hidden={preview !== null}
+          aria-busy={lead.busy}
+        >
+          {lead.error ? <p role="alert">{lead.error}</p> : null}
           <h2 className={styles.formHeading}>Just three details.</h2>
           <p className={styles.formDescription}>
             We’ll ask about your business when we follow up.
@@ -208,16 +215,21 @@ export function WholesaleSignup() {
           </div>
           <div className={styles.submitRow}>
             <p>
-              For licensed businesses, 21+. Preview only; no inquiry or verification
-              email is sent.
+              For licensed businesses, 21+. Confirm your email so our team can follow
+              up.
             </p>
             <button type="submit">
-              Preview email verification <span aria-hidden="true">→</span>
+              Send verification email <span aria-hidden="true">→</span>
             </button>
           </div>
         </PreviewForm>
-        {preview ? (
-          <VerificationPreview
+        {preview && lead.state ? (
+          <VerificationStatus
+            state={lead.state}
+            busy={lead.busy}
+            error={lead.error}
+            onResend={lead.resend}
+            onRefresh={lead.refresh}
             details={preview}
             interest={preview.interest}
             onEdit={edit}

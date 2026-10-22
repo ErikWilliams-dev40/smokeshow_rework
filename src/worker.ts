@@ -1,3 +1,4 @@
+import { deliverPending } from './server/leads/delivery'
 import { indexingResponse, seoConfig } from './domain/seo'
 import handler from 'vinext/server/fetch-handler'
 import { blogResponse } from './server/blog/worker.server'
@@ -8,6 +9,14 @@ const delegate = handler as {
   fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response>
 }
 const worker: ExportedHandler<Env> = {
+  async scheduled(_controller, env) {
+    if (env.LEADS_ENABLED !== 'true') return
+    try {
+      await deliverPending()
+    } catch {
+      console.error('Lead delivery scheduler unavailable')
+    }
+  },
   async fetch(request, env, ctx) {
     const response = await blogResponse(request, () =>
       delegate.fetch(request, env, ctx),

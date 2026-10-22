@@ -1,4 +1,4 @@
-import { bindings, defineConfig, defineWorker } from 'cf/config'
+import { bindings, defineConfig, defineWorker, triggers } from 'cf/config'
 
 /**
  * Worker configuration for every environment. The mode comes from Vite
@@ -33,6 +33,7 @@ export default defineConfig((ctx) => {
     worker: defineWorker({
       name: `smokeshow-web${suffix}`,
       entrypoint: './src/worker.ts',
+      triggers: [triggers.scheduled({ schedule: '*/5 * * * *' })],
       // Must not exceed the date the installed workerd supports, or the local
       // runtime refuses to start. Raise it together with the toolchain.
       compatibilityDate: '2026-10-07',
@@ -72,28 +73,33 @@ export default defineConfig((ctx) => {
         // Lead records. One database per environment; migrations in ./migrations.
         DB: bindings.d1({ name: `smokeshow-leads${suffix}`, id: D1_IDS[mode] }),
 
-        // Staging has no email capability or lead secrets while its forms are
-        // previews. Issue #15 must add a restricted test mailer before enabling
-        // real submission there. Local/production retain the pipeline scaffold.
-        ...(mode === 'staging'
-          ? {}
-          : {
-              EMAIL:
-                mode === 'production'
-                  ? bindings.sendEmail()
-                  : bindings.sendEmail({
-                      destinationAddress: 'staging-leads@example.invalid',
-                    }),
-              LEAD_RATE: bindings.rateLimit({
-                namespace: mode === 'production' ? '1002' : '1001',
-                simple: { limit: 5, period: 60 },
-              }),
-              SALES_INBOX: bindings.text(''),
-              MAIL_FROM: bindings.text(''),
-              LEAD_TOKEN_SECRET: bindings.secret(),
-              CSV_EXPORT_USER: bindings.secret(),
-              CSV_EXPORT_PASSWORD: bindings.secret(),
-            }),
+        LEADS_ENABLED: bindings.text(
+          mode === 'local' ? 'true' : (process.env.LEADS_ENABLED ?? 'false'),
+        ),
+        EMAIL:
+          mode === 'local'
+            ? bindings.sendEmail({ destinationAddress: 'local@example.invalid' })
+            : mode === 'staging'
+              ? bindings.sendEmail({
+                  allowedDestinationAddresses: (
+                    process.env.LEAD_TEST_RECIPIENTS || 'disabled@example.invalid'
+                  )
+                    .split(',')
+                    .map((s) => s.trim())
+                    .filter(Boolean),
+                })
+              : bindings.sendEmail(),
+        LEAD_RATE: bindings.rateLimit({
+          namespace:
+            mode === 'production' ? '1002' : mode === 'staging' ? '1003' : '1001',
+          simple: { limit: 5, period: 60 },
+        }),
+        LEAD_TEST_RECIPIENTS: bindings.text(
+          mode === 'staging' ? (process.env.LEAD_TEST_RECIPIENTS ?? '') : '',
+        ),
+        SALES_INBOX: bindings.text(process.env.SALES_INBOX ?? ''),
+        MAIL_FROM: bindings.text(process.env.MAIL_FROM ?? ''),
+        LEAD_TOKEN_SECRET: bindings.secret(),
         SITE_URL: bindings.text(
           mode === 'production'
             ? 'https://smokeshowlabs.com'

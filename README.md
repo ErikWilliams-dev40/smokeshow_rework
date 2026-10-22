@@ -17,7 +17,7 @@ Built from the Project Helix application template.
 
 The four-screen frontend design is implemented: age gate, session intro, homepage
 and `/wholesale` signup preview. The four final policy pages and the Smoke Signals
-blog are public routes. This is not yet a working lead-capture service.
+blog are public routes. Lead capture is implemented; deployed delivery requires configuration.
 
 | Area | Current state |
 | --- | --- |
@@ -33,7 +33,7 @@ blog are public routes. This is not yet a working lead-capture service.
 | Brand assets | Local HOUSE OF HELIX logo variants in `public/brand/` |
 | Compliance copy | Age-gate sentence and a site-wide hemp product notice (21+) on every route, frozen in `src/content/compliance.ts` and guarded verbatim |
 | Pricing (not launched) | Server-only quote and discount modules, product data and domain schemas with unit tests (#36); selections are validated at the estimator boundary (#69); not wired into any route |
-| Signup, lead storage and email | Frontend validation and preview/edit states implemented; server storage and email remain unimplemented |
+| Signup, lead storage and email | D1 persistence, email confirmation and retry outbox implemented; deployed delivery disabled until configured |
 | Hosting and deployment | Cloudflare Workers via vinext and the `cf` CLI ([ADR-0001](docs/decisions/0001-cloudflare-workers-adapter.md)); staging deploys run in CI through the Deploy workflow (#37, #38); production deploy and rollback workflows remain placeholders; no release metadata records exist yet |
 
 The recent frontend foundation is reusable for the launch. The quote/pricing
@@ -154,11 +154,11 @@ Category and Helix links transfer only an optional inquiry interest through
 session storage. The form consumes it on arrival, shows a removable selection,
 and clears it on Start again. Personal contact details never enter that storage.
 
-Valid forms open an inbox-verification preview. Visitors can simulate a verified
-state or a resend, edit their details, or start again. Every state explicitly says
-that no verification email or lead has been sent and no address has actually been
-verified. Contact details stay in component memory, outside URLs and storage.
-Real email verification, lead storage and delivery remain separate backend work.
+Both forms persist inquiries to D1 and request email verification. Confirmation
+requires an explicit action after opening the email link. Sales receives a lead
+only after confirmation; failed emails remain in a durable retry outbox. Local
+mail is simulated. Staging/production delivery is disabled until configured.
+See [Lead delivery](docs/launch/LEADS.md) for migrations, modes and recovery.
 
 ## Launch requirements
 

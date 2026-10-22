@@ -2,11 +2,13 @@
 
 import { useRef, useState, type FormEvent } from 'react'
 import { contactSchema, type ContactDetails } from '@/content/wholesale'
-import { VerificationPreview } from './VerificationPreview'
+import { VerificationStatus } from './VerificationStatus'
+import { useLeadSubmission } from './useLeadSubmission'
 import { PreviewForm } from './PreviewForm'
 import styles from './CompactForm.module.css'
 
 export function CompactForm() {
+  const lead = useLeadSubmission()
   const [step, setStep] = useState<'email' | 'details' | 'preview'>('email')
   const [email, setEmail] = useState('')
   const [details, setDetails] = useState<ContactDetails | null>(null)
@@ -25,7 +27,7 @@ export function CompactForm() {
     })
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (step === 'email') {
       const result = contactSchema.shape.email.safeParse(email.trim())
@@ -63,8 +65,10 @@ export function CompactForm() {
       return
     }
     setErrors({})
-    setDetails(result.data)
-    setStep('preview')
+    if (await lead.submit(result.data, text('website'))) {
+      setDetails(result.data)
+      setStep('preview')
+    }
   }
 
   function changeEmail() {
@@ -73,11 +77,13 @@ export function CompactForm() {
     requestAnimationFrame(() => emailField.current?.focus())
   }
   function editDetails() {
+    lead.reset()
     setDetails(null)
     setStep('details')
     requestAnimationFrame(() => nameField.current?.focus())
   }
   function startAgain() {
+    lead.reset()
     form.current?.reset()
     setEmail('')
     setDetails(null)
@@ -103,7 +109,7 @@ export function CompactForm() {
         <p className={styles.eyebrow}>Free · No account needed</p>
         <span className={styles.progress} role="status">
           {step === 'preview'
-            ? 'Verification preview'
+            ? 'Email verification'
             : `Step ${step === 'email' ? '1' : '2'} of 2`}
         </span>
       </div>
@@ -126,7 +132,9 @@ export function CompactForm() {
         onSubmit={submit}
         hidden={step === 'preview'}
         aria-label="Email signup"
+        aria-busy={lead.busy}
       >
+        {lead.error ? <p role="alert">{lead.error}</p> : null}
         {Object.keys(errors).length ? (
           <div ref={summary} className={styles.errorSummary} role="alert" tabIndex={-1}>
             <h3>Check your details</h3>
@@ -205,19 +213,26 @@ export function CompactForm() {
             {error('phone')}
           </div>
           <button className={styles.submit} type="submit">
-            Preview email verification <span aria-hidden="true">→</span>
+            Send verification email <span aria-hidden="true">→</span>
           </button>
         </div>
       </PreviewForm>
-      {step === 'preview' && details ? (
-        <VerificationPreview
+      {step === 'preview' && details && lead.state ? (
+        <VerificationStatus
+          state={lead.state}
+          busy={lead.busy}
+          error={lead.error}
+          onResend={lead.resend}
+          onRefresh={lead.refresh}
           compact
           details={details}
           onEdit={editDetails}
           onRestart={startAgain}
         />
       ) : null}
-      <p className={styles.note}>Signup preview only. No details or emails are sent.</p>
+      <p className={styles.note}>
+        Confirm your email so our team can follow up with current wholesale materials.
+      </p>
     </section>
   )
 }
