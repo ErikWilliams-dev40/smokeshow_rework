@@ -1,0 +1,1337 @@
+{
+  "baseline": {
+    "measuredAt": "2026-10-22T20:24:16.228Z",
+    "profile": {
+      "viewport": "390x844",
+      "cpuSlowdown": 4,
+      "latencyMs": 150,
+      "downloadBytesPerSecond": 200000,
+      "cache": "disabled",
+      "samplesPerRoute": 3,
+      "motion": "normal",
+      "note": "Local Worker laboratory measurement; not field Core Web Vitals."
+    },
+    "results": [
+      {
+        "name": "gate",
+        "run": 1,
+        "status": 200,
+        "lcpMs": 480,
+        "lcpElement": "H1:_title_a985bb9",
+        "cls": 0.0166,
+        "jsBytes": 519885,
+        "totalBytes": 850138,
+        "largest": [
+          {
+            "name": "/brand/ss-logo.png",
+            "bytes": 284895,
+            "duration": 4471,
+            "kind": "link"
+          },
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 4013,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-zeC4Z3PX.js",
+            "bytes": 153327,
+            "duration": 3390,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-C6JehyAk.js",
+            "bytes": 132961,
+            "duration": 3233,
+            "kind": "other"
+          },
+          {
+            "name": "/fonts/jost-variable.woff2",
+            "bytes": 26576,
+            "duration": 1070,
+            "kind": "css"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "gate",
+        "run": 2,
+        "status": 200,
+        "lcpMs": 480,
+        "lcpElement": "H1:_title_a985bb9",
+        "cls": 0.0166,
+        "jsBytes": 519885,
+        "totalBytes": 850138,
+        "largest": [
+          {
+            "name": "/brand/ss-logo.png",
+            "bytes": 284895,
+            "duration": 4472,
+            "kind": "link"
+          },
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 4021,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-zeC4Z3PX.js",
+            "bytes": 153327,
+            "duration": 3398,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-C6JehyAk.js",
+            "bytes": 132961,
+            "duration": 3226,
+            "kind": "other"
+          },
+          {
+            "name": "/fonts/jost-variable.woff2",
+            "bytes": 26576,
+            "duration": 1071,
+            "kind": "css"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "gate",
+        "run": 3,
+        "status": 200,
+        "lcpMs": 468,
+        "lcpElement": "H1:_title_a985bb9",
+        "cls": 0.0166,
+        "jsBytes": 519885,
+        "totalBytes": 850138,
+        "largest": [
+          {
+            "name": "/brand/ss-logo.png",
+            "bytes": 284895,
+            "duration": 4417,
+            "kind": "link"
+          },
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 4099,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-zeC4Z3PX.js",
+            "bytes": 153327,
+            "duration": 3529,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-C6JehyAk.js",
+            "bytes": 132961,
+            "duration": 3230,
+            "kind": "other"
+          },
+          {
+            "name": "/fonts/jost-variable.woff2",
+            "bytes": 26576,
+            "duration": 1062,
+            "kind": "css"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "homepage",
+        "run": 1,
+        "status": 200,
+        "lcpMs": 2232,
+        "lcpElement": "SPAN:_line_8e6d8a6",
+        "cls": 0.0004,
+        "jsBytes": 642647,
+        "totalBytes": 1089425,
+        "largest": [
+          {
+            "name": "/brand/ss-logo.png",
+            "bytes": 284895,
+            "duration": 5697,
+            "kind": "link"
+          },
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 5561,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-zeC4Z3PX.js",
+            "bytes": 153327,
+            "duration": 4736,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-C6JehyAk.js",
+            "bytes": 132961,
+            "duration": 4391,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 5222,
+            "kind": "script"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "homepage",
+        "run": 2,
+        "status": 200,
+        "lcpMs": 2232,
+        "lcpElement": "SPAN:_line_8e6d8a6",
+        "cls": 0.0004,
+        "jsBytes": 642647,
+        "totalBytes": 1089425,
+        "largest": [
+          {
+            "name": "/brand/ss-logo.png",
+            "bytes": 284895,
+            "duration": 5699,
+            "kind": "link"
+          },
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 5566,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-zeC4Z3PX.js",
+            "bytes": 153327,
+            "duration": 4733,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-C6JehyAk.js",
+            "bytes": 132961,
+            "duration": 4396,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 5234,
+            "kind": "script"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "homepage",
+        "run": 3,
+        "status": 200,
+        "lcpMs": 2244,
+        "lcpElement": "SPAN:_line_8e6d8a6",
+        "cls": 0.0004,
+        "jsBytes": 642647,
+        "totalBytes": 1089425,
+        "largest": [
+          {
+            "name": "/brand/ss-logo.png",
+            "bytes": 284895,
+            "duration": 5698,
+            "kind": "link"
+          },
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 5553,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-zeC4Z3PX.js",
+            "bytes": 153327,
+            "duration": 4735,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-C6JehyAk.js",
+            "bytes": 132961,
+            "duration": 4391,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 5236,
+            "kind": "script"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "blog",
+        "run": 1,
+        "status": 200,
+        "lcpMs": 888,
+        "lcpElement": "H1:",
+        "cls": 0,
+        "jsBytes": 654543,
+        "totalBytes": 1122026,
+        "largest": [
+          {
+            "name": "/brand/ss-logo.png",
+            "bytes": 284895,
+            "duration": 1620,
+            "kind": "link"
+          },
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 4426,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-zeC4Z3PX.js",
+            "bytes": 153327,
+            "duration": 4096,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-C6JehyAk.js",
+            "bytes": 132961,
+            "duration": 3849,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 4054,
+            "kind": "script"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "blog",
+        "run": 2,
+        "status": 200,
+        "lcpMs": 912,
+        "lcpElement": "H1:",
+        "cls": 0,
+        "jsBytes": 654543,
+        "totalBytes": 1122026,
+        "largest": [
+          {
+            "name": "/brand/ss-logo.png",
+            "bytes": 284895,
+            "duration": 1619,
+            "kind": "link"
+          },
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 4424,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-zeC4Z3PX.js",
+            "bytes": 153327,
+            "duration": 4019,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-C6JehyAk.js",
+            "bytes": 132961,
+            "duration": 3749,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 4151,
+            "kind": "script"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "blog",
+        "run": 3,
+        "status": 200,
+        "lcpMs": 912,
+        "lcpElement": "H1:",
+        "cls": 0,
+        "jsBytes": 654543,
+        "totalBytes": 1122026,
+        "largest": [
+          {
+            "name": "/brand/ss-logo.png",
+            "bytes": 284895,
+            "duration": 1620,
+            "kind": "link"
+          },
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 4420,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-zeC4Z3PX.js",
+            "bytes": 153327,
+            "duration": 4090,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-C6JehyAk.js",
+            "bytes": 132961,
+            "duration": 3844,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 4067,
+            "kind": "other"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "overview",
+        "run": 1,
+        "status": 200,
+        "lcpMs": 472,
+        "lcpElement": "P:",
+        "cls": 0.0523,
+        "jsBytes": 656231,
+        "totalBytes": 1074645,
+        "largest": [
+          {
+            "name": "/brand/ss-logo.png",
+            "bytes": 284895,
+            "duration": 2058,
+            "kind": "link"
+          },
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 3472,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-zeC4Z3PX.js",
+            "bytes": 153327,
+            "duration": 3187,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-C6JehyAk.js",
+            "bytes": 132961,
+            "duration": 3045,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 2793,
+            "kind": "script"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "overview",
+        "run": 2,
+        "status": 200,
+        "lcpMs": 484,
+        "lcpElement": "P:",
+        "cls": 0.0523,
+        "jsBytes": 656231,
+        "totalBytes": 1074645,
+        "largest": [
+          {
+            "name": "/brand/ss-logo.png",
+            "bytes": 284895,
+            "duration": 2046,
+            "kind": "link"
+          },
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 3466,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-zeC4Z3PX.js",
+            "bytes": 153327,
+            "duration": 3189,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-C6JehyAk.js",
+            "bytes": 132961,
+            "duration": 3025,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 2787,
+            "kind": "script"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "overview",
+        "run": 3,
+        "status": 200,
+        "lcpMs": 488,
+        "lcpElement": "P:",
+        "cls": 0.0523,
+        "jsBytes": 656231,
+        "totalBytes": 1074645,
+        "largest": [
+          {
+            "name": "/brand/ss-logo.png",
+            "bytes": 284895,
+            "duration": 2061,
+            "kind": "link"
+          },
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 3473,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-zeC4Z3PX.js",
+            "bytes": 153327,
+            "duration": 3181,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-C6JehyAk.js",
+            "bytes": 132961,
+            "duration": 3046,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 2800,
+            "kind": "script"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "signup",
+        "run": 1,
+        "status": 200,
+        "lcpMs": 596,
+        "lcpElement": "H1:",
+        "cls": 0.1219,
+        "jsBytes": 642647,
+        "totalBytes": 1097238,
+        "largest": [
+          {
+            "name": "/brand/ss-logo.png",
+            "bytes": 284895,
+            "duration": 5059,
+            "kind": "link"
+          },
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 4869,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-zeC4Z3PX.js",
+            "bytes": 153327,
+            "duration": 4168,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-C6JehyAk.js",
+            "bytes": 132961,
+            "duration": 3886,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 4263,
+            "kind": "script"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "signup",
+        "run": 2,
+        "status": 200,
+        "lcpMs": 616,
+        "lcpElement": "H1:",
+        "cls": 0.1219,
+        "jsBytes": 642647,
+        "totalBytes": 1097238,
+        "largest": [
+          {
+            "name": "/brand/ss-logo.png",
+            "bytes": 284895,
+            "duration": 5065,
+            "kind": "link"
+          },
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 4867,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-zeC4Z3PX.js",
+            "bytes": 153327,
+            "duration": 4167,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-C6JehyAk.js",
+            "bytes": 132961,
+            "duration": 3893,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 4263,
+            "kind": "script"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "signup",
+        "run": 3,
+        "status": 200,
+        "lcpMs": 608,
+        "lcpElement": "H1:",
+        "cls": 0.1219,
+        "jsBytes": 642647,
+        "totalBytes": 1097238,
+        "largest": [
+          {
+            "name": "/brand/ss-logo.png",
+            "bytes": 284895,
+            "duration": 5060,
+            "kind": "link"
+          },
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 4871,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-zeC4Z3PX.js",
+            "bytes": 153327,
+            "duration": 4178,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-C6JehyAk.js",
+            "bytes": 132961,
+            "duration": 3889,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 4258,
+            "kind": "script"
+          }
+        ],
+        "overflow": false
+      }
+    ]
+  },
+  "final": {
+    "measuredAt": "2026-10-22T20:44:07.637Z",
+    "profile": {
+      "viewport": "390x844",
+      "cpuSlowdown": 4,
+      "latencyMs": 150,
+      "downloadBytesPerSecond": 200000,
+      "cache": "disabled",
+      "samplesPerRoute": 3,
+      "motion": "normal",
+      "note": "Local Worker laboratory measurement; not field Core Web Vitals."
+    },
+    "results": [
+      {
+        "name": "gate",
+        "run": 1,
+        "status": 200,
+        "lcpMs": 608,
+        "lcpElement": "H1:_title_a985bb9",
+        "shifts": [],
+        "cls": 0,
+        "jsBytes": 519885,
+        "totalBytes": 609099,
+        "largest": [
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 3202,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-lbMf_dil.js",
+            "bytes": 153327,
+            "duration": 2886,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-BAHANDnt.js",
+            "bytes": 132961,
+            "duration": 2700,
+            "kind": "other"
+          },
+          {
+            "name": "/brand/ss-logo-450.webp",
+            "bytes": 43364,
+            "duration": 1125,
+            "kind": "link"
+          },
+          {
+            "name": "/fonts/jost-variable.woff2",
+            "bytes": 26576,
+            "duration": 655,
+            "kind": "link"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "gate",
+        "run": 2,
+        "status": 200,
+        "lcpMs": 596,
+        "lcpElement": "H1:_title_a985bb9",
+        "shifts": [],
+        "cls": 0,
+        "jsBytes": 519885,
+        "totalBytes": 609099,
+        "largest": [
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 3206,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-lbMf_dil.js",
+            "bytes": 153327,
+            "duration": 2875,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-BAHANDnt.js",
+            "bytes": 132961,
+            "duration": 2696,
+            "kind": "other"
+          },
+          {
+            "name": "/brand/ss-logo-450.webp",
+            "bytes": 43364,
+            "duration": 1092,
+            "kind": "link"
+          },
+          {
+            "name": "/fonts/jost-variable.woff2",
+            "bytes": 26576,
+            "duration": 658,
+            "kind": "link"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "gate",
+        "run": 3,
+        "status": 200,
+        "lcpMs": 592,
+        "lcpElement": "H1:_title_a985bb9",
+        "shifts": [],
+        "cls": 0,
+        "jsBytes": 519885,
+        "totalBytes": 609099,
+        "largest": [
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 3204,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-lbMf_dil.js",
+            "bytes": 153327,
+            "duration": 2889,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-BAHANDnt.js",
+            "bytes": 132961,
+            "duration": 2702,
+            "kind": "other"
+          },
+          {
+            "name": "/brand/ss-logo-450.webp",
+            "bytes": 43364,
+            "duration": 1127,
+            "kind": "link"
+          },
+          {
+            "name": "/fonts/jost-variable.woff2",
+            "bytes": 26576,
+            "duration": 664,
+            "kind": "link"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "homepage",
+        "run": 1,
+        "status": 200,
+        "lcpMs": 1052,
+        "lcpElement": "SPAN:_vanity_b62c210",
+        "shifts": [],
+        "cls": 0,
+        "jsBytes": 642807,
+        "totalBytes": 848306,
+        "largest": [
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 4484,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-lbMf_dil.js",
+            "bytes": 153327,
+            "duration": 4176,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-BAHANDnt.js",
+            "bytes": 132961,
+            "duration": 3892,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 4129,
+            "kind": "script"
+          },
+          {
+            "name": "/brand/house-of-helix-vertical-dark.png",
+            "bytes": 84586,
+            "duration": 3017,
+            "kind": "link"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "homepage",
+        "run": 2,
+        "status": 200,
+        "lcpMs": 1044,
+        "lcpElement": "SPAN:_vanity_b62c210",
+        "shifts": [],
+        "cls": 0,
+        "jsBytes": 642807,
+        "totalBytes": 848306,
+        "largest": [
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 4482,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-lbMf_dil.js",
+            "bytes": 153327,
+            "duration": 4175,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-BAHANDnt.js",
+            "bytes": 132961,
+            "duration": 3891,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 4135,
+            "kind": "script"
+          },
+          {
+            "name": "/brand/house-of-helix-vertical-dark.png",
+            "bytes": 84586,
+            "duration": 2995,
+            "kind": "link"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "homepage",
+        "run": 3,
+        "status": 200,
+        "lcpMs": 1044,
+        "lcpElement": "SPAN:_vanity_b62c210",
+        "shifts": [],
+        "cls": 0,
+        "jsBytes": 642807,
+        "totalBytes": 848306,
+        "largest": [
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 4484,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-lbMf_dil.js",
+            "bytes": 153327,
+            "duration": 4169,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-BAHANDnt.js",
+            "bytes": 132961,
+            "duration": 3877,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 4124,
+            "kind": "script"
+          },
+          {
+            "name": "/brand/house-of-helix-vertical-dark.png",
+            "bytes": 84586,
+            "duration": 3011,
+            "kind": "link"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "blog",
+        "run": 1,
+        "status": 200,
+        "lcpMs": 992,
+        "lcpElement": "STRONG:",
+        "shifts": [],
+        "cls": 0,
+        "jsBytes": 654543,
+        "totalBytes": 881761,
+        "largest": [
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 4428,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-lbMf_dil.js",
+            "bytes": 153327,
+            "duration": 4105,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-BAHANDnt.js",
+            "bytes": 132961,
+            "duration": 3963,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 4021,
+            "kind": "script"
+          },
+          {
+            "name": "/brand/ss-mark.webp",
+            "bytes": 68984,
+            "duration": 2238,
+            "kind": "img"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "blog",
+        "run": 2,
+        "status": 200,
+        "lcpMs": 988,
+        "lcpElement": "STRONG:",
+        "shifts": [],
+        "cls": 0,
+        "jsBytes": 654543,
+        "totalBytes": 881761,
+        "largest": [
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 4427,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-lbMf_dil.js",
+            "bytes": 153327,
+            "duration": 4104,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-BAHANDnt.js",
+            "bytes": 132961,
+            "duration": 3970,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 4012,
+            "kind": "script"
+          },
+          {
+            "name": "/brand/ss-mark.webp",
+            "bytes": 68984,
+            "duration": 2240,
+            "kind": "img"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "blog",
+        "run": 3,
+        "status": 200,
+        "lcpMs": 988,
+        "lcpElement": "STRONG:",
+        "shifts": [],
+        "cls": 0,
+        "jsBytes": 654543,
+        "totalBytes": 881761,
+        "largest": [
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 4428,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-lbMf_dil.js",
+            "bytes": 153327,
+            "duration": 4105,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-BAHANDnt.js",
+            "bytes": 132961,
+            "duration": 3971,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 4020,
+            "kind": "script"
+          },
+          {
+            "name": "/brand/ss-mark.webp",
+            "bytes": 68984,
+            "duration": 2241,
+            "kind": "img"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "overview",
+        "run": 1,
+        "status": 200,
+        "lcpMs": 564,
+        "lcpElement": "P:",
+        "shifts": [],
+        "cls": 0,
+        "jsBytes": 656231,
+        "totalBytes": 834380,
+        "largest": [
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 3469,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-lbMf_dil.js",
+            "bytes": 153327,
+            "duration": 3154,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-BAHANDnt.js",
+            "bytes": 132961,
+            "duration": 2952,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 2686,
+            "kind": "script"
+          },
+          {
+            "name": "/brand/ss-logo-450.webp",
+            "bytes": 43364,
+            "duration": 560,
+            "kind": "link"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "overview",
+        "run": 2,
+        "status": 200,
+        "lcpMs": 552,
+        "lcpElement": "P:",
+        "shifts": [],
+        "cls": 0,
+        "jsBytes": 656231,
+        "totalBytes": 834380,
+        "largest": [
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 3468,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-lbMf_dil.js",
+            "bytes": 153327,
+            "duration": 3160,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-BAHANDnt.js",
+            "bytes": 132961,
+            "duration": 2958,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 2685,
+            "kind": "script"
+          },
+          {
+            "name": "/brand/ss-logo-450.webp",
+            "bytes": 43364,
+            "duration": 577,
+            "kind": "link"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "overview",
+        "run": 3,
+        "status": 200,
+        "lcpMs": 552,
+        "lcpElement": "P:",
+        "shifts": [],
+        "cls": 0,
+        "jsBytes": 656231,
+        "totalBytes": 834380,
+        "largest": [
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 3467,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-lbMf_dil.js",
+            "bytes": 153327,
+            "duration": 3151,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-BAHANDnt.js",
+            "bytes": 132961,
+            "duration": 2957,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 2684,
+            "kind": "script"
+          },
+          {
+            "name": "/brand/ss-logo-450.webp",
+            "bytes": 43364,
+            "duration": 494,
+            "kind": "link"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "signup",
+        "run": 1,
+        "status": 200,
+        "lcpMs": 740,
+        "lcpElement": "H1:",
+        "shifts": [],
+        "cls": 0,
+        "jsBytes": 642807,
+        "totalBytes": 856119,
+        "largest": [
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 3840,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-lbMf_dil.js",
+            "bytes": 153327,
+            "duration": 3547,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-BAHANDnt.js",
+            "bytes": 132961,
+            "duration": 3356,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 3246,
+            "kind": "script"
+          },
+          {
+            "name": "/brand/house-of-helix-vertical-dark.png",
+            "bytes": 84586,
+            "duration": 864,
+            "kind": "link"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "signup",
+        "run": 2,
+        "status": 200,
+        "lcpMs": 732,
+        "lcpElement": "H1:",
+        "shifts": [],
+        "cls": 0,
+        "jsBytes": 642807,
+        "totalBytes": 856119,
+        "largest": [
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 3837,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-lbMf_dil.js",
+            "bytes": 153327,
+            "duration": 3529,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-BAHANDnt.js",
+            "bytes": 132961,
+            "duration": 3346,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 3251,
+            "kind": "script"
+          },
+          {
+            "name": "/brand/house-of-helix-vertical-dark.png",
+            "bytes": 84586,
+            "duration": 865,
+            "kind": "link"
+          }
+        ],
+        "overflow": false
+      },
+      {
+        "name": "signup",
+        "run": 3,
+        "status": 200,
+        "lcpMs": 720,
+        "lcpElement": "H1:",
+        "shifts": [],
+        "cls": 0,
+        "jsBytes": 642807,
+        "totalBytes": 856119,
+        "largest": [
+          {
+            "name": "/_next/static/chunks/framework-Df4EHQZc.js",
+            "bytes": 219274,
+            "duration": 3838,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/vinext-lbMf_dil.js",
+            "bytes": 153327,
+            "duration": 3538,
+            "kind": "script"
+          },
+          {
+            "name": "/_next/static/chunks/index-BAHANDnt.js",
+            "bytes": 132961,
+            "duration": 3345,
+            "kind": "other"
+          },
+          {
+            "name": "/_next/static/chunks/schemas-9G0VZ2Ne.js",
+            "bytes": 91257,
+            "duration": 3245,
+            "kind": "script"
+          },
+          {
+            "name": "/brand/house-of-helix-vertical-dark.png",
+            "bytes": 84586,
+            "duration": 862,
+            "kind": "link"
+          }
+        ],
+        "overflow": false
+      }
+    ]
+  }
+}

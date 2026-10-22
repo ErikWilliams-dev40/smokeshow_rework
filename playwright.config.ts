@@ -27,7 +27,7 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {
-        command: `corepack pnpm build:local && corepack pnpm exec vite preview --port ${port} --strictPort`,
+        command: `corepack pnpm db:migrate:local && corepack pnpm build:local && corepack pnpm exec vite preview --port ${port} --strictPort`,
         url: baseURL,
         reuseExistingServer: false,
         timeout: 60_000,
