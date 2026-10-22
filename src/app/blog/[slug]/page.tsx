@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { pageMetadata } from '@/server/seo/metadata'
 import { notFound } from 'next/navigation'
 import { ArticleBody, ArticleImage } from '@/components/blog/ArticleBody'
 import { ArticleDate } from '@/components/blog/ArticleList'
@@ -14,8 +15,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const result = await articleResult((await params).slug)
   return result.status === 200
     ? {
-        title: `${result.article.title} | Smoke Signals`,
-        description: result.article.excerpt,
+        ...pageMetadata(
+          `/blog/${result.article.slug}`,
+          result.article.title,
+          result.article.excerpt,
+        ),
       }
     : {
         title: 'Smoke Signals | Smoke Show Labs',

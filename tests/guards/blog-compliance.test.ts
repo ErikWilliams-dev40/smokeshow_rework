@@ -3,6 +3,8 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('@/server/cloudflare/env', () => ({
   getEnv: () => ({
+    SITE_URL: 'http://localhost:4173',
+    DEPLOYMENT_ENV: 'local',
     BLOG_API_URL: 'https://api.example.test',
     BLOG_API_TOKEN: 'test-only',
     BLOG_ALLOW_FIXTURES: 'false',

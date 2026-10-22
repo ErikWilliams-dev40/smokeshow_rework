@@ -1,18 +1,31 @@
 import { blogRenderTime } from '@/server/blog/request.server'
-import type { Metadata } from 'next'
+import { pageMetadata } from '@/server/seo/metadata'
 import { ArticleList } from '@/components/blog/ArticleList'
 import { BlogShell, BlogUnavailable } from '@/components/blog/BlogShell'
 import { BlogHome } from '@/components/blog/BlogHome'
 import { BlogSearch } from '@/components/blog/BlogChrome'
 import { getHomepage, listArticles } from '@/server/blog/client.server'
-import { normalizeBlogQuery, sectionLabels, type BlogSearchParams } from '@/domain/blog'
+import {
+  blogCanonical,
+  normalizeBlogQuery,
+  sectionLabels,
+  type BlogSearchParams,
+} from '@/domain/blog'
 import styles from '@/components/blog/Blog.module.css'
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = {
-  title: 'Smoke Signals | Smoke Show Labs',
-  description:
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<BlogSearchParams>
+}) {
+  const query = normalizeBlogQuery(await searchParams)
+  return pageMetadata(
+    blogCanonical(query),
+    'Smoke Signals',
     'Wholesale, product, compliance and retail stories from Smoke Show Labs.',
+    !query.q,
+  )
 }
 export default async function BlogPage({
   searchParams,
