@@ -49,6 +49,7 @@ export function Navigation() {
         </Link>
         <nav className={styles.desktop} aria-label="Main navigation">
           <Link href="/blog">Blog</Link>
+          <Link href="/wholesale-products">Wholesale products</Link>
           <a href="#products">Products</a>
           <a href="#brands">Brands</a>
           <a href="#helix">House of Helix</a>
@@ -77,6 +78,7 @@ export function Navigation() {
         >
           {[
             ['Blog', '/blog'],
+            ['Wholesale products', '/wholesale-products'],
             ['Products', '#products'],
             ['Brands', '#brands'],
             ['House of Helix', '#helix'],

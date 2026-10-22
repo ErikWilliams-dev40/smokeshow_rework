@@ -1,3 +1,6 @@
+import { PublicShell } from '@/components/public/PublicShell'
+import { Breadcrumbs } from '@/components/public/Breadcrumbs'
+import { publicBreadcrumbs } from '@/domain/breadcrumbs'
 import { pageMetadata } from '@/server/seo/metadata'
 
 import { PolicyPage } from '@/components/policy/PolicyPage'
@@ -8,5 +11,11 @@ export function generateMetadata() {
 }
 
 export default function TermsPage() {
-  return <PolicyPage copy={terms} />
+  const crumbs = publicBreadcrumbs('/terms', terms.title)
+  return (
+    <PublicShell>
+      <Breadcrumbs items={crumbs} />
+      <PolicyPage copy={terms} />
+    </PublicShell>
+  )
 }

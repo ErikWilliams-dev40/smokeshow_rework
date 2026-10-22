@@ -1,3 +1,5 @@
+import { articleBreadcrumbs } from '@/domain/breadcrumbs'
+import { Breadcrumbs } from '@/components/public/Breadcrumbs'
 import type { Metadata } from 'next'
 import { pageMetadata } from '@/server/seo/metadata'
 import { notFound } from 'next/navigation'
@@ -37,9 +39,11 @@ export default async function ArticlePage({ params }: Props) {
       </BlogShell>
     )
   const { article } = result
+  const crumbs = articleBreadcrumbs(article)
   const home = await getHomepage().catch(() => undefined)
   return (
-    <BlogShell article latest={home?.latest} query={{ section: article.category }}>
+    <BlogShell latest={home?.latest} query={{ section: article.category }}>
+      <Breadcrumbs items={crumbs} />
       <article className={styles.article}>
         {article.category && (
           <span className={styles.eyebrow}>{sectionLabels[article.category]}</span>

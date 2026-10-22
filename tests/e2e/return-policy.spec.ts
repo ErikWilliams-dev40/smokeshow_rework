@@ -54,19 +54,27 @@ test('complete final policy is publicly readable without JavaScript or consent',
     await expect(
       main.getByRole('link', { name: 'https://smokeshowlabs.com' }),
     ).toHaveAttribute('href', 'https://smokeshowlabs.com')
-    await expect(page).toHaveTitle('Return & Exchange Policy · Smoke Show Labs')
-    expect(
-      await page.locator('meta[name="robots"]').getAttribute('content'),
-    ).not.toContain('noindex')
+    await expect(page).toHaveTitle('Return & Exchange Policy | Smoke Show Labs')
+    expect(await page.locator('meta[name="robots"]').getAttribute('content')).toContain(
+      'noindex',
+    )
     await expect(
       page.getByRole('heading', { name: 'Are you 21 or older?' }),
     ).toHaveCount(0)
     await expect(main.getByRole('note')).toHaveCount(0)
     // The site-wide phone strip is body's first child, so it owns the first
-    // Tab stop; the policy's own links start on the second.
+    // Tab stop, followed by the public header and breadcrumb links.
     const call = page.getByRole('link', { name: `Call sales at ${phone.display}` })
     await page.keyboard.press('Tab')
     await expect(call).toBeFocused()
+    for (const link of await page.getByRole('banner').getByRole('link').all()) {
+      await page.keyboard.press('Tab')
+      await expect(link).toBeFocused()
+    }
+    await page.keyboard.press('Tab')
+    await expect(
+      page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link'),
+    ).toBeFocused()
     await page.keyboard.press('Tab')
     await expect(
       main.getByRole('link', { name: 'Smoke Show Labs', exact: true }),
