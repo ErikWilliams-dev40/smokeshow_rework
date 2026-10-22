@@ -31,9 +31,9 @@ export async function deliverPending(leadId?: string) {
     const lease = Date.now() + 120_000
     const job = await db
       .prepare(
-        'UPDATE lead_deliveries SET lease_until = ?, attempts = attempts + 1 WHERE id = ? AND delivered_at IS NULL AND failed_at IS NULL AND lease_until <= ? RETURNING *',
+        'UPDATE lead_deliveries SET lease_until = ?, attempts = attempts + 1 WHERE id = ? AND delivered_at IS NULL AND failed_at IS NULL AND lease_until <= ? AND due_at <= ? RETURNING *',
       )
-      .bind(lease, candidate.id, Date.now())
+      .bind(lease, candidate.id, Date.now(), Date.now())
       .first<Job>()
     if (!job) continue
     try {

@@ -129,7 +129,9 @@ export function CompactForm() {
       ) : null}
       <PreviewForm
         ref={form}
-        onSubmit={submit}
+        onSubmit={(event) => {
+          void submit(event)
+        }}
         hidden={step === 'preview'}
         aria-label="Email signup"
         aria-busy={lead.busy}

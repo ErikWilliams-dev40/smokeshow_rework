@@ -15,12 +15,12 @@ export function PreviewForm({ children, ...props }: ComponentProps<'form'>) {
   )
   return (
     <form {...props} noValidate>
-      {!ready ? (
+      <noscript>
         <p className={styles.fallback}>
           This signup needs JavaScript. You can also{' '}
           <a href={salesContact.email.href}>email our team</a>.
         </p>
-      ) : null}
+      </noscript>
       <fieldset
         className={styles.fields}
         disabled={!ready || props['aria-busy'] === true}

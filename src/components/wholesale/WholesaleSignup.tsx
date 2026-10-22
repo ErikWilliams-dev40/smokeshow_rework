@@ -124,7 +124,9 @@ export function WholesaleSignup() {
         <p className={styles.previewLabel}>Get the Wholesale Menu</p>
         <PreviewForm
           ref={form}
-          onSubmit={submit}
+          onSubmit={(event) => {
+            void submit(event)
+          }}
           hidden={preview !== null}
           aria-busy={lead.busy}
         >

@@ -14,6 +14,8 @@ const environment = vi.hoisted(() => ({ current: {} as Env }))
 vi.mock('@/server/cloudflare/env', () => ({ getEnv: () => environment.current }))
 import { deliverPending } from '@/server/leads/delivery'
 import { leadRequest } from '@/server/leads/http'
+const sendEmail = vi.fn().mockResolvedValue({ messageId: 'test' })
+const rateLimit = vi.fn().mockResolvedValue({ success: true })
 let store: ReturnType<typeof sqliteD1>
 const input = () => ({
   submissionId: crypto.randomUUID(),
@@ -23,9 +25,15 @@ const input = () => ({
   website: '',
 })
 beforeEach(() => {
+  sendEmail.mockReset().mockResolvedValue({ messageId: 'test' })
+  rateLimit.mockReset().mockResolvedValue({ success: true })
   store = sqliteD1()
   environment.current = {
     DB: store.db,
+    BLOG_API_URL: '',
+    BLOG_API_TOKEN: '',
+    BLOG_ALLOW_FIXTURES: 'false',
+    ASSETS: { fetch: vi.fn(), connect: vi.fn() },
     DEPLOYMENT_ENV: 'production',
     SITE_URL: 'https://smokeshowlabs.com',
     LEADS_ENABLED: 'true',
@@ -33,9 +41,9 @@ beforeEach(() => {
     MAIL_FROM: 'mail@example.test',
     SALES_INBOX: 'sales@example.test',
     LEAD_TEST_RECIPIENTS: '',
-    EMAIL: { send: vi.fn().mockResolvedValue({ messageId: 'test' }) },
-    LEAD_RATE: { limit: vi.fn().mockResolvedValue({ success: true }) },
-  } as Env
+    EMAIL: { send: sendEmail },
+    LEAD_RATE: { limit: rateLimit },
+  }
   vi.spyOn(console, 'error').mockImplementation(() => undefined)
 })
 afterEach(() => {
@@ -101,22 +109,31 @@ describe('durable delivery', () => {
   it('sends only verification until confirmed, then sales and acknowledgment', async () => {
     const lead = await saveLead(store.db, input())
     await deliverPending(lead.id)
-    const send = vi.mocked(environment.current.EMAIL.send)
+    const send = sendEmail
     expect(send).toHaveBeenCalledTimes(1)
     expect(send.mock.calls[0]?.[0]).toMatchObject({ to: 'buyer@example.test' })
     await confirm(store.db, lead.id, 1, lead.verification_expires_at)
     await deliverPending(lead.id)
     await deliverPending(lead.id)
     expect(send).toHaveBeenCalledTimes(3)
-    expect(
-      send.mock.calls.map((call) => (call[0] as EmailMessageBuilder).to),
-    ).toContain('sales@example.test')
+    expect(send.mock.calls.map((call) => (call[0] as { to: string }).to)).toContain(
+      'sales@example.test',
+    )
+  })
+  it('restricts staging deliveries to explicitly allowed recipients', async () => {
+    environment.current.DEPLOYMENT_ENV = 'staging'
+    environment.current.LEAD_TEST_RECIPIENTS = 'sales@example.test'
+    const lead = await saveLead(store.db, input())
+    await deliverPending(lead.id)
+    expect(sendEmail).not.toHaveBeenCalled()
+    environment.current.LEAD_TEST_RECIPIENTS += ',buyer@example.test'
+    store.sqlite.exec('UPDATE lead_deliveries SET due_at = 0, lease_until = 0')
+    await deliverPending(lead.id)
+    expect(sendEmail).toHaveBeenCalledTimes(1)
   })
   it('retains failed mail for retry and skips leased jobs', async () => {
     const lead = await saveLead(store.db, input())
-    vi.mocked(environment.current.EMAIL.send).mockRejectedValueOnce(
-      new Error('secret upstream message'),
-    )
+    sendEmail.mockRejectedValueOnce(new Error('secret upstream message'))
     await deliverPending(lead.id)
     expect((await leadState(store.db, lead)).delivery).toBe('queued')
     expect(JSON.stringify(vi.mocked(console.error).mock.calls)).not.toContain(
@@ -126,7 +143,7 @@ describe('durable delivery', () => {
       .prepare('UPDATE lead_deliveries SET due_at = 0, lease_until = ?')
       .run(Date.now() + 60_000)
     await deliverPending(lead.id)
-    expect(environment.current.EMAIL.send).toHaveBeenCalledTimes(1)
+    expect(sendEmail).toHaveBeenCalledTimes(1)
     store.sqlite.exec('UPDATE lead_deliveries SET lease_until = 0')
     await deliverPending(lead.id)
     expect((await leadState(store.db, lead)).delivery).toBe('sent')
@@ -135,7 +152,7 @@ describe('durable delivery', () => {
     const data = input()
     const lead = await saveLead(store.db, data, 1)
     await deliverPending(lead.id)
-    expect(environment.current.EMAIL.send).not.toHaveBeenCalled()
+    expect(sendEmail).not.toHaveBeenCalled()
   })
 })
 describe('HTTP boundary', () => {
@@ -156,7 +173,7 @@ describe('HTTP boundary', () => {
       (await leadRequest(request({ ...input(), website: 'spam' }), 'submit')).status,
     ).toBe(202)
     expect(store.sqlite.prepare('SELECT COUNT(*) AS n FROM leads').get()?.n).toBe(0)
-    vi.mocked(environment.current.LEAD_RATE.limit).mockResolvedValue({ success: false })
+    rateLimit.mockResolvedValue({ success: false })
     expect((await leadRequest(request(input()), 'submit')).status).toBe(429)
   })
   it('fails safely on storage errors without returning personal data', async () => {

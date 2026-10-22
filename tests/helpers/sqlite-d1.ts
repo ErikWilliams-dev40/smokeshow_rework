@@ -5,24 +5,38 @@ import { readFileSync } from 'node:fs'
 export function sqliteD1() {
   const sqlite = new DatabaseSync(':memory:')
   sqlite.exec(readFileSync('migrations/0001_leads.sql', 'utf8'))
+  const meta = (changes = 0) => ({
+    changes,
+    duration: 0,
+    size_after: 0,
+    rows_read: 0,
+    rows_written: changes,
+    last_row_id: 0,
+    changed_db: changes > 0,
+  })
   function prepare(sql: string, values: SQLInputValue[] = []): D1PreparedStatement {
     const statement = sqlite.prepare(sql)
     return {
+      raw: (): Promise<never> =>
+        Promise.reject(new Error('raw is not used by this repository')),
       bind: (...args: SQLInputValue[]) => prepare(sql, args),
-      first: async (column?: string) => {
-        const row = statement.get(...values)
-        return (column ? row?.[column] : row) ?? null
-      },
-      all: async () => ({
-        results: statement.all(...values),
-        success: true,
-        meta: { changes: 0 },
-      }),
-      run: async () => ({
-        success: true,
-        results: [],
-        meta: { changes: Number(statement.run(...values).changes) },
-      }),
+      first: (column?: string) =>
+        Promise.resolve().then(() => {
+          const row = statement.get(...values)
+          return (column ? row?.[column] : row) ?? null
+        }),
+      all: () =>
+        Promise.resolve({
+          results: statement.all(...values),
+          success: true,
+          meta: meta(),
+        }),
+      run: () =>
+        Promise.resolve({
+          success: true,
+          results: [],
+          meta: meta(Number(statement.run(...values).changes)),
+        }),
     } as D1PreparedStatement
   }
   const db = {

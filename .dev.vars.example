@@ -2,8 +2,6 @@
 # .dev.vars (ignored) and fill in. Production and staging values are set with
 # `cf workers secrets update <NAME> --mode <mode>`, never committed.
 LEAD_TOKEN_SECRET=
-CSV_EXPORT_USER=
-CSV_EXPORT_PASSWORD=
 
 # Private blog API bearer token; unused when local fixtures are enabled.
 BLOG_API_TOKEN=

@@ -10,11 +10,14 @@ export function ConfirmEmail() {
   )
   useEffect(() => {
     const value = window.location.hash.slice(1)
-    if (value) {
-      setToken(value)
-      setMessage('Select Confirm email to send your inquiry to our team.')
-    }
+    const frame = requestAnimationFrame(() => {
+      if (value) {
+        setToken(value)
+        setMessage('Select Confirm email to send your inquiry to our team.')
+      }
+    })
     history.replaceState(null, '', window.location.pathname)
+    return () => cancelAnimationFrame(frame)
   }, [])
   async function confirm() {
     setBusy(true)
@@ -25,7 +28,7 @@ export function ConfirmEmail() {
         body: JSON.stringify({ token }),
       })
       if (!response.ok) {
-        const data = (await response.json()) as { error?: string }
+        const data = await response.json<{ error?: string }>()
         setMessage(data.error ?? 'Unable to confirm. Please try again.')
         return
       }

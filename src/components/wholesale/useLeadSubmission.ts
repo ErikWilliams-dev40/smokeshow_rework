@@ -18,7 +18,7 @@ export function useLeadSubmission() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       })
-      const data = (await response.json()) as LeadState & { error?: string }
+      const data = await response.json<LeadState & { error?: string }>()
       if (!response.ok) throw new Error(data.error ?? 'Please try again.')
       setState(data)
       return true
