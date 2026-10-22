@@ -4,8 +4,10 @@ import { splash } from '@/content/splash'
 import { InterestLink } from '@/components/wholesale/InterestLink'
 import { PublicShell } from '@/components/public/PublicShell'
 import { Breadcrumbs } from '@/components/public/Breadcrumbs'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { breadcrumbSchema } from '@/domain/structured-data'
 import { publicBreadcrumbs } from '@/domain/breadcrumbs'
-import { pageMetadata } from '@/server/seo/metadata'
+import { pageMetadata, siteUrl } from '@/server/seo/metadata'
 import styles from '@/components/public/Public.module.css'
 export function generateMetadata() {
   return pageMetadata('/wholesale-products', 'Wholesale products', splash.subheadline)
@@ -16,6 +18,7 @@ export default function WholesaleProductsPage() {
     <PublicShell>
       <main className={styles.page}>
         <Breadcrumbs items={crumbs} />
+        <JsonLd data={breadcrumbSchema(siteUrl(), crumbs)} />
         <h1>{splash.subheadline}</h1>
         <p>{signupCopy.introduction}</p>
         <Link className={styles.cta} href="/wholesale">

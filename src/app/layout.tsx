@@ -1,3 +1,5 @@
+import { JsonLd } from '@/components/seo/JsonLd'
+import { organizationSchema, websiteSchema } from '@/domain/structured-data'
 import { HempNotice } from '@/components/layout/HempNotice'
 import { PhoneBar } from '@/components/layout/PhoneBar'
 import { MotionProvider } from '@/components/motion/MotionSettings'
@@ -33,6 +35,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" className="brand">
       <body>
         <PhoneBar />
+        <JsonLd data={organizationSchema(siteUrl())} />
+        <JsonLd data={websiteSchema(siteUrl())} />
         <MotionProvider>{children}</MotionProvider>
         <HempNotice />
       </body>
