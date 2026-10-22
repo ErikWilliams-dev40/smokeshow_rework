@@ -52,17 +52,16 @@ which resolves the version pinned by `packageManager` in `package.json`.
 ## Layout
 
 ```
-src/app/          routes (App Router). Screens map to routes as in
-                  docs/design/SCREEN_MAP.md; api/ holds route handlers.
+src/app/          routes (App Router); api/ holds route handlers.
+                  README.md describes current launch routes.
 src/styles/       tokens.css (both themes, lifted verbatim from the handoff),
                   base.css, motion.css, utilities.css (.ov and .sl only)
 src/components/   layout/ primitives/ product/ hero/ compliance/
 src/content/      compliance.ts — the frozen compliance strings
 src/domain/       Zod schemas and the types inferred from them
 src/data/         typed fixtures, parsed by their schema
-src/server/       server-only code: pricing/, repositories/, session/, uploads/
-src/lib/          shared pure helpers (money, format, countdown)
-tests/            unit/ guards/ e2e/ visual/
+src/server/       server-only code: pricing/, session/, blog/, cloudflare/
+tests/            unit/ guards/ e2e/ (including browser screenshots)
 public/           fonts/, brand/, photography/ — all assets are local
 policies/         Company governance vendored from helix-engineering: the
                   policies, standards, security rules and templates this
