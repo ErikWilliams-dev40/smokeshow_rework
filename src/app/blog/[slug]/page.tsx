@@ -1,7 +1,9 @@
 import { articleBreadcrumbs } from '@/domain/breadcrumbs'
 import { Breadcrumbs } from '@/components/public/Breadcrumbs'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { articleSchema, breadcrumbSchema } from '@/domain/structured-data'
 import type { Metadata } from 'next'
-import { pageMetadata } from '@/server/seo/metadata'
+import { pageMetadata, siteUrl } from '@/server/seo/metadata'
 import { notFound } from 'next/navigation'
 import { ArticleBody, ArticleImage } from '@/components/blog/ArticleBody'
 import { ArticleDate } from '@/components/blog/ArticleList'
@@ -44,6 +46,8 @@ export default async function ArticlePage({ params }: Props) {
   return (
     <BlogShell latest={home?.latest} query={{ section: article.category }}>
       <Breadcrumbs items={crumbs} />
+      <JsonLd data={breadcrumbSchema(siteUrl(), crumbs)} />
+      <JsonLd data={articleSchema(siteUrl(), article)} />
       <article className={styles.article}>
         {article.category && (
           <span className={styles.eyebrow}>{sectionLabels[article.category]}</span>
