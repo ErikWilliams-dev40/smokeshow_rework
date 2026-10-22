@@ -1,5 +1,17 @@
 import { z } from 'zod'
 
+export const articleCategory = z.enum([
+  'wholesale',
+  'flower',
+  'vapes',
+  'edibles',
+  'pre-rolls',
+  'concentrates',
+  'compliance',
+  'retail-tips',
+])
+export type ArticleCategory = z.infer<typeof articleCategory>
+
 export const articleSlug = z
   .string()
   .min(1)
@@ -48,6 +60,7 @@ export const block = z.discriminatedUnion('type', [
 export type Block = z.infer<typeof block>
 
 export const articleSummary = z.object({
+  category: articleCategory.optional(),
   slug: articleSlug,
   title: z.string().min(1).max(200),
   excerpt: z.string().min(1).max(400),
@@ -71,3 +84,15 @@ export const articlePage = z.object({
   total: z.number().int().min(0),
 })
 export type ArticlePage = z.infer<typeof articlePage>
+
+const stories = (max: number) => z.array(articleSummary).max(max)
+export const blogHomepage = z.object({
+  lead: articleSummary.nullable(),
+  rail: stories(3),
+  feature: articleSummary.nullable(),
+  featured: stories(4),
+  shelf: stories(4),
+  complianceRetail: stories(6),
+  latest: z.record(z.enum(['latest', ...articleCategory.options]), stories(5)),
+})
+export type BlogHomepage = z.infer<typeof blogHomepage>

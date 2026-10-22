@@ -1,25 +1,20 @@
 import 'server-only'
-import { article, type Article } from '@/domain/article'
+import { article, articleCategory, type Article } from '@/domain/article'
 
 /** Development examples only. These review records are not editorial sign-off. */
-export const articles: Article[] = Array.from({ length: 13 }, (_, index) =>
+export const articles: Article[] = Array.from({ length: 24 }, (_, index) =>
   article.parse({
+    category: articleCategory.options[index % articleCategory.options.length],
     slug: index === 0 ? 'planning-a-wholesale-inquiry' : `sample-article-${index + 1}`,
     title:
       index === 0
         ? 'Planning a wholesale inquiry'
         : `Wholesale planning example ${index + 1}`,
     excerpt: 'A development example for trade buyers preparing to speak with the team.',
-    publishedAt: new Date(Date.UTC(2026, 9, 13 - index, 12)).toISOString(),
+    publishedAt: new Date(Date.UTC(2026, 9, 22 - index, 12)).toISOString(),
     ...(index === 0
       ? {
           author: 'Smoke Show Labs',
-          cover: {
-            id: 'sample-logo',
-            alt: 'Smoke Show Labs logo',
-            width: 2400,
-            height: 320,
-          },
         }
       : {}),
     review: {

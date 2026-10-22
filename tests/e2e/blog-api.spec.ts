@@ -18,6 +18,16 @@ test.beforeEach(async () => {
   await control('healthy')
 })
 
+test('optional homepage failure does not hide a healthy article', async ({ page }) => {
+  await control('homepage-error')
+  const response = await page.goto('/blog/healthy-without-homepage')
+  expect(response?.status()).toBe(200)
+  await expect(
+    page.getByRole('heading', { name: 'API test article', exact: true }),
+  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Open search' })).toBeVisible()
+})
+
 test('API auth, approval filtering, literal text, metadata and media', async ({
   page,
   request,
@@ -30,9 +40,10 @@ test('API auth, approval filtering, literal text, metadata and media', async ({
   })
   expect((await fetch(`${stub}/articles`)).status).toBe(401)
   await page.goto('/blog')
+  await expect(page.locator('main img')).toHaveAttribute('data-loaded', 'true')
   await expect(page.getByText('Unapproved test copy')).toHaveCount(0)
   await page.getByRole('link', { name: 'API test article' }).click()
-  await expect(page).toHaveTitle('API test article | Smoke Show Labs')
+  await expect(page).toHaveTitle('API test article | Smoke Signals')
   await expect(
     page.getByText('<script>window.untrusted = true</script>', { exact: true }),
   ).toBeVisible()
@@ -69,7 +80,7 @@ test('API outages produce actual 503 responses including navigation', async ({
   await expect(
     page.getByRole('heading', { name: 'Articles are unavailable' }),
   ).toBeVisible()
-  await expect(page).toHaveTitle('Blog | Smoke Show Labs')
+  await expect(page).toHaveTitle('Smoke Signals | Smoke Show Labs')
   await page.goto('/blog?page=99')
   await expect(
     page.getByRole('heading', { name: 'Articles are unavailable' }),
@@ -96,10 +107,39 @@ test('valid articles reuse cache without a second upstream request', async ({
 }) => {
   const path = `/blog/cache-example-${Date.now()}`
   expect((await request.get(path)).status()).toBe(200)
+  const first = await fetch(`${stub}/__status`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  const initial = z.object({ requests: z.number() }).parse(await first.json())
   expect((await request.get(path)).status()).toBe(200)
   const response = await fetch(`${stub}/__status`, {
     headers: { Authorization: `Bearer ${token}` },
   })
   const result = z.object({ requests: z.number() }).parse(await response.json())
-  expect(result.requests).toBe(1)
+  expect(result.requests).toBe(initial.requests)
+  expect(initial.requests).toBeGreaterThanOrEqual(1)
+})
+
+test('API archive filters and search propagate without exposing drafts', async ({
+  page,
+}) => {
+  await page.goto('/blog?view=all&section=wholesale&q=API')
+  await expect(page.locator('main article')).toHaveCount(1)
+  await expect(page.getByText('Unapproved test copy')).toHaveCount(0)
+  await page.goto('/blog?view=all&section=flower&q=API')
+  await expect(page.getByText('No articles yet on this page.')).toBeVisible()
+})
+
+test('failed cover media keeps the story readable with a neutral placeholder', async ({
+  page,
+}) => {
+  await page.route('**/blog/media/logo', (route) => route.abort())
+  await page.goto('/blog')
+  await expect(
+    page.getByRole('heading', { name: 'API test article', exact: true }),
+  ).toBeVisible()
+  await expect(
+    page.locator('main [class*="storyImage"] [class*="placeholder"]'),
+  ).toBeVisible()
+  await expect(page.locator('main img')).toHaveCount(0)
 })

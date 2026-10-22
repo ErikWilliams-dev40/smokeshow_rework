@@ -9,19 +9,21 @@ test('public fixture blog supports pagination, article rendering and real 404s',
     if (new URL(request.url()).origin !== new URL(baseURL!).origin)
       external.push(request.url())
   })
-  const response = await page.goto('/blog')
+  const response = await page.goto('/blog?view=all')
   expect(response?.status()).toBe(200)
-  await expect(page.getByRole('heading', { name: 'Blog', exact: true })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'All stories', exact: true }),
+  ).toBeVisible()
   await expect(page.getByText('Are you 21')).toHaveCount(0)
   await expect(page.locator('main article')).toHaveCount(12)
   await page.getByRole('link', { name: 'Next page' }).click()
-  await expect(page.locator('main article')).toHaveCount(1)
+  await expect(page.locator('main article')).toHaveCount(12)
   await page.getByRole('link', { name: 'Previous page' }).click()
   await page.getByRole('link', { name: 'Planning a wholesale inquiry' }).click()
   await expect(
     page.getByRole('heading', { name: 'Planning a wholesale inquiry', exact: true }),
   ).toBeVisible()
-  await expect(page).toHaveTitle('Planning a wholesale inquiry | Smoke Show Labs')
+  await expect(page).toHaveTitle('Planning a wholesale inquiry | Smoke Signals')
   await expect(page.locator('blockquote')).toHaveText(/Start with a clear brief/)
   for (const image of await page.locator('main img').all()) {
     await expect(image).toHaveJSProperty('naturalWidth', 2400)
@@ -52,8 +54,9 @@ for (const theme of ['brand', 'editorial']) {
       })
     }
     await page.keyboard.press('Tab')
+    await page.keyboard.press('Tab')
     await expect(
-      page.getByRole('link', { name: 'Smoke Show Labs', exact: true }),
+      page.getByRole('link', { name: 'Skip to content', exact: true }),
     ).toBeFocused()
   })
 }

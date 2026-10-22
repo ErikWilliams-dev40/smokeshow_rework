@@ -2,11 +2,15 @@ import 'server-only'
 import { z } from 'zod'
 import {
   article,
+  articleSummary,
+  blogHomepage,
+  type BlogHomepage,
   articlePage,
   articleSlug,
   type Article,
   type ArticlePage,
 } from '@/domain/article'
+import { normalizeBlogQuery, sections, type BlogQuery } from '@/domain/blog'
 import { safeError } from '@/server/logging'
 import { BlogNotFoundError, BlogUnavailableError } from './errors'
 import { blogConfiguration, upstreamJson } from './transport.server'
@@ -83,19 +87,34 @@ async function load<T>(path: string, parse: (value: unknown) => T): Promise<T> {
   return data
 }
 
-export async function listArticles(page = 1): Promise<ArticlePage> {
+export async function listArticles(
+  page = 1,
+  filters: Pick<Partial<BlogQuery>, 'section' | 'q'> = {},
+): Promise<ArticlePage> {
+  const query = normalizeBlogQuery({ section: filters.section, q: filters.q })
   if (!Number.isSafeInteger(page) || page < 1) page = 1
   try {
     if (blogConfiguration().fixtures) {
       const { articles } = await import('./fixtures')
+      const filtered = articles.filter(
+        (item) =>
+          (!query.section || item.category === query.section) &&
+          (!query.q ||
+            `${item.title} ${item.excerpt}`
+              .toLowerCase()
+              .includes(query.q.toLowerCase())),
+      )
       return parseArticlePage({
-        items: articles.slice((page - 1) * 12, page * 12),
+        items: filtered.slice((page - 1) * 12, page * 12),
         page,
         pageSize: 12,
-        total: articles.length,
+        total: filtered.length,
       })
     }
-    return await load(`articles?page=${page}&pageSize=12`, (value) => {
+    const params = new URLSearchParams({ page: String(page), pageSize: '12' })
+    if (query.section) params.set('category', query.section)
+    if (query.q) params.set('q', query.q)
+    return await load(`articles?${params}`, (value) => {
       const result = parseArticlePage(value)
       if (result.page !== page || result.pageSize !== 12)
         throw new BlogUnavailableError('Pagination mismatch')
@@ -130,6 +149,75 @@ export async function getArticle(slug: string): Promise<Article> {
     const unavailable =
       error instanceof BlogUnavailableError ? error : new BlogUnavailableError()
     console.error('Blog article unavailable', safeError(unavailable))
+    throw unavailable
+  }
+}
+
+/** Filter approvals before validating public summaries, including every drawer slot. */
+export function parseHomepage(value: unknown): BlogHomepage {
+  const raw = z
+    .object({
+      lead: z.record(z.string(), z.unknown()).nullable(),
+      feature: z.record(z.string(), z.unknown()).nullable(),
+      rail: z.array(z.unknown()).max(3),
+      featured: z.array(z.unknown()).max(4),
+      shelf: z.array(z.unknown()).max(4),
+      complianceRetail: z.array(z.unknown()).max(6),
+      latest: z.record(z.enum(sections), z.array(z.unknown()).max(5)),
+    })
+    .safeParse(value)
+  if (!raw.success) throw new BlogUnavailableError('Invalid homepage')
+  function summary(item: unknown) {
+    if (!approval.safeParse(item).success) return null
+    const parsed = articleSummary.safeParse(item)
+    if (!parsed.success)
+      throw new BlogUnavailableError('Invalid approved homepage story')
+    return parsed.data
+  }
+  function list(items: unknown[]) {
+    const approved = items.flatMap((item) => summary(item) ?? [])
+    return approved.filter(
+      (item, index) => approved.findIndex((a) => a.slug === item.slug) === index,
+    )
+  }
+  const data = raw.data
+  const lead = summary(data.lead)
+  return blogHomepage.parse({
+    lead,
+    feature: summary(data.feature),
+    rail: list(data.rail),
+    featured: list(data.featured),
+    shelf: list(data.shelf),
+    complianceRetail: list(data.complianceRetail),
+    latest: Object.fromEntries(
+      sections.map((section) => [
+        section,
+        list(data.latest[section]).filter((a) =>
+          section === 'latest' ? a.slug !== lead?.slug : a.category === section,
+        ),
+      ]),
+    ),
+  })
+}
+
+export async function getHomepage(): Promise<BlogHomepage> {
+  try {
+    if (blogConfiguration().fixtures) {
+      const { articles } = await import('./fixtures')
+      const { selectHomepage } = await import('./selection')
+      return selectHomepage(articles, {
+        rail: articles.slice(6, 9).map((a) => a.slug),
+        feature: [articles[9]!.slug],
+        featured: articles.slice(10, 14).map((a) => a.slug),
+      })
+    }
+    return await load('homepage', parseHomepage)
+  } catch (error) {
+    const unavailable =
+      error instanceof BlogUnavailableError
+        ? error
+        : new BlogUnavailableError('Homepage request failed')
+    console.error('Blog homepage unavailable', safeError(unavailable))
     throw unavailable
   }
 }

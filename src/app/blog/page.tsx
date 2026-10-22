@@ -1,36 +1,68 @@
+import { blogRenderTime } from '@/server/blog/request.server'
 import type { Metadata } from 'next'
 import { ArticleList } from '@/components/blog/ArticleList'
 import { BlogShell, BlogUnavailable } from '@/components/blog/BlogShell'
-import { listArticles } from '@/server/blog/client.server'
+import { BlogHome } from '@/components/blog/BlogHome'
+import { BlogSearch } from '@/components/blog/BlogChrome'
+import { getHomepage, listArticles } from '@/server/blog/client.server'
+import { normalizeBlogQuery, sectionLabels, type BlogSearchParams } from '@/domain/blog'
+import styles from '@/components/blog/Blog.module.css'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
-  title: 'Blog | Smoke Show Labs',
-  description: 'Articles for wholesale trade buyers.',
+  title: 'Smoke Signals | Smoke Show Labs',
+  description:
+    'Wholesale, product, compliance and retail stories from Smoke Show Labs.',
 }
 export default async function BlogPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string | string[] }>
+  searchParams: Promise<BlogSearchParams>
 }) {
-  const { page: input } = await searchParams
-  const candidate =
-    typeof input === 'string' && /^[1-9]\d*$/.test(input) ? Number(input) : 1
-  const page = Number.isSafeInteger(candidate) ? candidate : 1
-  let data
+  const query = normalizeBlogQuery(await searchParams)
+  const now = blogRenderTime()
+  if (query.archive) {
+    const [home, result] = await Promise.allSettled([
+      getHomepage(),
+      listArticles(query.page, query),
+    ])
+    return (
+      <BlogShell
+        latest={home.status === 'fulfilled' ? home.value.latest : undefined}
+        query={query}
+      >
+        {result.status === 'fulfilled' ? (
+          <div className={styles.archivePage}>
+            <span className={styles.eyebrow}>Smoke Signals</span>
+            <h1>
+              {query.q
+                ? `Search results for “${query.q}”`
+                : query.section
+                  ? `${sectionLabels[query.section]} stories`
+                  : 'All stories'}
+            </h1>
+            <BlogSearch key={`${query.section ?? ''}:${query.q}`} query={query} />
+            <ArticleList data={result.value} query={query} now={now} />
+          </div>
+        ) : (
+          <BlogUnavailable />
+        )}
+      </BlogShell>
+    )
+  }
+  let home
   try {
-    data = await listArticles(page)
+    home = await getHomepage()
   } catch {
     return (
-      <BlogShell>
+      <BlogShell query={query}>
         <BlogUnavailable />
       </BlogShell>
     )
   }
   return (
-    <BlogShell>
-      <h1>Blog</h1>
-      <ArticleList data={data} />
+    <BlogShell latest={home.latest} query={query}>
+      <BlogHome data={home} section={query.section} now={now} />
     </BlogShell>
   )
 }

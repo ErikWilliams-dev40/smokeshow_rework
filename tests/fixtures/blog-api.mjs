@@ -9,6 +9,7 @@ const logo = readFileSync(new URL('../../public/brand/ss-logo.png', import.meta.
 let mode = 'healthy'
 let requests = 0
 const article = {
+  category: 'wholesale',
   slug: 'api-article',
   title: 'API test article',
   excerpt: 'An approved API test example.',
@@ -41,6 +42,8 @@ const server = createServer((request, response) => {
     return json(response, { mode })
   }
   if (url.pathname === '/__status') return json(response, { mode, requests })
+  if (mode === 'homepage-error' && url.pathname === '/homepage')
+    return json(response, {}, 503)
   requests++
   if (mode === 'error') return json(response, {}, 500)
   if (mode === 'timeout') {
@@ -77,6 +80,36 @@ const server = createServer((request, response) => {
     })
     return response.end(logo)
   }
+  if (url.pathname === '/homepage') {
+    const draft = {
+      ...article,
+      title: 'Unapproved test copy',
+      review: { status: 'draft' },
+    }
+    const empty = mode === 'empty'
+    const slots = [
+      'latest',
+      'wholesale',
+      'flower',
+      'vapes',
+      'edibles',
+      'pre-rolls',
+      'concentrates',
+      'compliance',
+      'retail-tips',
+    ]
+    return json(response, {
+      lead: empty ? null : article,
+      feature: null,
+      rail: empty ? [] : [draft],
+      featured: [],
+      shelf: [],
+      complianceRetail: [],
+      latest: Object.fromEntries(
+        slots.map((s) => [s, !empty && s === 'wholesale' ? [article, draft] : []]),
+      ),
+    })
+  }
   if (url.pathname === '/articles') {
     const draft = {
       ...article,
@@ -84,14 +117,24 @@ const server = createServer((request, response) => {
       title: 'Unapproved test copy',
       review: { status: 'draft' },
     }
+    const category = url.searchParams.get('category')
+    const q = (url.searchParams.get('q') ?? '').toLowerCase()
+    const matches =
+      (!category || category === article.category) &&
+      `${article.title} ${article.excerpt}`.toLowerCase().includes(q)
     return json(response, {
-      items: [
-        mode === 'navigation' ? { ...article, slug: 'uncached-navigation' } : article,
-        draft,
-      ],
+      items:
+        mode === 'empty' || !matches
+          ? []
+          : [
+              mode === 'navigation'
+                ? { ...article, slug: 'uncached-navigation' }
+                : article,
+              draft,
+            ],
       page: Number(url.searchParams.get('page') ?? 1),
       pageSize: 12,
-      total: 2,
+      total: mode === 'empty' || !matches ? 0 : 2,
     })
   }
   if (url.pathname.startsWith('/articles/')) {

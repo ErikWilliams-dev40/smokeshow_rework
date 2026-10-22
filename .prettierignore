@@ -24,3 +24,6 @@ pnpm-lock.yaml
 
 # Developer handoff is reference material, not application source.
 smokeshow-dev-handoff/
+
+# Smoke Signals prototype: preserve design reference bytes.
+design_handoff_smoke_signals_blog/

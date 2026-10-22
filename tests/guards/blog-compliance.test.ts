@@ -16,6 +16,7 @@ vi.mock('next/navigation', () => ({
 import BlogPage from '@/app/blog/page'
 import ArticlePage, { generateMetadata } from '@/app/blog/[slug]/page'
 import { ArticleBody } from '@/components/blog/ArticleBody'
+import { selectHomepage } from '@/server/blog/selection'
 import { articles } from '@/server/blog/fixtures'
 const sample = articles[0]!
 
@@ -43,9 +44,11 @@ describe('approved content rendering', () => {
         .mockImplementation((url: URL) =>
           Promise.resolve(
             Response.json(
-              url.pathname === '/articles'
-                ? { items: [sample, draft], page: 1, pageSize: 12, total: 2 }
-                : draft,
+              url.pathname === '/homepage'
+                ? { ...selectHomepage([sample]), rail: [sample, draft] }
+                : url.pathname === '/articles'
+                  ? { items: [sample, draft], page: 1, pageSize: 12, total: 2 }
+                  : draft,
             ),
           ),
         ),

@@ -21,3 +21,8 @@ export function withArticleResult<T>(
 ): T {
   return requestState.run({ slug, result }, work)
 }
+
+/** Capture once at the server boundary; cards receive a fixed timestamp, never a browser clock. */
+export function blogRenderTime(): number {
+  return Date.now()
+}

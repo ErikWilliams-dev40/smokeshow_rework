@@ -110,8 +110,12 @@ Screenshots and failure traces are written to the ignored `test-results/` direct
 
 ## Public blog
 
-The public `/blog` pages render approved structured articles through a private
-server-side API and proxy images through the same origin. Local development
+The public `/blog` pages use the Smoke Signals editorial design, with a magazine
+homepage, category navigation, searchable archives and a shared article shell.
+Approved structured articles come from a private server-side API, with images
+proxied through the same origin. The separate API must support the documented
+homepage/category/search extension before staging acceptance. Wholesale CTAs
+continue to use the existing `/wholesale` preview flow. Local development
 uses sample articles when no API URL is set; deployed environments fail closed
 until configured. See [blog setup and testing](docs/BLOG.md) and the
 [draft approval checklist](docs/BLOG_COMPLIANCE.md).

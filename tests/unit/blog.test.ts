@@ -13,6 +13,7 @@ import {
   BlogNotFoundError,
   BlogUnavailableError,
   parseArticlePage,
+  getHomepage,
 } from '@/server/blog/client.server'
 import { serveMedia, imageSignature } from '@/server/blog/media.server'
 import { blogResponse } from '@/server/blog/worker.server'
@@ -60,6 +61,54 @@ describe('blog client', () => {
       redirect: 'manual',
       cache: 'no-store',
     })
+  })
+  it('normalizes category/search query parameters and keeps filtered caches separate', async () => {
+    const entries = new Map<string, Response>()
+    vi.stubGlobal('caches', {
+      open: () =>
+        Promise.resolve({
+          match: (key: Request) => Promise.resolve(entries.get(key.url)?.clone()),
+          put: (key: Request, response: Response) => {
+            entries.set(key.url, response.clone())
+            return Promise.resolve()
+          },
+        }),
+    })
+    fetchMock.mockImplementation(() => Promise.resolve(Response.json(list())))
+    await listArticles(1, { section: 'flower', q: ' Packaging & labels ' })
+    await listArticles(1, { section: 'flower', q: 'Packaging & labels' })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const target = fetchMock.mock.calls[0]![0]
+    const url = new URL(
+      typeof target === 'string'
+        ? target
+        : target instanceof URL
+          ? target.href
+          : target.url,
+    )
+    expect(url.searchParams.get('category')).toBe('flower')
+    expect(url.searchParams.get('q')).toBe('Packaging & labels')
+    await listArticles(1, { section: 'vapes', q: 'Packaging & labels' })
+    await listArticles(1, { section: 'flower', q: 'different' })
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(entries.size).toBe(3)
+    expect([...entries.keys()].join()).not.toContain('test-bearer')
+  })
+  it('filters the local archive before pagination and never substitutes fixtures for a failed homepage API', async () => {
+    env.BLOG_ALLOW_FIXTURES = 'true'
+    env.BLOG_API_URL = ''
+    expect(await listArticles(1, { section: 'flower', q: 'example 10' })).toMatchObject(
+      { total: 1, items: [{ slug: 'sample-article-10' }] },
+    )
+    expect(await listArticles(2, { section: 'flower' })).toMatchObject({
+      total: 3,
+      items: [],
+    })
+    const home = await getHomepage()
+    expect(home.latest.flower).toHaveLength(3)
+    env.BLOG_API_URL = 'https://api.example.test/v1'
+    fetchMock.mockResolvedValue(new Response(null, { status: 404 }))
+    await expect(getHomepage()).rejects.toBeInstanceOf(BlogUnavailableError)
   })
   it('parses successful article responses and rejects mismatched slugs', async () => {
     fetchMock
@@ -133,7 +182,7 @@ describe('blog client', () => {
   it('permits fixtures only locally with an empty URL and never falls back after failure', async () => {
     env.BLOG_ALLOW_FIXTURES = 'true'
     env.BLOG_API_URL = ''
-    expect((await listArticles(2)).items).toHaveLength(1)
+    expect((await listArticles(2)).items).toHaveLength(12)
     expect((await getArticle(sample.slug)).slug).toBe(sample.slug)
     expect(fetchMock).not.toHaveBeenCalled()
     for (const mode of ['staging', 'production']) {

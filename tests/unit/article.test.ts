@@ -5,7 +5,7 @@ import { articles } from '@/server/blog/fixtures'
 const sample = articles[0]!
 describe('article contract', () => {
   it('accepts fixtures, supported blocks, offsets and additive fields', () => {
-    expect(articles).toHaveLength(13)
+    expect(articles).toHaveLength(24)
     expect(
       article.parse({
         ...sample,

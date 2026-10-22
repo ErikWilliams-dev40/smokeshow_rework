@@ -16,6 +16,7 @@ export default tseslint.config(
       // Reference material from the design handoff: a prototype built on a
       // bespoke template runtime, deliberately not part of the build.
       'design_handoff_wholesale_b2b/**',
+      'design_handoff_smoke_signals_blog/**',
       'smokeshow-dev-handoff/**',
     ],
   },
