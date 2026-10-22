@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         ),
       }
     : {
-        title: 'Smoke Signals | Smoke Show Labs',
+        title: 'Smoke Signals',
         description: '',
         robots: { index: false },
       }
