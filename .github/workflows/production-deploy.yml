@@ -1,11 +1,9 @@
 name: Production deploy (reusable)
 
-# PLACEHOLDER for the deploy step itself. This workflow does not know the hosting
-# environment or deploy provider — replace the step marked CUSTOMIZE.
-#
-# The approval-integrity guard below is FUNCTIONAL as shipped, and is the point
-# where commit-SHA immutability is enforced: the workflow refuses to deploy
-# anything other than the exact commit that was approved.
+# Builds the exact approved commit in production mode and deploys it to the Worker
+# `smokeshow-web` with the `cf` CLI. The account, Worker name and D1
+# binding come from cloudflare.config.ts; nothing here names them. See
+# docs/decisions/0001-cloudflare-workers-adapter.md and Helix issue #11.
 #
 # Reusable workflow: it is called by another workflow, never triggered directly.
 # Called by: .github/workflows/deploy.yml
@@ -14,20 +12,17 @@ on:
   workflow_call:
     inputs:
       commit-sha:
-        description: Full 40-character SHA to deploy.
+        description: >-
+          Full 40-character SHA to deploy. This is the identity of the release;
+          it is validated below and must not be a branch or tag name.
         type: string
         required: true
       approved-sha:
-        description: >-
-          Full 40-character SHA recorded in the release metadata that the
-          reviewers signed off on. Must equal commit-sha.
+        description: Full SHA from the approved release record; must match commit-sha.
         type: string
         required: true
       environment:
-        description: >-
-          GitHub Environment holding production credentials. Its required-reviewer
-          rule is the business-approval gate — the run pauses here until a
-          reviewer approves.
+        description: Name of the GitHub Environment holding production credentials.
         type: string
         default: production
       runner:
@@ -38,12 +33,16 @@ on:
       url:
         description: Base URL the deployment is reachable at, for the health check.
         value: ${{ jobs.deploy.outputs.url }}
+    secrets:
+      CLOUDFLARE_API_TOKEN:
+        description: Cloudflare API token for the Worker. Stored on the Environment.
+        # Fails the run if the caller omits it. It cannot tell whether the value
+        # is empty; the "Check deploy configuration" step below does that.
+        required: true
 
-# Deploy credentials are read from the Environment named by the `environment`
-# input, not passed in by the caller. See the full explanation in
-# staging-deploy.yml — the short version is that a job calling a reusable
-# workflow cannot declare an environment, so it cannot read environment secrets,
-# and forwarding one would silently pass an empty string.
+# The production Environment must hold its own scoped API token and required
+# reviewers. The caller forwards only that named secret; never secrets: inherit.
+# Do not create a repository-wide token that could replace an absent secret.
 
 # Least privilege: deny everything here, grant the minimum per job.
 permissions: {}
@@ -53,31 +52,30 @@ jobs:
     name: Deploy to ${{ inputs.environment }}
     runs-on: ${{ inputs.runner }}
     timeout-minutes: 30
-    # Binds the job to the GitHub Environment. Required reviewers configured
-    # there hold the run before any step executes — that is the business
-    # approval gate. It is enforced by GitHub, not by this file.
+    # Binds the job to the GitHub Environment, which is where production secrets and
+    # any protection rules live.
     environment:
       name: ${{ inputs.environment }}
       url: ${{ steps.deploy.outputs.url }}
+    env:
+      # Corepack otherwise prompts before downloading the pinned pnpm, which
+      # would hang a non-interactive runner.
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      DB_ID_PRODUCTION: ${{ vars.DB_ID_PRODUCTION }}
+      PRODUCTION_ZONE_ID: ${{ vars.PRODUCTION_ZONE_ID }}
+      DEPLOY_URL: ${{ vars.DEPLOY_URL }}
+      BLOG_API_URL: ${{ vars.BLOG_API_URL }}
+      LEADS_ENABLED: ${{ vars.LEADS_ENABLED || 'false' }}
+      MAIL_FROM: ${{ vars.MAIL_FROM }}
+      SALES_INBOX: ${{ vars.SALES_INBOX }}
     permissions:
       contents: read # required only so actions/checkout can read the repository
-      # id-token: write  # ONLY if the provider supports OIDC. Prefer this over a
-      #   long-lived stored token. The caller must grant it too — a called
-      #   workflow cannot widen the caller's token.
+      # No id-token: Cloudflare does not accept GitHub OIDC for Workers deploys,
+      # so the credential is a scoped API token held as an Environment secret.
     outputs:
       url: ${{ steps.deploy.outputs.url }}
     steps:
-      # ── Approval integrity ────────────────────────────────────────────────
-      # An executive approval refers to one exact version of the code. If the
-      # SHA being deployed differs from the SHA that was reviewed — because a
-      # branch moved, a PR was amended, or the wrong value was pasted — the
-      # approval no longer describes what would ship. Refuse, do not warn.
-      #
-      # Limitation, stated plainly: this compares two values supplied to the
-      # run. It catches drift and paste errors, not an operator who enters the
-      # same wrong SHA in both fields. `approved-sha` must be READ from the
-      # release metadata record, never retyped from memory. The gate that stops
-      # a determined operator is the Environment reviewer below, not this step.
       - name: Verify the deploy target matches the approved commit
         env:
           COMMIT_SHA: ${{ inputs.commit-sha }}
@@ -113,28 +111,78 @@ jobs:
         with:
           ref: ${{ inputs.commit-sha }}
           persist-credentials: false
+          # Full history, so origin/main is present for the ancestry check below.
+          fetch-depth: 0
 
-      # ── CUSTOMIZE ─────────────────────────────────────────────────────────
-      # Replace this step with the real production deploy.
-      # Per-stack guidance: docs/CUSTOMIZATION.md
-      #
-      # Set the `url` output to the deployed base URL so production-health-check
-      # has something to probe:
-      #
-      #   echo "url=https://example.com" >> "$GITHUB_OUTPUT"
-      #
-      # Deploy the same artifact that was verified on staging where the provider
-      # allows it — rebuilding here means production runs a build no one tested.
-      #
-      # If this release includes a database migration, apply it here and make
-      # sure the release metadata records database_migration: true and an honest
-      # rollback_safe value.
+      - name: Refuse commits not on main
+        # The SHA check above proves the format, not that anyone reviewed it.
+        # checkout fetches any SHA in the repository network, unmerged branches
+        # included, and the deploy step runs that commit's config and
+        # dependencies with the Cloudflare token in its environment. Only
+        # merged code gets that far.
+        env:
+          COMMIT_SHA: ${{ inputs.commit-sha }}
+        run: |
+          if ! git merge-base --is-ancestor "$COMMIT_SHA" origin/main; then
+            echo "::error title=Unmerged commit::$COMMIT_SHA is not on main. Only merged commits are deployed."
+            exit 1
+          fi
+          echo "$COMMIT_SHA is on main"
+
+      # ── Toolchain ─────────────────────────────────────────────────────────
+      # Same as build.yml: setup-node reads .nvmrc, and corepack resolves the
+      # pnpm pinned by `packageManager`. See the notes there.
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # actions/setup-node v7.0.0
+        # Pinned to a full commit SHA, not the mutable @v7 tag. Published by
+        # GitHub; see docs/RECOMMENDED_ACTIONS.md.
+        with:
+          node-version-file: .nvmrc
+
+      - name: Verify Node matches .nvmrc
+        run: |
+          actual="$(node -p 'process.versions.node.split(".")[0]')"
+          expected="$(tr -d '[:space:]' < .nvmrc)"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error title=Node version mismatch::Node ${actual} is active; .nvmrc pins ${expected}. setup-node did not install the pinned version."
+            exit 1
+          fi
+          echo "node $(node --version), pnpm $(corepack pnpm --version)"
+
+      - name: Check deploy configuration
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: node scripts/check-deploy-config.mjs production
+
+      - name: Install dependencies
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Build (production mode)
+        # COMMIT_SHA is compiled into /api/health, which is how the health check
+        # can tell this release from the version it replaced.
+        env:
+          COMMIT_SHA: ${{ inputs.commit-sha }}
+        run: corepack pnpm exec vite build --mode production
+
+      - name: Apply additive D1 migrations
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: corepack pnpm db:migrate:prod
+
       - name: Deploy
         id: deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          COMMIT_SHA: ${{ inputs.commit-sha }}
+          DEPLOY_URL: ${{ vars.DEPLOY_URL }}
+          RUN_ID: ${{ github.run_id }}
+          CF_QUIET: "1"
+        # --provision=false: resources are created by an admin, never as a side
+        # effect of a deploy. The message carries the full SHA so rollback can
+        # find this version again.
         run: |
-          echo "::error title=Template not configured::.github/workflows/production-deploy.yml is still a placeholder."
-          echo "Replace the 'Deploy' step with this project's production deploy command,"
-          echo "and set the 'url' step output to the deployed base URL."
-          echo "See docs/CUSTOMIZATION.md for the section matching your stack."
-          exit 1
-      # ──────────────────────────────────────────────────────────────────────
+          set -euo pipefail
+          corepack pnpm exec cf deploy --mode production --prebuilt --provision=false \
+            --tag "${COMMIT_SHA:0:12}" \
+            --message "sha=$COMMIT_SHA run=$RUN_ID"
+          echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"

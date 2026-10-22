@@ -16,8 +16,7 @@ Built from the Project Helix application template.
 ## Current status
 
 The four-screen frontend design is implemented: age gate, session intro, homepage
-and `/wholesale` signup preview. The four final policy pages and the Smoke Signals
-blog are public routes. Lead capture is implemented; deployed delivery requires configuration.
+and `/wholesale` signup. The wholesale overview (`/wholesale-products`), four policy pages and Smoke Signals blog are public routes with shared navigation, metadata and structured data. Lead capture is implemented; deployed delivery requires configuration.
 
 | Area | Current state |
 | --- | --- |
@@ -34,7 +33,7 @@ blog are public routes. Lead capture is implemented; deployed delivery requires 
 | Compliance copy | Age-gate sentence and a site-wide hemp product notice (21+) on every route, frozen in `src/content/compliance.ts` and guarded verbatim |
 | Pricing (not launched) | Server-only quote and discount modules, product data and domain schemas with unit tests (#36); selections are validated at the estimator boundary (#69); not wired into any route |
 | Signup, lead storage and email | D1 persistence, email confirmation and retry outbox implemented; deployed delivery disabled until configured |
-| Hosting and deployment | Cloudflare Workers via vinext and the `cf` CLI ([ADR-0001](docs/decisions/0001-cloudflare-workers-adapter.md)); staging deploys run in CI through the Deploy workflow (#37, #38); production deploy and rollback workflows remain placeholders; no release metadata records exist yet |
+| Hosting and deployment | Cloudflare Workers via vinext and the `cf` CLI ([ADR-0001](docs/decisions/0001-cloudflare-workers-adapter.md)); staging deploys run in CI through the Deploy workflow (#37, #38); guarded production deploy and rollback workflows are prepared; launch configuration and release approvals remain outstanding |
 
 The recent frontend foundation is reusable for the launch. The quote/pricing
 prototype was merged in #36 as server-side code that no page uses yet. It is
@@ -94,7 +93,7 @@ from formatting. `pnpm test:watch` runs Vitest interactively.
 After `corepack pnpm build:local`, `corepack pnpm preview` serves the built Worker locally.
 Check `/` for the age gate and homepage, `/wholesale` for the signup preview,
 and `/api/health` for readiness.
-These checks do not verify lead storage or email delivery. Browser regression
+The local tests exercise real D1 persistence with simulated mail. Live delivery requires allowlisted staging verification. Browser regression
 tests build the Worker in local-preview mode:
 
 ```sh
@@ -108,7 +107,7 @@ or `PLAYWRIGHT_BASE_URL=https://<staging-worker-url>` to test a deployed preview
 without building or starting a local server. Set
 `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to use an already installed Chromium binary.
 Tests cover consent with JavaScript disabled, intro timing and focus, signup
-validation and verification previews, temporary interest cleanup, mobile
+validation and verification states, temporary interest cleanup, mobile
 navigation, 320/390/768px layouts, desktop placement, and smoke motion/fallbacks.
 They also cover the policy pages, the sales phone strip on every route, the hemp
 notice, and the Smoke Signals magazine, drawer, archive and article shell.
@@ -126,12 +125,12 @@ homepage, category navigation, searchable archives and a shared article shell.
 Approved structured articles come from a private server-side API, with images
 proxied through the same origin. The separate API must support the documented
 homepage/category/search extension before staging acceptance. Wholesale CTAs
-continue to use the existing `/wholesale` preview flow. Local development
+continue to use the existing `/wholesale` signup flow. Local development
 uses sample articles when no API URL is set; deployed environments fail closed
 until configured. See [blog setup and testing](docs/BLOG.md) and the
 [draft approval checklist](docs/BLOG_COMPLIANCE.md).
 
-## Frontend preview flow
+## Consent and signup flow
 
 Age consent uses the existing 30-day cookie on both `/` and `/wholesale`.
 The intro runs once per tab session: a 2.2-second hold followed by an 800ms fade
@@ -139,7 +138,7 @@ revealing the page underneath. Skip intro and Escape use a 200ms fade. Reduced
 motion bypasses the intro or immediately closes it if already showing. Direct
 signup visits return to `/wholesale` after consent. Skipping cancels the intro timer so it cannot
 interrupt form entry. Without JavaScript the page and sales contact links remain
-usable; preview forms are disabled to prevent accidental native submissions.
+usable; forms are disabled to prevent accidental native submissions.
 
 The intro and homepage splash use a shared, locally bundled WebGL smoke shader:
 subtle cyan-to-magenta haze with slow drift. Open Tweaks and switch Motion off
@@ -169,13 +168,12 @@ minimal photography; HOUSE OF HELIX assets are a separate brand.
 
 The latest client direction requires only email, name and phone, followed by
 inbox email verification. Business details are collected during team follow-up. Each submission must save a
-retrievable record, notify the sales inbox, send an acknowledgment email and
+retrievable record immediately and, only after confirmation, notify sales, send an acknowledgment and
 show a clear confirmation. Basic validation, spam protection and desktop/mobile
 verification are required before staging review.
 
 The sales phone number, the four policy pages and Cloudflare hosting are
-settled. The actual Smoke Show logo, form storage and email providers, and
-responsive design decisions still need to be settled. The [VIP Text Club plan](docs/promo-popup.md) is a proposal awaiting
+settled. The existing branding and responsive layout are implemented. D1 and Cloudflare Email Sending are selected; production account, sender and recipient configuration remain outstanding. The [VIP Text Club plan](docs/promo-popup.md) is a proposal awaiting
 its own tracking issue and provider details, not an implemented feature.
 
 ## Project layout
@@ -256,8 +254,7 @@ Project-specific guidance and known differences are listed in
 ## Deployment and security
 
 The host is Cloudflare Workers ([ADR-0001](docs/decisions/0001-cloudflare-workers-adapter.md)).
-Staging deploys run in CI. The production deploy and rollback workflows are still
-placeholders that intentionally fail; filling them is the rest of Helix issue #11.
+Staging deploys run in CI. The production deploy and rollback workflows use the `cf` CLI, preserve approval/SHA guards, and fail closed on missing launch configuration. See the [configuration checklist](docs/launch/CONFIGURATION.md) and [release runbook](docs/launch/RELEASE.md).
 A green application build is not evidence of a deployment.
 
 ### Staging deploy (CI)
@@ -292,13 +289,11 @@ Preview URL: <https://smokeshow-web-staging.dev40.workers.dev>.
 
 The `staging` mode targets account `8441cc5cfd234da96da8cdf090d94658`, Worker
 `smokeshow-web-staging`, and D1 `smokeshow-leads-staging`
-(`b98400fb-eae4-45db-ad1d-71c5d73ca22c`). The database is empty: `/api/health`
-only checks connectivity. No lead storage or email delivery is implemented.
-Staging deliberately has no email, rate-limit or lead-secret bindings until #15
-implements the real pipeline. Its only Worker secret is `BLOG_API_TOKEN`, which
-currently holds a placeholder; with `BLOG_API_URL` empty, `/blog` reports the
-blog as unavailable until the real API and token are configured.
-Production configuration remains unprovisioned.
+(`b98400fb-eae4-45db-ad1d-71c5d73ca22c`), overridable through Environment variables.
+The new lead migration and email pipeline are implemented locally but have not
+been deployed. Staging email requires an explicit recipient allowlist and
+`LEADS_ENABLED=true`; the default is disabled. The live blog URL and token,
+production account/domain, D1 and sender still require configuration.
 
 The CI deploy above is the normal path. For a manual preview deployment, for
 example when CI is unavailable, use Node 22 and the local `cf` OAuth login (or a

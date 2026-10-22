@@ -70,6 +70,16 @@ jobs:
       # Corepack otherwise prompts before downloading the pinned pnpm, which
       # would hang a non-interactive runner.
       COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      DB_ID_STAGING: ${{ vars.DB_ID_STAGING }}
+      DB_ID_PRODUCTION: ${{ vars.DB_ID_PRODUCTION }}
+      PRODUCTION_ZONE_ID: ${{ vars.PRODUCTION_ZONE_ID }}
+      DEPLOY_URL: ${{ vars.DEPLOY_URL }}
+      BLOG_API_URL: ${{ vars.BLOG_API_URL }}
+      LEADS_ENABLED: ${{ vars.LEADS_ENABLED || 'false' }}
+      MAIL_FROM: ${{ vars.MAIL_FROM }}
+      SALES_INBOX: ${{ vars.SALES_INBOX }}
+      LEAD_TEST_RECIPIENTS: ${{ vars.LEAD_TEST_RECIPIENTS }}
     permissions:
       contents: read # required only so actions/checkout can read the repository
       # No id-token: Cloudflare does not accept GitHub OIDC for Workers deploys,
@@ -134,25 +144,9 @@ jobs:
           echo "node $(node --version), pnpm $(corepack pnpm --version)"
 
       - name: Check deploy configuration
-        # An unset Environment secret or variable resolves to an empty string,
-        # not an error. Fail here rather than let cf fall back to an interactive
-        # login or the health check probe an empty URL. Lengths only, never values.
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          DEPLOY_URL: ${{ vars.DEPLOY_URL }}
-          ENVIRONMENT: ${{ inputs.environment }}
-        run: |
-          missing=0
-          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "::error title=Missing secret::CLOUDFLARE_API_TOKEN is not set on the '$ENVIRONMENT' Environment."
-            missing=1
-          fi
-          if [ -z "$DEPLOY_URL" ]; then
-            echo "::error title=Missing variable::DEPLOY_URL is not set on the '$ENVIRONMENT' Environment."
-            missing=1
-          fi
-          [ "$missing" -eq 0 ] || exit 1
-          echo "CLOUDFLARE_API_TOKEN length ${#CLOUDFLARE_API_TOKEN}; DEPLOY_URL $DEPLOY_URL"
+        run: node scripts/check-deploy-config.mjs staging
 
       - name: Install dependencies
         run: corepack pnpm install --frozen-lockfile
@@ -164,9 +158,11 @@ jobs:
           COMMIT_SHA: ${{ inputs.commit-sha }}
         run: corepack pnpm exec vite build --mode staging
 
-      # D1 migrations are deliberately not applied here. The staging database
-      # stays empty until issue #15 implements the lead pipeline; /api/health
-      # only checks that D1 answers.
+      - name: Apply additive D1 migrations
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: corepack pnpm db:migrate:staging
+
       - name: Deploy
         id: deploy
         env:

@@ -14,8 +14,8 @@ import { bindings, defineConfig, defineWorker, triggers } from 'cf/config'
  */
 const D1_IDS = {
   local: '00000000-0000-4000-8000-000000000001',
-  staging: 'b98400fb-eae4-45db-ad1d-71c5d73ca22c',
-  production: 'REPLACE-WITH-cf-d1-create-production',
+  staging: process.env.DB_ID_STAGING || 'b98400fb-eae4-45db-ad1d-71c5d73ca22c',
+  production: process.env.DB_ID_PRODUCTION || 'REPLACE-WITH-cf-d1-create-production',
 } as const
 
 type Mode = keyof typeof D1_IDS
@@ -29,18 +29,30 @@ export default defineConfig((ctx) => {
   const suffix = mode === 'production' ? '' : `-${mode}`
 
   return {
-    accountId: mode === 'staging' ? '8441cc5cfd234da96da8cdf090d94658' : undefined,
+    accountId:
+      process.env.CLOUDFLARE_ACCOUNT_ID ||
+      (mode === 'staging' ? '8441cc5cfd234da96da8cdf090d94658' : undefined),
     worker: defineWorker({
       name: `smokeshow-web${suffix}`,
       entrypoint: './src/worker.ts',
-      triggers: [triggers.scheduled({ schedule: '*/5 * * * *' })],
+      triggers: [
+        triggers.scheduled({ schedule: '*/5 * * * *' }),
+        ...(mode === 'production' && process.env.PRODUCTION_ZONE_ID
+          ? [
+              triggers.fetch({
+                pattern: 'smokeshowlabs.com/*',
+                zone: process.env.PRODUCTION_ZONE_ID,
+              }),
+            ]
+          : []),
+      ],
       // Must not exceed the date the installed workerd supports, or the local
       // runtime refuses to start. Raise it together with the toolchain.
       compatibilityDate: '2026-10-07',
       compatibilityFlags: ['nodejs_compat'],
-      workersDev: mode === 'staging' ? true : undefined,
+      workersDev: mode !== 'production',
       observability:
-        mode === 'staging'
+        mode !== 'local'
           ? {
               enabled: true,
               redactQueryString: true,
@@ -104,7 +116,8 @@ export default defineConfig((ctx) => {
           mode === 'production'
             ? 'https://smokeshowlabs.com'
             : mode === 'staging'
-              ? 'https://smokeshow-web-staging.dev40.workers.dev'
+              ? process.env.DEPLOY_URL ||
+                'https://smokeshow-web-staging.dev40.workers.dev'
               : 'http://localhost:4173',
         ),
       },

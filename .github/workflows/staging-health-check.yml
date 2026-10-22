@@ -3,8 +3,7 @@ name: Staging health check (reusable)
 # This workflow is FUNCTIONAL as shipped — an HTTP probe does not depend on the
 # language, framework, or host. Point it at a URL and it works.
 #
-# You will still want to customize the health endpoint path, and optionally add
-# a deeper readiness assertion (see the CUSTOMIZE note at the end).
+# Verifies the expected release SHA and D1 readiness in addition to HTTP status.
 #
 # Reusable workflow: it is called by another workflow, never triggered directly.
 # Called by: .github/workflows/deploy.yml
@@ -20,6 +19,10 @@ on:
         description: Health endpoint path appended to the base URL.
         type: string
         default: /
+      expected-commit:
+        description: Exact approved release SHA expected from the readiness endpoint.
+        type: string
+        required: true
       expected-status:
         description: HTTP status code that means healthy.
         type: number
@@ -60,6 +63,7 @@ jobs:
           BASE_URL: ${{ inputs.url }}
           PROBE_PATH: ${{ inputs.path }}
           EXPECTED: ${{ inputs.expected-status }}
+          EXPECTED_COMMIT: ${{ inputs.expected-commit }}
           ATTEMPTS: ${{ inputs.attempts }}
           DELAY: ${{ inputs.delay-seconds }}
           REQ_TIMEOUT: ${{ inputs.timeout-seconds }}
@@ -75,6 +79,8 @@ jobs:
           target="${BASE_URL%/}/${PROBE_PATH#/}"
           echo "Probing $target — expecting HTTP $EXPECTED"
 
+          body="$(mktemp)"
+          trap 'rm -f "$body"' EXIT
           attempt=1
           while [ "$attempt" -le "$ATTEMPTS" ]; do
             # curl already emits 000 via --write-out when the request never got a
@@ -82,12 +88,13 @@ jobs:
             # `|| true` only stops set -e from aborting on curl's non-zero exit.
             code="$(curl --silent --show-error --location \
                          --max-time "$REQ_TIMEOUT" \
-                         --output /dev/null \
+                         --output "$body" \
                          --write-out '%{http_code}' \
                          "$target" || true)"
             code="${code:-000}"
 
-            if [ "$code" = "$EXPECTED" ]; then
+            if [ "$code" = "$EXPECTED" ] && jq -e --arg commit "$EXPECTED_COMMIT" \
+              '.status == "ok" and .commit == $commit and .checks.d1 == "ok"' "$body" >/dev/null 2>&1; then
               echo "Attempt $attempt/$ATTEMPTS: HTTP $code — healthy."
               echo "::notice title=Staging healthy::$target returned HTTP $code"
               exit 0
@@ -102,12 +109,3 @@ jobs:
 
           echo "::error title=Staging unhealthy::$target never returned HTTP $EXPECTED after $ATTEMPTS attempts."
           exit 1
-
-      # ── CUSTOMIZE (optional) ──────────────────────────────────────────────
-      # A 200 from the front door proves the process is up, not that the release
-      # is good. Once the app exposes a real readiness endpoint, add a step that
-      # asserts on its body — for example that a /health payload reports the
-      # database reachable and the deployed version matches the expected SHA.
-      # Verifying the version echoed back matches the commit that was reviewed is
-      # the strongest signal available here.
-      # ──────────────────────────────────────────────────────────────────────
