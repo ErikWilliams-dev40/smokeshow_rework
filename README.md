@@ -16,21 +16,25 @@ Built from the Project Helix application template.
 ## Current status
 
 The four-screen frontend design is implemented: age gate, session intro, homepage
-and `/wholesale` signup preview. This is not yet a working lead-capture service.
-The frontend foundation and governance import are merged into `main`.
+and `/wholesale` signup preview. The four final policy pages and the Smoke Signals
+blog are public routes. This is not yet a working lead-capture service.
 
 | Area | Current state |
 | --- | --- |
 | Frontend foundation | Cyan/pink Brand tokens, base styles, ambient motion and self-hosted fonts |
 | Homepage | Responsive screenshot recreation with hero form, brands, categories, Helix, process and contact footer |
-| Health endpoint | Uncached `GET /api/health` reports the deployed commit and a D1 check; 503 when D1 does not answer |
-| Tests | Vitest guards, validation, draft and smoke-clock tests; Playwright regressions against the production preview |
+| Sales phone strip | Site-wide strip above every route with the sales number, shared with the homepage contact section (#75) |
+| Policy pages | Final Return & Exchange (`/returns`), Shipping (`/shipping`), Privacy (`/privacy`) and Terms of Website Use (`/terms`) copy, public without consent and linked from the footer (#44, #46, #48, #52, #56) |
+| Blog | Smoke Signals magazine, category archives, search and articles at `/blog`, served from a private server-side API (#76, #83); see [Public blog](#public-blog) |
+| Health endpoint | Uncached `GET /api/health` reports the deployed commit and a D1 check; 503 when D1 does not answer, with bounded, redacted failure logs (#68) |
+| Consent session | Server-set 30-day consent cookie, Secure in production builds, with fixed post-consent destinations (#67) |
+| Tests | Vitest guards, validation, draft and smoke-clock tests; Playwright regressions against the production preview, plus a stubbed blog API suite |
 | Governance | Vendored policies, standards, security guidance and onboarding documents |
 | Brand assets | Local HOUSE OF HELIX logo variants in `public/brand/` |
 | Compliance copy | Age-gate sentence and a site-wide hemp product notice (21+) on every route, frozen in `src/content/compliance.ts` and guarded verbatim |
-| Pricing (not launched) | Server-only quote and discount modules, product data and domain schemas with unit tests (#36); not wired into any route |
+| Pricing (not launched) | Server-only quote and discount modules, product data and domain schemas with unit tests (#36); selections are validated at the estimator boundary (#69); not wired into any route |
 | Signup, lead storage and email | Frontend validation and preview/edit states implemented; server storage and email remain unimplemented |
-| Hosting and deployment | Cloudflare Workers via vinext and the `cf` CLI ([ADR-0001](docs/decisions/0001-cloudflare-workers-adapter.md)); staging deploys run in CI through the Deploy workflow (#37, #38); production deploy and rollback workflows remain placeholders |
+| Hosting and deployment | Cloudflare Workers via vinext and the `cf` CLI ([ADR-0001](docs/decisions/0001-cloudflare-workers-adapter.md)); staging deploys run in CI through the Deploy workflow (#37, #38); production deploy and rollback workflows remain placeholders; no release metadata records exist yet |
 
 The recent frontend foundation is reusable for the launch. The quote/pricing
 prototype was merged in #36 as server-side code that no page uses yet. It is
@@ -106,7 +110,14 @@ without building or starting a local server. Set
 Tests cover consent with JavaScript disabled, intro timing and focus, signup
 validation and verification previews, temporary interest cleanup, mobile
 navigation, 320/390/768px layouts, desktop placement, and smoke motion/fallbacks.
+They also cover the policy pages, the sales phone strip on every route, the hemp
+notice, and the Smoke Signals magazine, drawer, archive and article shell.
 Screenshots and failure traces are written to the ignored `test-results/` directory.
+
+`blog-api.spec.ts` is skipped by `test:e2e`. Run it with
+`corepack pnpm test:blog-api`, which starts a local stub API on port 4399
+(`BLOG_STUB_PORT` overrides it) with a random token and runs the suite against
+it. It temporarily writes `.dev.vars.local-preview` and restores it afterwards.
 
 ## Public blog
 
@@ -162,19 +173,23 @@ retrievable record, notify the sales inbox, send an acknowledgment email and
 show a clear confirmation. Basic validation, spam protection and desktop/mobile
 verification are required before staging review.
 
-Sales contact details, the actual Smoke Show logo, policy copy, form storage
-and email providers, hosting, and responsive design decisions still need to be
-settled. The [VIP Text Club plan](docs/promo-popup.md) is a proposal awaiting
+The sales phone number, the four policy pages and Cloudflare hosting are
+settled. The actual Smoke Show logo, form storage and email providers, and
+responsive design decisions still need to be settled. The [VIP Text Club plan](docs/promo-popup.md) is a proposal awaiting
 its own tracking issue and provider details, not an implemented feature.
 
 ## Project layout
 
 ```text
-src/app/                         App Router pages, layout and health route
+src/app/                         App Router pages: home, wholesale, blog, policies, health
+src/components/                  blog, brand, compliance, hero, layout, motion, policy, splash, wholesale
+src/content/                     Frozen compliance strings, page copy and final policy text
+src/domain/ src/data/            Zod schemas and the typed fixtures they parse
+src/server/                      Server-only blog client, Cloudflare env, pricing, session
 src/styles/                      Tokens, base styles, motion and utilities
 public/fonts/                    Bodoni Moda and Jost fonts served locally
 public/brand/                    HOUSE OF HELIX logo variants
-tests/unit/                     Vitest toolchain smoke test
+tests/                          unit/, guards/, e2e/ (Playwright), fixtures/ (blog API stub)
 design_handoff_wholesale_b2b/    Original design prototype and screenshots
 docs/                           Lifecycle, workflows, release metadata and plans
 policies/                       Governance provenance and policy index
@@ -279,8 +294,11 @@ The `staging` mode targets account `8441cc5cfd234da96da8cdf090d94658`, Worker
 `smokeshow-web-staging`, and D1 `smokeshow-leads-staging`
 (`b98400fb-eae4-45db-ad1d-71c5d73ca22c`). The database is empty: `/api/health`
 only checks connectivity. No lead storage or email delivery is implemented.
-Staging deliberately has no email, rate-limit, or secret bindings until #15
-implements the real pipeline. Production configuration remains unprovisioned.
+Staging deliberately has no email, rate-limit or lead-secret bindings until #15
+implements the real pipeline. Its only Worker secret is `BLOG_API_TOKEN`, which
+currently holds a placeholder; with `BLOG_API_URL` empty, `/blog` reports the
+blog as unavailable until the real API and token are configured.
+Production configuration remains unprovisioned.
 
 The CI deploy above is the normal path. For a manual preview deployment, for
 example when CI is unavailable, use Node 22 and the local `cf` OAuth login (or a
@@ -300,8 +318,8 @@ corepack pnpm exec cf deploy --mode staging --prebuilt --provision=false \
 
 Check the deployed `/api/health` JSON for `status: "ok"`, `checks.d1: "ok"`,
 and `commit` equal to the full deployed SHA. Test the preview with
-`PLAYWRIGHT_BASE_URL=<deployed-url> corepack pnpm test:e2e` and check `/privacy`
-and `/terms` (both still placeholder copy). The workers.dev address needs no
+`PLAYWRIGHT_BASE_URL=<deployed-url> corepack pnpm test:e2e` and check the four
+policy pages and `/blog`. The workers.dev address needs no
 custom-domain DNS. This preview does not constitute a production release or
 business approval; the normal production gates below still apply.
 
