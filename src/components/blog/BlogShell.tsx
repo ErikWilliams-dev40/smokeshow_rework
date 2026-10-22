@@ -1,3 +1,4 @@
+import { PublicLinks } from '@/components/public/PublicLinks'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { ReactNode } from 'react'
@@ -71,6 +72,7 @@ export function BlogShell({
             <Link href="/wholesale">Get the Wholesale Menu</Link>
             <a href={salesContact.phone.href}>Talk to Sales</a>
             <Link href="/shipping">Shipping policy</Link>
+            <Link href="/wholesale-products">Wholesale products</Link>
           </div>
           <div>
             <h2>Sales</h2>
@@ -84,8 +86,7 @@ export function BlogShell({
             21+
           </span>
           <div>
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/terms">Terms</Link>
+            <PublicLinks policies />
           </div>
         </div>
       </footer>
