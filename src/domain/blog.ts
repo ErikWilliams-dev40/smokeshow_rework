@@ -58,3 +58,8 @@ export function articleDateLabel(date: string, now: number) {
     timeZone: 'UTC',
   }).format(new Date(date))
 }
+
+/** Page one is implicit; filters and later pages represent distinct content. */
+export function blogCanonical(query: BlogQuery) {
+  return blogHref({ ...query, archive: query.archive || query.page > 1 })
+}

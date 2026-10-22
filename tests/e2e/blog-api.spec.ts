@@ -43,7 +43,7 @@ test('API auth, approval filtering, literal text, metadata and media', async ({
   await expect(page.locator('main img')).toHaveAttribute('data-loaded', 'true')
   await expect(page.getByText('Unapproved test copy')).toHaveCount(0)
   await page.getByRole('link', { name: 'API test article' }).click()
-  await expect(page).toHaveTitle('API test article | Smoke Signals')
+  await expect(page).toHaveTitle('API test article | Smoke Show Labs')
   await expect(
     page.getByText('<script>window.untrusted = true</script>', { exact: true }),
   ).toBeVisible()
