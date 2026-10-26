@@ -1,0 +1,32 @@
+name: Blog API integration
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - name: Verify pinned Node
+        run: test "$(node -p 'process.versions.node.split(".")[0]')" = "$(cat .nvmrc)"
+      - run: corepack pnpm install --frozen-lockfile
+      - name: Check release gates
+        run: corepack pnpm exec vitest run tests/unit/blog-release.test.mjs
+      - name: Exercise real Worker persistence and service bindings
+        run: corepack pnpm test:blog-backend
+      - name: Install test browser
+        run: corepack pnpm exec playwright install --with-deps chromium
+      - name: Exercise CLI and built website against the real local API
+        run: corepack pnpm test:blog-library
