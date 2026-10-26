@@ -3,8 +3,10 @@
 The public `/blog` and `/blog/[slug]` pages use the private v1 API described in
 `src/domain/article.ts`. The browser never contacts that API. Articles do not
 require age consent; the root layout still renders the frozen hemp notice.
-The separate API/editor, deployment and production provisioning are not part
-of this implementation.
+The separate API is implemented in `services/blog-api`, with D1 revisions,
+private R2 media and owner-approved publishing tools. See
+[publishing operations](BLOG_PUBLISHING.md). A browser editor is not included;
+deployment and production provisioning still require the release gates.
 
 ## Configuration
 
@@ -147,9 +149,9 @@ minutes/hours/days below seven days, then an absolute UTC date.
 
 ### Upstream API extension (required before staging acceptance)
 
-This repository implements the client, local fixture selection and an authenticated
-loopback test API. **The separate API/editor service is not implemented here.**
-Deploy the following extension at the existing API base URL before staging review.
+This repository implements the client, local fixture selection, authenticated
+loopback test API and persistent service in `services/blog-api`.
+Deploy that service and configure its binding before staging review.
 The existing token, transport bounds, media authorization requirements, five-minute
 parsed-data cache, and approval rules continue to apply. No new secret or migration
 is needed in this application. Old `/articles` consumers remain compatible.

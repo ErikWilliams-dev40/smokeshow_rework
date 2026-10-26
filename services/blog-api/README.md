@@ -12,7 +12,7 @@ Use Node 22 and the root's pinned pnpm. From the repository root:
 ```sh
 corepack pnpm install --frozen-lockfile
 corepack pnpm --dir services/blog-api db:migrate:local
-corepack pnpm --dir services/blog-api build -- --mode local-preview
+corepack pnpm --dir services/blog-api exec vite build --mode local-preview
 corepack pnpm --dir services/blog-api preview
 ```
 
