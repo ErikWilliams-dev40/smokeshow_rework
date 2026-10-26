@@ -80,6 +80,11 @@ export default defineConfig((ctx) => {
         // Non-secret URL is supplied at build time; runtime access uses getEnv().
         BLOG_API_URL: bindings.text(process.env.BLOG_API_URL ?? ''),
         BLOG_API_TOKEN: bindings.secret(),
+        ...(mode === 'local'
+          ? {}
+          : {
+              BLOG_API: bindings.worker({ worker: `smokeshow-blog-api${suffix}` }),
+            }),
         BLOG_ALLOW_FIXTURES: bindings.text(mode === 'local' ? 'true' : 'false'),
 
         // Lead records. One database per environment; migrations in ./migrations.

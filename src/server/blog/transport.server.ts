@@ -98,12 +98,18 @@ export async function upstream<T>(
     return await Promise.race([
       deadline,
       (async () => {
-        response = await fetch(new URL(path, config.url), {
-          headers: { Authorization: `Bearer ${config.token}` },
-          redirect: 'manual',
-          signal: controller.signal,
-          cache: 'no-store',
-        })
+        const service = getEnv().BLOG_API
+        if (!service && ['staging', 'production'].includes(import.meta.env.MODE))
+          throw new BlogUnavailableError('Blog service binding missing')
+        response = await (service ? service.fetch.bind(service) : fetch)(
+          new URL(path, config.url),
+          {
+            headers: { Authorization: `Bearer ${config.token}` },
+            redirect: 'manual',
+            signal: controller.signal,
+            cache: 'no-store',
+          },
+        )
         if (response.status === 404) throw new BlogNotFoundError()
         if (response.status !== 200)
           throw new BlogUnavailableError(`Blog API status ${response.status}`)

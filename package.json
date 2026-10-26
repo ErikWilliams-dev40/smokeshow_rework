@@ -10,7 +10,9 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build && corepack pnpm build:api",
-    "build:api": "corepack pnpm --dir services/blog-api build",
+    "build:api": "corepack pnpm --dir services/blog-api build && corepack pnpm build:blog-tools",
+    "build:blog-tools": "corepack pnpm --dir services/blog-api build:cli",
+    "blog": "node services/blog-api/dist/cli/blog.mjs",
     "build:local": "vite build --mode local-preview",
     "preview": "vite preview --port 4173 --strictPort",
     "deploy": "vinext-cloudflare deploy --skip-build",
@@ -28,7 +30,8 @@
     "db:migrate:staging": "cf d1 migrations apply $DB_ID_STAGING --mode staging --dir migrations",
     "db:migrate:prod": "cf d1 migrations apply $DB_ID_PRODUCTION --mode production --dir migrations",
     "test:blog-api": "node scripts/test-blog-api.mjs",
-    "test:blog-backend": "corepack pnpm build:api && node scripts/test-blog-backend.mjs"
+    "test:blog-backend": "corepack pnpm build:api && node scripts/test-blog-backend.mjs",
+    "test:blog-library": "corepack pnpm build:api && node scripts/test-blog-library.mjs"
   },
   "dependencies": {
     "@vinext/cloudflare": "1.1.0",
