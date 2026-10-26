@@ -107,15 +107,21 @@ async function route(request: Request, env: BlogEnv, actor: Actor) {
         actor,
       )
     } catch (error) {
-      await env.BLOG_MEDIA.delete(key).catch(() => undefined)
-      const winner = await repo.mediaByDigest(hash)
+      // The insert may have committed with its response lost. Delete this object
+      // only once D1 confirms no row points at it; an unreadable outcome keeps it.
+      const winner = await repo.mediaByDigest(hash).catch(() => undefined)
+      if (winner === null || (winner && winner.object_key !== key))
+        await env.BLOG_MEDIA.delete(key).catch(() => undefined)
       if (winner)
-        return json({
-          id: winner.id,
-          width: winner.width,
-          height: winner.height,
-          mime: winner.mime,
-        })
+        return json(
+          {
+            id: winner.id,
+            width: winner.width,
+            height: winner.height,
+            mime: winner.mime,
+          },
+          winner.object_key === key ? 201 : 200,
+        )
       throw error
     }
     return json({ id, ...metadata }, 201)

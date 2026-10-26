@@ -406,4 +406,78 @@ describe('persistent blog API', () => {
     bucket.list.mockRejectedValueOnce(new Error('down'))
     expect((await call('/health')).status).toBe(503)
   })
+  it('keeps an uploaded object whose registration committed or cannot be confirmed', async () => {
+    const batch = database.db.batch.bind(database.db)
+    const postImage = () =>
+      worker.fetch(
+        new Request('https://api.invalid/admin/media', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${editorToken}`,
+            'Content-Type': 'image/png',
+          },
+          body: readFileSync('public/brand/ss-logo.png'),
+        }),
+        env,
+      )
+    // Committed, but the response was lost: the object must survive.
+    vi.spyOn(database.db, 'batch').mockImplementationOnce(async (statements) => {
+      await batch(statements)
+      throw new Error('response lost')
+    })
+    const committed = await postImage()
+    expect(committed.status).toBe(201)
+    const { id } = z.object({ id: z.string() }).parse(await committed.json())
+    expect(objects.has(`images/${id}`)).toBe(true)
+    expect(bucket.delete).not.toHaveBeenCalled()
+
+    // Outcome unreadable: keep the object rather than risk deleting a live one.
+    database.sqlite.exec('DELETE FROM media')
+    objects.clear()
+    const prepare = database.db.prepare.bind(database.db)
+    let digestReads = 0
+    vi.spyOn(database.db, 'prepare').mockImplementation((sql) =>
+      sql.includes('WHERE digest = ?') && ++digestReads === 2
+        ? ({
+            bind: () => ({ first: () => Promise.reject(new Error('read failed')) }),
+          } as unknown as D1PreparedStatement)
+        : prepare(sql),
+    )
+    vi.spyOn(database.db, 'batch').mockRejectedValueOnce(new Error('write failed'))
+    expect((await postImage()).status).toBe(503)
+    expect(objects.size).toBe(1)
+    expect(bucket.delete).not.toHaveBeenCalled()
+
+    // Confirmed absent: the orphan is removed.
+    objects.clear()
+    vi.spyOn(database.db, 'batch').mockRejectedValueOnce(new Error('write failed'))
+    expect((await postImage()).status).toBe(503)
+    expect(objects.size).toBe(0)
+  })
+  it('bounds author metadata so summary responses stay within the website limit', async () => {
+    expect(
+      (
+        await call(
+          '/admin/articles',
+          'POST',
+          { slug: 'long-author', content: { ...content, author: 'a'.repeat(121) } },
+          editorToken,
+        )
+      ).status,
+    ).toBe(400)
+    await create('named-author', { ...content, author: 'a'.repeat(120) })
+  })
+  it('validates repeated media references with one lookup', async () => {
+    const image = await upload()
+    const reference = { ...image, alt: 'Product' }
+    const prepare = vi.spyOn(database.db, 'prepare')
+    await create('gallery', {
+      ...content,
+      cover: reference,
+      body: Array.from({ length: 500 }, () => ({ type: 'image', media: reference })),
+    })
+    expect(
+      prepare.mock.calls.filter(([sql]) => sql.includes('FROM media WHERE id')),
+    ).toHaveLength(1)
+  })
 })
