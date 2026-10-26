@@ -9,6 +9,8 @@ import {
 
 // Public reads remain additive-compatible. Administrative writes are strict,
 // including nested blocks and media; publication fields are never accepted.
+// Author is bounded on write because list and homepage responses repeat every
+// summary, and the website rejects responses over 2 MB.
 const strictMedia = media.strict()
 const strictBlock = z.discriminatedUnion('type', [
   block.options[0].strict(),
@@ -19,7 +21,11 @@ const strictBlock = z.discriminatedUnion('type', [
 ])
 export const draft = article
   .omit({ slug: true, review: true, publishedAt: true, updatedAt: true })
-  .extend({ body: z.array(strictBlock).min(1).max(500), cover: strictMedia.optional() })
+  .extend({
+    body: z.array(strictBlock).min(1).max(500),
+    cover: strictMedia.optional(),
+    author: z.string().min(1).max(120).optional(),
+  })
   .strict()
 export type Draft = z.infer<typeof draft>
 export const createArticle = z.object({ slug: articleSlug, content: draft }).strict()
