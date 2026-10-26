@@ -2,9 +2,12 @@ import { DatabaseSync, type SQLInputValue } from 'node:sqlite'
 import { readFileSync } from 'node:fs'
 
 /** Execute repository SQL against real SQLite, with D1's transactional batch semantics. */
-export function sqliteD1() {
-  const sqlite = new DatabaseSync(':memory:')
-  sqlite.exec(readFileSync('migrations/0001_leads.sql', 'utf8'))
+export function sqliteD1(
+  migration = 'migrations/0001_leads.sql',
+  filename = ':memory:',
+) {
+  const sqlite = new DatabaseSync(filename)
+  sqlite.exec(readFileSync(migration, 'utf8'))
   const meta = (changes = 0) => ({
     changes,
     duration: 0,
@@ -39,9 +42,16 @@ export function sqliteD1() {
         }),
     } as D1PreparedStatement
   }
+  let batchTail: Promise<unknown> = Promise.resolve()
   const db = {
     prepare,
     async batch(statements: D1PreparedStatement[]) {
+      const previous = batchTail
+      let release!: () => void
+      batchTail = new Promise<void>((resolve) => {
+        release = resolve
+      })
+      await previous
       sqlite.exec('BEGIN')
       try {
         const results = []
@@ -51,6 +61,8 @@ export function sqliteD1() {
       } catch (error) {
         sqlite.exec('ROLLBACK')
         throw error
+      } finally {
+        release()
       }
     },
   } as D1Database

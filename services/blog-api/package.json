@@ -1,0 +1,20 @@
+{
+  "name": "@smokeshow/blog-api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite dev --port 4399",
+    "preview": "vite preview --port 4399 --strictPort",
+    "deploy": "cf deploy --prebuilt --provision=false",
+    "db:migrate:local": "cf d1 migrations apply 00000000-0000-4000-8000-000000000110 --local --dir migrations --persist-to .cloudflare/state"
+  },
+  "dependencies": {
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "2.0.0-beta.sha-52b0dc0e9",
+    "cf": "1.0.0-beta.16",
+    "vite": "8.3.3"
+  }
+}

@@ -14,12 +14,17 @@
 # not needed: the prebuilt @cloudflare/workerd-linux-64 package is installed as
 # an optional dependency and `workerd --version`, the build, the local preview
 # and local D1 all ran with the script denied (Helix issue #9).
+packages:
+  - services/blog-api
+
 allowBuilds:
   unrs-resolver: false
   workerd: false
 
 # Keep vulnerable transitive versions out until their parents raise the minimums.
 overrides:
+  zod@<4.6.6: 4.6.6
+  undici@>=7.0.0 <7.30.1: 7.30.1
   brace-expansion@<1.1.21: 1.1.21
   brace-expansion@>=4.0.0 <5.0.12: 5.0.12
   fast-uri@>=3.0.0 <3.1.8: 3.1.8

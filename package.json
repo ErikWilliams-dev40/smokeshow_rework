@@ -9,7 +9,8 @@
   },
   "scripts": {
     "dev": "vite dev --port 3000",
-    "build": "vite build",
+    "build": "vite build && pnpm build:api",
+    "build:api": "pnpm --dir services/blog-api build",
     "build:local": "vite build --mode local-preview",
     "preview": "vite preview --port 4173 --strictPort",
     "deploy": "vinext-cloudflare deploy --skip-build",
@@ -26,7 +27,8 @@
     "db:migrate:local": "cf d1 migrations apply 00000000-0000-4000-8000-000000000001 --local --dir migrations --persist-to .cloudflare/state",
     "db:migrate:staging": "cf d1 migrations apply $DB_ID_STAGING --mode staging --dir migrations",
     "db:migrate:prod": "cf d1 migrations apply $DB_ID_PRODUCTION --mode production --dir migrations",
-    "test:blog-api": "node scripts/test-blog-api.mjs"
+    "test:blog-api": "node scripts/test-blog-api.mjs",
+    "test:blog-backend": "pnpm build:api && node scripts/test-blog-backend.mjs"
   },
   "dependencies": {
     "@vinext/cloudflare": "1.1.0",
