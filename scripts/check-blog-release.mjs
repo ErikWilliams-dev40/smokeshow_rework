@@ -13,16 +13,21 @@ export function validateIdentity(env) {
   )
     throw new Error('Full commit SHA and matching approval are required')
 }
+// GitHub logins are case-insensitive, so independence compares normalized names.
+const login = (value) =>
+  typeof value === 'string' && value.trim() ? value.trim().toLowerCase() : null
 export function validateRecord(record, env) {
   validateIdentity(env)
+  const reviewer = login(record.human_reviewer),
+    developer = login(record.developer)
   if (
     record.commit_sha !== env.COMMIT_SHA ||
     record.repository !== env.GITHUB_REPOSITORY ||
     record.test_status !== 'passed' ||
     record.security_review_status !== 'passed' ||
-    typeof record.human_reviewer !== 'string' ||
-    !record.human_reviewer.trim() ||
-    record.human_reviewer === record.developer ||
+    !reviewer ||
+    !developer ||
+    reviewer === developer ||
     record.business_approval_required !== true ||
     typeof record.database_migration !== 'boolean' ||
     record.rollback_safe !== true
@@ -73,12 +78,15 @@ export function validateConfiguration(env) {
     records.some(
       (r) =>
         !r ||
-        !/^[a-zA-Z0-9_-]{1,64}$/.test(r.id ?? '') ||
+        // The Worker requires strings; a regex alone would coerce numbers and arrays.
+        typeof r.id !== 'string' ||
+        !/^[a-zA-Z0-9_-]{1,64}$/.test(r.id) ||
         typeof r.name !== 'string' ||
         !r.name.trim() ||
         r.name.length > 120 ||
         !['owner', 'editor'].includes(r.role) ||
-        !/^[a-f0-9]{64}$/.test(r.sha256 ?? '') ||
+        typeof r.sha256 !== 'string' ||
+        !/^[a-f0-9]{64}$/.test(r.sha256) ||
         r.sha256 === readHash ||
         Object.keys(r).some((key) => !['id', 'name', 'role', 'sha256'].includes(key)),
     ) ||

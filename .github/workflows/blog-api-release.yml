@@ -54,6 +54,16 @@ jobs:
           persist-credentials: false
       - name: Refuse unmerged code
         run: git merge-base --is-ancestor "$COMMIT_SHA" origin/main
+      # Release checks come from this workflow's revision on main, so a deploy
+      # or rollback to a commit older than the checks still runs them.
+      - name: Check out release tooling from the workflow revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          path: .release-tools
+          sparse-checkout: scripts/check-blog-release.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .nvmrc
@@ -64,7 +74,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           BLOG_API_TOKEN: ${{ secrets.BLOG_API_TOKEN }}
           BLOG_ADMIN_CREDENTIALS: ${{ secrets.BLOG_ADMIN_CREDENTIALS }}
-        run: node scripts/check-blog-release.mjs config
+        run: node .release-tools/scripts/check-blog-release.mjs config
       - name: Install pinned dependencies
         run: corepack pnpm install --frozen-lockfile
       - name: Build exact API version
@@ -83,11 +93,11 @@ jobs:
         run: |
           set -euo pipefail
           trap 'rm -f "$BLOG_SECRETS_FILE"' EXIT
-          node scripts/check-blog-release.mjs secrets
+          node .release-tools/scripts/check-blog-release.mjs secrets
           corepack pnpm --dir services/blog-api exec cf deploy --mode "$BLOG_MODE" \
             --prebuilt --provision=false --secrets-file "$BLOG_SECRETS_FILE" \
             --tag "${COMMIT_SHA:0:12}" --message "sha=$COMMIT_SHA run=$GITHUB_RUN_ID"
       - name: Verify deployed commit and D1/R2 readiness
         env:
           BLOG_API_TOKEN: ${{ secrets.BLOG_API_TOKEN }}
-        run: node scripts/check-blog-release.mjs health
+        run: node .release-tools/scripts/check-blog-release.mjs health

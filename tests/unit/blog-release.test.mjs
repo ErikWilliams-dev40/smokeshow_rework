@@ -45,6 +45,11 @@ describe('blog release gates', () => {
     expect(() => validateIdentity({ ...env, APPROVED_SHA: 'b'.repeat(40) })).toThrow()
     expect(() => validateRecord({ ...record, human_reviewer: 'author' }, env)).toThrow()
     expect(() =>
+      validateRecord({ ...record, human_reviewer: ' Author ' }, env),
+    ).toThrow()
+    for (const developer of [undefined, '', '  ', 7])
+      expect(() => validateRecord({ ...record, developer }, env)).toThrow()
+    expect(() =>
       validateRecord({ ...record, security_review_status: 'pending' }, env),
     ).toThrow()
     expect(() =>
@@ -69,6 +74,16 @@ describe('blog release gates', () => {
         BLOG_DB_ID: '00000000-0000-4000-8000-000000000110',
       }),
     ).toThrow()
+    for (const change of [{ id: 7 }, { sha256: ['c'.repeat(64)] }]) {
+      const coerced = JSON.parse(env.BLOG_ADMIN_CREDENTIALS)
+      Object.assign(coerced[0], change)
+      expect(() =>
+        validateConfiguration({
+          ...env,
+          BLOG_ADMIN_CREDENTIALS: JSON.stringify(coerced),
+        }),
+      ).toThrow()
+    }
     const registry = JSON.parse(env.BLOG_ADMIN_CREDENTIALS)
     registry[0].sha256 = createHash('sha256').update(env.BLOG_API_TOKEN).digest('hex')
     expect(() =>
