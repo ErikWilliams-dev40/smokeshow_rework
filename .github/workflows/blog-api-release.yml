@@ -55,7 +55,11 @@ jobs:
       - name: Refuse unmerged code
         run: git merge-base --is-ancestor "$COMMIT_SHA" origin/main
       # Release checks come from this workflow's revision on main, so a deploy
-      # or rollback to a commit older than the checks still runs them.
+      # or rollback to a commit older than the checks still runs them. This is
+      # for availability, not isolation: the deployed commit's install and build
+      # run before the secrets and health steps and could alter this copy, just
+      # as its own cf binary already runs with the secrets. Trust in the deployed
+      # code rests on the merged-to-main and reviewed-release-record gates.
       - name: Check out release tooling from the workflow revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
