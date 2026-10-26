@@ -1,0 +1,5 @@
+# Local only. Generate unique random credentials; never reuse deployment secrets.
+BLOG_API_TOKEN=
+# JSON array of {id, name, role: "editor" | "owner", sha256: lowercase token digest}.
+# Removing a record revokes that credential. Tokens must contain at least 32 characters.
+BLOG_ADMIN_CREDENTIALS=[]

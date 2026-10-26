@@ -11,6 +11,8 @@ export default tseslint.config(
       '.vinext/**',
       '.wrangler/**',
       'dist/**',
+      'services/**/.cloudflare/**',
+      'services/**/node_modules/**',
       'node_modules/**',
       'next-env.d.ts',
       // Reference material from the design handoff: a prototype built on a
@@ -46,7 +48,7 @@ export default tseslint.config(
   // the explicit `files` scope and the parser override (eslint-config-next
   // installs its own parser, which does not forward project information).
   {
-    files: ['src/**/*.ts', 'src/**/*.tsx', 'tests/**/*.ts'],
+    files: ['src/**/*.ts', 'src/**/*.tsx', 'tests/**/*.ts', 'services/**/*.ts'],
     extends: [tseslint.configs.recommendedTypeChecked],
     languageOptions: {
       parser: tseslint.parser,

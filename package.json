@@ -2,14 +2,15 @@
   "name": "smoke-show-labs",
   "version": "0.1.0",
   "private": true,
-  "description": "Smoke Show Labs — wholesale lead-capture site for licensed cannabis operators",
+  "description": "Smoke Show Labs \u2014 wholesale lead-capture site for licensed cannabis operators",
   "packageManager": "pnpm@12.3.4",
   "engines": {
     "node": ">=22.12.0 <23"
   },
   "scripts": {
     "dev": "vite dev --port 3000",
-    "build": "vite build",
+    "build": "vite build && corepack pnpm build:api",
+    "build:api": "corepack pnpm --dir services/blog-api build",
     "build:local": "vite build --mode local-preview",
     "preview": "vite preview --port 4173 --strictPort",
     "deploy": "vinext-cloudflare deploy --skip-build",
@@ -26,7 +27,8 @@
     "db:migrate:local": "cf d1 migrations apply 00000000-0000-4000-8000-000000000001 --local --dir migrations --persist-to .cloudflare/state",
     "db:migrate:staging": "cf d1 migrations apply $DB_ID_STAGING --mode staging --dir migrations",
     "db:migrate:prod": "cf d1 migrations apply $DB_ID_PRODUCTION --mode production --dir migrations",
-    "test:blog-api": "node scripts/test-blog-api.mjs"
+    "test:blog-api": "node scripts/test-blog-api.mjs",
+    "test:blog-backend": "corepack pnpm build:api && node scripts/test-blog-backend.mjs"
   },
   "dependencies": {
     "@vinext/cloudflare": "1.1.0",
