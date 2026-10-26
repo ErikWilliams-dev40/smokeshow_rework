@@ -1,0 +1,107 @@
+name: Release blog API environment
+
+on:
+  workflow_call:
+    inputs:
+      commit-sha:
+        type: string
+        required: true
+      approved-sha:
+        type: string
+        required: true
+      environment:
+        type: string
+        required: true
+    secrets:
+      CLOUDFLARE_API_TOKEN:
+        required: true
+      BLOG_API_TOKEN:
+        required: true
+      BLOG_ADMIN_CREDENTIALS:
+        required: true
+
+permissions: {}
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ vars.BLOG_DEPLOY_URL }}
+    env:
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+      BLOG_MODE: ${{ inputs.environment }}
+      COMMIT_SHA: ${{ inputs.commit-sha }}
+      APPROVED_SHA: ${{ inputs.approved-sha }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      BLOG_DB_ID: ${{ vars.BLOG_DB_ID }}
+      BLOG_BUCKET_NAME: ${{ vars.BLOG_BUCKET_NAME }}
+      BLOG_DEPLOY_URL: ${{ vars.BLOG_DEPLOY_URL }}
+    steps:
+      - name: Verify immutable release identity
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/main
+          [[ "$COMMIT_SHA" =~ ^[a-f0-9]{40}$ ]]
+          test "$COMMIT_SHA" = "$APPROVED_SHA"
+          [[ "$BLOG_MODE" = staging || "$BLOG_MODE" = production ]]
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.commit-sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Refuse unmerged code
+        run: git merge-base --is-ancestor "$COMMIT_SHA" origin/main
+      # Release checks come from this workflow's revision on main, so a deploy
+      # or rollback to a commit older than the checks still runs them. This is
+      # for availability, not isolation: the deployed commit's install and build
+      # run before the secrets and health steps and could alter this copy, just
+      # as its own cf binary already runs with the secrets. Trust in the deployed
+      # code rests on the merged-to-main and reviewed-release-record gates.
+      - name: Check out release tooling from the workflow revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          path: .release-tools
+          sparse-checkout: scripts/check-blog-release.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - name: Verify pinned Node
+        run: test "$(node -p 'process.versions.node.split(".")[0]')" = "$(cat .nvmrc)"
+      - name: Check provisioned configuration
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          BLOG_API_TOKEN: ${{ secrets.BLOG_API_TOKEN }}
+          BLOG_ADMIN_CREDENTIALS: ${{ secrets.BLOG_ADMIN_CREDENTIALS }}
+        run: node .release-tools/scripts/check-blog-release.mjs config
+      - name: Install pinned dependencies
+        run: corepack pnpm install --frozen-lockfile
+      - name: Build exact API version
+        run: corepack pnpm --dir services/blog-api exec vite build --mode "$BLOG_MODE"
+      - name: Apply additive blog migrations
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: corepack pnpm --dir services/blog-api exec cf d1 migrations apply "$BLOG_DB_ID" --mode "$BLOG_MODE" --dir migrations
+      - name: Deploy provisioned API with environment secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          BLOG_API_TOKEN: ${{ secrets.BLOG_API_TOKEN }}
+          BLOG_ADMIN_CREDENTIALS: ${{ secrets.BLOG_ADMIN_CREDENTIALS }}
+          BLOG_SECRETS_FILE: ${{ runner.temp }}/blog-api-secrets.json
+          CF_QUIET: "1"
+        run: |
+          set -euo pipefail
+          trap 'rm -f "$BLOG_SECRETS_FILE"' EXIT
+          node .release-tools/scripts/check-blog-release.mjs secrets
+          corepack pnpm --dir services/blog-api exec cf deploy --mode "$BLOG_MODE" \
+            --prebuilt --provision=false --secrets-file "$BLOG_SECRETS_FILE" \
+            --tag "${COMMIT_SHA:0:12}" --message "sha=$COMMIT_SHA run=$GITHUB_RUN_ID"
+      - name: Verify deployed commit and D1/R2 readiness
+        env:
+          BLOG_API_TOKEN: ${{ secrets.BLOG_API_TOKEN }}
+        run: node .release-tools/scripts/check-blog-release.mjs health

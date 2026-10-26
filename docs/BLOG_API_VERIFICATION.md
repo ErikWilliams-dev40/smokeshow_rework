@@ -3,6 +3,8 @@
 Verified locally on 2026-10-26 with Node 22.23.4 and pnpm 12.3.4.
 
 - Unit/guard suite: 218 tests across 25 suites.
+- Release-workflow follow-up: three additional gate/readiness tests pass (221
+  total across 26 suites). Workflow YAML parses and all action pins are full SHAs.
 - Lint: binding types, TypeScript, ESLint, CSS and formatting passed.
 - Production build: website, separate API Worker and Node publishing CLI passed.
 - Dependency audit: high-severity gate passed. Zod 4.6.6 and Undici 7.30.1 replace

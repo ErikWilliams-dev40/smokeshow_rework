@@ -1,0 +1,89 @@
+name: Deploy blog API
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit-sha:
+        description: Full merged commit SHA covered by the release record.
+        type: string
+        required: true
+      approved-sha:
+        description: Full SHA from the reviewed release record; must match.
+        type: string
+        required: true
+      deploy-production:
+        description: Continue after staging health and production Environment approval.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+concurrency:
+  group: blog-api-release
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Validate dispatch before checkout
+        env:
+          COMMIT_SHA: ${{ inputs.commit-sha }}
+          APPROVED_SHA: ${{ inputs.approved-sha }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/main
+          [[ "$COMMIT_SHA" =~ ^[a-f0-9]{40}$ ]]
+          test "$COMMIT_SHA" = "$APPROVED_SHA"
+      # The dispatched main commit, so the record and checker match the
+      # revision the release job pins its tooling to, even if main moves.
+      - name: Read release metadata from main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - name: Verify merged SHA and approved record
+        env:
+          COMMIT_SHA: ${{ inputs.commit-sha }}
+          APPROVED_SHA: ${{ inputs.approved-sha }}
+        run: |
+          set -euo pipefail
+          test "$(node -p 'process.versions.node.split(".")[0]')" = "$(cat .nvmrc)"
+          git merge-base --is-ancestor "$COMMIT_SHA" origin/main
+          node scripts/check-blog-release.mjs record
+
+  staging:
+    needs: validate
+    uses: ./.github/workflows/blog-api-release.yml
+    permissions:
+      contents: read
+    with:
+      commit-sha: ${{ inputs.commit-sha }}
+      approved-sha: ${{ inputs.approved-sha }}
+      environment: staging
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      BLOG_API_TOKEN: ${{ secrets.BLOG_API_TOKEN }}
+      BLOG_ADMIN_CREDENTIALS: ${{ secrets.BLOG_ADMIN_CREDENTIALS }}
+
+  production:
+    needs: staging
+    if: ${{ inputs.deploy-production }}
+    uses: ./.github/workflows/blog-api-release.yml
+    permissions:
+      contents: read
+    with:
+      commit-sha: ${{ inputs.commit-sha }}
+      approved-sha: ${{ inputs.approved-sha }}
+      environment: production
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      BLOG_API_TOKEN: ${{ secrets.BLOG_API_TOKEN }}
+      BLOG_ADMIN_CREDENTIALS: ${{ secrets.BLOG_ADMIN_CREDENTIALS }}
