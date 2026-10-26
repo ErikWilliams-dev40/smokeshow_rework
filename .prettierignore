@@ -6,6 +6,7 @@ design_handoff_wholesale_b2b/
 .next/
 .cloudflare/
 services/**/.cloudflare/
+services/**/dist/
 services/**/node_modules/
 .vinext/
 .wrangler/

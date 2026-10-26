@@ -3,6 +3,7 @@ const env = vi.hoisted(() => ({
   BLOG_API_URL: 'https://api.example.test/v1',
   BLOG_API_TOKEN: 'test-bearer',
   BLOG_ALLOW_FIXTURES: 'false',
+  BLOG_API: undefined as { fetch: typeof fetch } | undefined,
   ASSETS: { fetch: vi.fn() },
 }))
 vi.mock('@/server/cloudflare/env', () => ({ getEnv: () => env }))
@@ -35,6 +36,7 @@ beforeEach(() => {
   env.BLOG_API_URL = 'https://api.example.test/v1'
   env.BLOG_API_TOKEN = 'test-bearer'
   env.BLOG_ALLOW_FIXTURES = 'false'
+  env.BLOG_API = undefined
   vi.stubEnv('MODE', 'test')
   vi.stubGlobal('fetch', fetchMock)
   vi.stubGlobal('caches', undefined)
@@ -49,6 +51,22 @@ afterEach(() => {
 })
 
 describe('blog client', () => {
+  it('uses the service binding with bearer auth and never falls back after failure', async () => {
+    const serviceFetch = vi.fn<typeof fetch>().mockResolvedValue(Response.json(list()))
+    env.BLOG_API = { fetch: serviceFetch }
+    vi.stubEnv('MODE', 'production')
+    expect((await listArticles()).total).toBe(1)
+    expect(serviceFetch.mock.calls[0]?.[1]?.headers).toEqual({
+      Authorization: 'Bearer test-bearer',
+    })
+    expect(fetchMock).not.toHaveBeenCalled()
+    serviceFetch.mockRejectedValue(new Error('Service unavailable'))
+    await expect(listArticles()).rejects.toBeInstanceOf(BlogUnavailableError)
+    expect(fetchMock).not.toHaveBeenCalled()
+    env.BLOG_API = undefined
+    await expect(listArticles()).rejects.toBeInstanceOf(BlogUnavailableError)
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
   it('uses authenticated server requests with no redirects and preserves pagination', async () => {
     fetchMock.mockResolvedValue(Response.json(list()))
     expect((await listArticles()).items[0]?.slug).toBe(sample.slug)

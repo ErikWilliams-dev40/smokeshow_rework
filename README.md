@@ -123,8 +123,9 @@ it. It temporarily writes `.dev.vars.local-preview` and restores it afterwards.
 The public `/blog` pages use the Smoke Signals editorial design, with a magazine
 homepage, category navigation, searchable archives and a shared article shell.
 Approved structured articles come from a private server-side API, with images
-proxied through the same origin. The separate API must support the documented
-homepage/category/search extension before staging acceptance. Wholesale CTAs
+proxied through the same origin. The persistent API and publishing CLI are in
+`services/blog-api`; see [publishing operations](docs/BLOG_PUBLISHING.md).
+Provision and deploy the API before enabling the site's service binding. Wholesale CTAs
 continue to use the existing `/wholesale` signup flow. Local development
 uses sample articles when no API URL is set; deployed environments fail closed
 until configured. See [blog setup and testing](docs/BLOG.md) and the

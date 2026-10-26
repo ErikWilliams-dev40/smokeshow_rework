@@ -12,6 +12,7 @@ export default tseslint.config(
       '.wrangler/**',
       'dist/**',
       'services/**/.cloudflare/**',
+      'services/**/dist/**',
       'services/**/node_modules/**',
       'node_modules/**',
       'next-env.d.ts',

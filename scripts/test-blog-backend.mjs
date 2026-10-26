@@ -44,6 +44,24 @@ const options = {
   log: new Log(LogLevel.ERROR),
 }
 let mf
+function runtimeOptions() {
+  const { resourcePersistencePath, log, ...api } = options
+  return convertV4MiniflareOptions({
+    resourcePersistencePath,
+    log,
+    workers: [
+      {
+        name: 'binding-client',
+        modules: true,
+        compatibilityDate: '2026-10-07',
+        script:
+          'export default {fetch(request, env) { return env.BLOG_API.fetch(request) }}',
+        serviceBindings: { BLOG_API: 'blog-api' },
+      },
+      { ...api, name: 'blog-api' },
+    ],
+  })
+}
 async function call(route, method = 'GET', body, credential = reader) {
   const response = await mf.dispatchFetch(`https://api.invalid${route}`, {
     method,
@@ -56,8 +74,8 @@ async function call(route, method = 'GET', body, credential = reader) {
   return { status: response.status, data: await response.json() }
 }
 try {
-  mf = new Miniflare(convertV4MiniflareOptions(options))
-  const db = await mf.getD1Database('BLOG_DB')
+  mf = new Miniflare(runtimeOptions())
+  const db = await mf.getD1Database('BLOG_DB', 'blog-api')
   // D1 exec treats newlines as statement boundaries. Keep complete statements,
   // including trigger bodies, on a single line for the runtime migration check.
   const sql = (await readFile('services/blog-api/migrations/0001_blog.sql', 'utf8'))
@@ -123,7 +141,7 @@ try {
   )
   assert.deepEqual(concurrent.map((r) => r.status).sort(), [200, 409])
   await mf.dispose()
-  mf = new Miniflare(convertV4MiniflareOptions(options))
+  mf = new Miniflare(runtimeOptions())
   assert.equal((await call('/articles/runtime-article')).data.title, content.title)
   const inspected = await call(
     '/admin/articles/runtime-article',
@@ -131,7 +149,7 @@ try {
     undefined,
     owner,
   )
-  assert.equal(inspected.data.revisions.length, 2)
+  assert.equal(inspected.data.revisionCount, 2)
   assert.equal(
     (
       await call(
