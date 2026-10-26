@@ -21,7 +21,11 @@ type State = {
   version: number
   draftRevisionId: string
   publishedRevisionId: string | null
-  revisions: { id: string; content: typeof content }[]
+}
+type Inspection = State & {
+  draft: { id: string; content: typeof content }
+  published: { id: string; content: typeof content } | null
+  revisionCount: number
 }
 let env: BlogEnv, database: ReturnType<typeof sqliteD1>
 let objects: Map<string, Uint8Array>
@@ -83,6 +87,15 @@ function call(
     }),
     env,
   )
+}
+async function read<T>(response: Response) {
+  expect(response.status).toBeLessThan(300)
+  const result: unknown = await response.json()
+  return result as T
+}
+type History = {
+  items: { id: string; content?: unknown; approvals: unknown[] }[]
+  total: number
 }
 async function state(response: Response) {
   expect(response.status).toBeLessThan(300)
@@ -269,8 +282,11 @@ describe('persistent blog API', () => {
     )
     expect(results.map((r) => r.status).sort()).toEqual([200, 409])
     const winner = await state(results.find((r) => r.status === 200)!)
-    expect(winner.revisions).toHaveLength(2)
-    const saved = winner.revisions.find((r) => r.id === winner.draftRevisionId)!
+    const inspected = await read<Inspection>(
+      await call('/admin/articles/flower-guide', 'GET', undefined, editorToken),
+    )
+    expect(inspected.revisionCount).toBe(2)
+    const saved = inspected.draft
     const retry = await state(
       await call(
         '/admin/articles/flower-guide/draft',
@@ -479,5 +495,82 @@ describe('persistent blog API', () => {
     expect(
       prepare.mock.calls.filter(([sql]) => sql.includes('FROM media WHERE id')),
     ).toHaveLength(1)
+  })
+  it('keeps responses bounded as revision history grows', async () => {
+    const large = (n: number) => ({
+      ...content,
+      body: [{ type: 'paragraph', text: `${n}`.padEnd(240_000, 'x') }],
+    })
+    let s = await create('long-history', large(0))
+    for (let n = 1; n < 9; n++) {
+      const response = await call(
+        '/admin/articles/long-history/draft',
+        'PUT',
+        { expectedVersion: s.version, content: large(n) },
+        editorToken,
+      )
+      const text = await response.clone().text()
+      expect(text.length).toBeLessThan(1_000)
+      s = await state(response)
+    }
+    const published = await approve(s)
+    expect((await published.text()).length).toBeLessThan(1_000)
+    const inspected = await call(
+      '/admin/articles/long-history',
+      'GET',
+      undefined,
+      editorToken,
+    )
+    expect((await inspected.clone().text()).length).toBeLessThan(2_000_000)
+    const current = await read<Inspection>(inspected)
+    expect(current.revisionCount).toBe(9)
+    expect(current.published?.id).toBe(current.draft.id)
+    const history = await read<History>(
+      await call(
+        '/admin/articles/long-history/revisions?page=2&pageSize=5',
+        'GET',
+        undefined,
+        editorToken,
+      ),
+    )
+    expect(history.total).toBe(9)
+    expect(history.items).toHaveLength(4)
+    expect(history.items.every((r) => r.content === undefined)).toBe(true)
+    expect(history.items.at(-1)).toMatchObject({
+      id: s.draftRevisionId,
+      approvals: [{ approvedBy: 'Site owner' }],
+    })
+    const first = await read<History>(
+      await call(
+        '/admin/articles/long-history/revisions?page=1&pageSize=1',
+        'GET',
+        undefined,
+        editorToken,
+      ),
+    )
+    const revision = await read<{ content: ReturnType<typeof large> }>(
+      await call(
+        `/admin/articles/long-history/revisions/${first.items[0]!.id}`,
+        'GET',
+        undefined,
+        editorToken,
+      ),
+    )
+    expect(revision.content.body[0]!.text.startsWith('0x')).toBe(true)
+    for (const path of [
+      '/admin/articles/long-history/revisions/not-a-uuid',
+      `/admin/articles/flower-guide/revisions/${first.items[0]!.id}`,
+    ])
+      expect((await call(path, 'GET', undefined, editorToken)).status).toBe(404)
+    expect(
+      (
+        await call(
+          '/admin/articles/long-history/revisions',
+          'GET',
+          undefined,
+          readToken,
+        )
+      ).status,
+    ).toBe(403)
   })
 })

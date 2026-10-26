@@ -107,28 +107,82 @@ export class Repository {
     if (!row) throw missing()
     return row
   }
-  async inspect(slug: string) {
-    const row = await this.row(slug)
-    const revisions = await this.statement(
-      'SELECT * FROM revisions WHERE slug = ? ORDER BY created_at, id',
-      slug,
-    ).all<RevisionRow>()
-    const approvals = await this.statement(
-      'SELECT ap.* FROM approvals ap JOIN revisions r ON r.id = ap.revision_id WHERE r.slug = ? ORDER BY approved_at',
-      slug,
-    ).all()
+  // Responses stay bounded however long an article's history grows: mutations
+  // return identifiers only, inspection carries at most the draft and published
+  // content, and the full history is paged without content.
+  async state(slug: string, row?: ArticleRow) {
+    row ??= await this.row(slug)
     return {
       slug,
       version: row.version,
       draftRevisionId: row.draft_revision,
       publishedRevisionId: row.published_revision,
-      revisions: revisions.results.map((r) => ({
+    }
+  }
+  async inspect(slug: string) {
+    const row = await this.row(slug)
+    const [draftRevision, publishedRevision, count] = await Promise.all([
+      this.revision(slug, row.draft_revision),
+      row.published_revision && row.published_revision !== row.draft_revision
+        ? this.revision(slug, row.published_revision)
+        : null,
+      this.statement(
+        'SELECT COUNT(*) AS total FROM revisions WHERE slug = ?',
+        slug,
+      ).first<number>('total'),
+    ])
+    return {
+      ...(await this.state(slug, row)),
+      draft: draftRevision,
+      published:
+        row.published_revision === row.draft_revision
+          ? draftRevision
+          : publishedRevision,
+      revisionCount: count ?? 0,
+    }
+  }
+  async revision(slug: string, id: string) {
+    const r = await this.statement(
+      'SELECT * FROM revisions WHERE id = ? AND slug = ?',
+      id,
+      slug,
+    ).first<RevisionRow>()
+    if (!r) throw missing()
+    return {
+      id: r.id,
+      content: draft.parse(JSON.parse(r.content)),
+      createdAt: r.created_at,
+      createdBy: r.created_by,
+    }
+  }
+  async history(slug: string, page: number, pageSize: number) {
+    await this.row(slug)
+    const rows = await this.statement(
+      'SELECT id, created_at, created_by FROM revisions WHERE slug = ? ORDER BY created_at, id LIMIT ? OFFSET ?',
+      slug,
+      pageSize,
+      (page - 1) * pageSize,
+    ).all<Omit<RevisionRow, 'content' | 'digest'>>()
+    const approvals = await this.statement(
+      'SELECT revision_id, approved_by, approved_at FROM approvals WHERE revision_id IN (SELECT value FROM json_each(?)) ORDER BY approved_at',
+      JSON.stringify(rows.results.map((r) => r.id)),
+    ).all<{ revision_id: string; approved_by: string; approved_at: string }>()
+    const total = await this.statement(
+      'SELECT COUNT(*) AS total FROM revisions WHERE slug = ?',
+      slug,
+    ).first<number>('total')
+    return {
+      items: rows.results.map((r) => ({
         id: r.id,
-        content: draft.parse(JSON.parse(r.content)),
         createdAt: r.created_at,
         createdBy: r.created_by,
+        approvals: approvals.results
+          .filter((a) => a.revision_id === r.id)
+          .map((a) => ({ approvedBy: a.approved_by, approvedAt: a.approved_at })),
       })),
-      approvals: approvals.results,
+      page,
+      pageSize,
+      total: total ?? 0,
     }
   }
   async adminList(page: number, pageSize: number) {
@@ -197,7 +251,7 @@ export class Repository {
       this.references(id, content),
       this.audit(actor, 'create', slug, id, null),
     ])
-    return this.inspect(slug)
+    return this.state(slug)
   }
   async edit(slug: string, content: Draft, expected: number, actor: Actor) {
     const row = await this.row(slug)
@@ -207,7 +261,7 @@ export class Repository {
     ).first<string>('digest')
     const json = JSON.stringify(content)
     // Exact replay is safe even after a lost success response; never overwrites.
-    if (current === digest(json)) return this.inspect(slug)
+    if (current === digest(json)) return this.state(slug)
     if (row.version !== expected) throw conflict()
     await this.validateMedia(content)
     const id = crypto.randomUUID()
@@ -229,11 +283,11 @@ export class Repository {
         slug,
       ),
     ])
-    return this.inspect(slug)
+    return this.state(slug)
   }
   async approve(slug: string, revisionId: string, expected: number, actor: Actor) {
     const row = await this.row(slug)
-    if (row.published_revision === revisionId) return this.inspect(slug)
+    if (row.published_revision === revisionId) return this.state(slug)
     if (row.version !== expected) throw conflict()
     const revision = await this.statement(
       'SELECT * FROM revisions WHERE id = ? AND slug = ?',
@@ -273,11 +327,11 @@ export class Repository {
         slug,
       ),
     ])
-    return this.inspect(slug)
+    return this.state(slug)
   }
   async withdraw(slug: string, expected: number, actor: Actor) {
     const row = await this.row(slug)
-    if (!row.published_revision) return this.inspect(slug)
+    if (!row.published_revision) return this.state(slug)
     if (row.version !== expected) throw conflict()
     await this.batch([
       this.audit(actor, 'withdraw', slug, row.published_revision, expected),
@@ -287,7 +341,7 @@ export class Repository {
         slug,
       ),
     ])
-    return this.inspect(slug)
+    return this.state(slug)
   }
   async get(slug: string) {
     const row = await this.statement(

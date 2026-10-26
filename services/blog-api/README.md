@@ -38,8 +38,15 @@ browser caches for a year after withdrawal.
 - `GET /articles?page=1&pageSize=12&category=flower&q=packaging`: existing page envelope.
 - `GET /articles/{slug}`, `GET /homepage`, `GET /media/{id}`: existing contracts.
 - `GET /health`: authenticated readiness, commit and boolean D1/R2 checks.
-- `GET /admin/articles`: paginated article state; `GET /admin/articles/{slug}`:
-  version, revision IDs, revision content and approval history.
+- `GET /admin/articles?page=1&pageSize=12`: paginated article state.
+- `GET /admin/articles/{slug}`: version, revision IDs, the draft and published
+  revision content, and `revisionCount`. It never includes the whole history.
+- `GET /admin/articles/{slug}/revisions?page=1&pageSize=12`: paginated revision
+  metadata (ID, author, time, approvals) without content.
+- `GET /admin/articles/{slug}/revisions/{id}`: one revision with its content.
+- Create, edit, approve and withdraw return only
+  `{slug,version,draftRevisionId,publishedRevisionId}`, so responses stay small
+  however long an article's history grows.
 - `POST /admin/articles`: `{slug,content}`; creates a draft and returns 201.
 - `PUT /admin/articles/{slug}/draft`: `{expectedVersion,content}`.
 - `POST /admin/articles/{slug}/approve`: owner only;

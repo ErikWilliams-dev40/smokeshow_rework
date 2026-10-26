@@ -149,7 +149,7 @@ try {
     undefined,
     owner,
   )
-  assert.equal(inspected.data.revisions.length, 2)
+  assert.equal(inspected.data.revisionCount, 2)
   assert.equal(
     (
       await call(

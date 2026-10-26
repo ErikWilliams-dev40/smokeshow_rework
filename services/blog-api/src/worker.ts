@@ -1,6 +1,6 @@
 import type { InferEnv, UnwrapConfig } from 'cf/config'
 import type config from '../cloudflare.config'
-import { ZodError } from 'zod'
+import { z, ZodError } from 'zod'
 import { articleSlug, mediaId } from '../../../src/domain/article'
 import { authenticate, requireRole, digest, type Actor } from './auth'
 import {
@@ -16,11 +16,15 @@ import { imageMetadata } from './images'
 import { Repository } from './repository'
 
 export type BlogEnv = InferEnv<UnwrapConfig<typeof config>['worker']>
-function query(request: Request) {
+const pageQuery = listQuery.pick({ page: true, pageSize: true })
+function query<T extends z.ZodType = typeof listQuery>(
+  request: Request,
+  schema: T = listQuery as unknown as T,
+): z.infer<T> {
   const params = new URL(request.url).searchParams
   if (new Set(params.keys()).size !== params.size)
     throw new HttpError(400, 'invalid_query', 'Duplicate query parameter')
-  return listQuery.parse(Object.fromEntries(params))
+  return schema.parse(Object.fromEntries(params))
 }
 function notFound(): never {
   throw new HttpError(404, 'not_found', 'Not found')
@@ -129,6 +133,18 @@ async function route(request: Request, env: BlogEnv, actor: Actor) {
   if (method === 'PUT' && path === '/admin/homepage') {
     requireRole(actor, 'owner')
     return json(await repo.curate(curation.parse(await readJson(request)), actor))
+  }
+  const history = /^\/admin\/articles\/([^/]+)\/revisions(?:\/([^/]+))?$/.exec(path)
+  if (history && method === 'GET') {
+    const slug = articleSlug.safeParse(history[1])
+    if (!slug.success) notFound()
+    if (history[2] === undefined) {
+      const q = query(request, pageQuery)
+      return json(await repo.history(slug.data, q.page, q.pageSize))
+    }
+    const revisionId = z.string().uuid().safeParse(history[2])
+    if (!revisionId.success) notFound()
+    return json(await repo.revision(slug.data, revisionId.data))
   }
   const match = /^\/admin\/articles\/([^/]+)(?:\/(draft|approve|withdraw))?$/.exec(path)
   if (match) {

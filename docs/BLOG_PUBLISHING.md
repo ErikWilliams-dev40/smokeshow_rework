@@ -45,7 +45,14 @@ corepack pnpm blog validate ./articles/packaging.json
 corepack pnpm blog import ./articles/packaging.json --dry-run
 corepack pnpm blog import ./articles/packaging.json
 corepack pnpm blog inspect packaging-for-wholesale
+corepack pnpm blog inspect packaging-for-wholesale --history
+corepack pnpm blog inspect packaging-for-wholesale --revision REVISION_UUID
+corepack pnpm blog inspect
 ```
+
+`inspect SLUG` shows the version, the draft and the published content. `--history`
+lists every revision with its approvals but no content; `--revision` shows one
+revision in full. `inspect` with no slug lists every article, following all pages.
 
 Validation and dry-run are offline and need no credentials. Import returns the
 draft's revision ID and article version. Multiple files produce independent JSON

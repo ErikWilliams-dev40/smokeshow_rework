@@ -7,6 +7,7 @@ import {
   apiClient,
   importArticle,
   ApiError,
+  main,
 } from '../../services/blog-api/src/cli'
 
 const temporary: string[] = []
@@ -72,7 +73,7 @@ describe('blog publishing tools', () => {
       version: 1,
       draftRevisionId: 'revision',
       publishedRevisionId: null,
-      revisions: [{ id: 'revision', content }],
+      draft: { id: 'revision', content },
     }
     const api = vi.fn<ReturnType<typeof apiClient>>().mockResolvedValue(state)
     expect(await importArticle(prepared, api, { update: false })).toMatchObject({
@@ -109,5 +110,31 @@ describe('blog publishing tools', () => {
       })('/admin/articles'),
     ).rejects.toThrow('302')
     expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({ redirect: 'manual' })
+  })
+  it('inspects the complete library by following every page', async () => {
+    vi.stubEnv('BLOG_ADMIN_URL', 'https://api.invalid')
+    vi.stubEnv('BLOG_ADMIN_TOKEN', 'x'.repeat(48))
+    const slugs = Array.from({ length: 63 }, (_, n) => ({ slug: `article-${n}` }))
+    const fetchMock = vi.fn((url: URL) => {
+      const page = Number(url.searchParams.get('page')),
+        size = Number(url.searchParams.get('pageSize'))
+      return Promise.resolve(
+        Response.json({
+          items: slugs.slice((page - 1) * size, page * size),
+          page,
+          pageSize: size,
+          total: slugs.length,
+        }),
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    await main(['inspect'])
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(JSON.parse(String(log.mock.calls[0]?.[0]))).toEqual({
+      items: slugs,
+      total: 63,
+    })
+    vi.unstubAllEnvs()
   })
 })

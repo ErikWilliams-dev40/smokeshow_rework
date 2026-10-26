@@ -42,8 +42,24 @@ const stateSchema = z.object({
   version: expectedVersion,
   draftRevisionId: z.string(),
   publishedRevisionId: z.string().nullable(),
-  revisions: z.array(z.object({ id: z.string(), content: draft })),
 })
+const inspection = stateSchema.extend({
+  draft: z.object({ id: z.string(), content: draft }),
+})
+const page = z.object({
+  items: z.array(z.unknown()),
+  total: z.number().int().min(0),
+})
+/** Follow every page of a paginated admin listing. */
+async function allPages(api: ReturnType<typeof apiClient>, endpoint: string) {
+  const items: unknown[] = []
+  for (let n = 1; ; n++) {
+    const result = page.parse(await api(`${endpoint}?page=${n}&pageSize=50`))
+    items.push(...result.items)
+    if (!result.items.length || items.length >= result.total)
+      return { items, total: result.total }
+  }
+}
 
 export async function prepareImport(filename: string) {
   if ((await stat(filename)).size > 256_000) throw new Error('Manifest exceeds 256 KB')
@@ -180,9 +196,9 @@ export async function importArticle(
 ) {
   const replacements = new Map<string, z.infer<typeof uploaded>>()
   // Inspect before uploads so a prohibited update has no write side effects.
-  let current: z.infer<typeof stateSchema> | undefined
+  let current: z.infer<typeof inspection> | undefined
   try {
-    current = stateSchema.parse(await api(`/admin/articles/${prepared.slug}`))
+    current = inspection.parse(await api(`/admin/articles/${prepared.slug}`))
   } catch (error) {
     if (!(error instanceof ApiError && error.status === 404)) throw error
   }
@@ -206,8 +222,7 @@ export async function importArticle(
     ),
   }
   if (current) {
-    const latest = current.revisions.find((r) => r.id === current.draftRevisionId)
-    if (JSON.stringify(latest?.content) === JSON.stringify(content))
+    if (JSON.stringify(current.draft.content) === JSON.stringify(content))
       return {
         status: 'unchanged',
         slug: prepared.slug,
@@ -253,13 +268,14 @@ export async function main(args = process.argv.slice(2)) {
       revision: { type: 'string' },
       'dry-run': { type: 'boolean', default: false },
       checklist: { type: 'boolean', default: false },
+      history: { type: 'boolean', default: false },
       help: { type: 'boolean' },
     },
   })
   const [command, ...files] = positionals
   if (values.help || !command) {
     console.log(
-      'blog validate|import FILE... [--dry-run] [--update --version N]\nblog inspect [SLUG]\nblog approve SLUG --revision UUID --version N --checklist\nblog withdraw SLUG --version N\nblog curate FILE [--dry-run]\nCredentials: BLOG_ADMIN_URL and BLOG_ADMIN_TOKEN environment variables.',
+      'blog validate|import FILE... [--dry-run] [--update --version N]\nblog inspect [SLUG [--history | --revision UUID]]\nblog approve SLUG --revision UUID --version N --checklist\nblog withdraw SLUG --version N\nblog curate FILE [--dry-run]\nCredentials: BLOG_ADMIN_URL and BLOG_ADMIN_TOKEN environment variables.',
     )
     return
   }
@@ -320,13 +336,22 @@ export async function main(args = process.argv.slice(2)) {
   const api = apiClient()
   if (command === 'inspect') {
     if (files.length > 1) throw new Error('Inspect takes at most one slug')
+    if (values.history && values.revision !== undefined)
+      throw new Error('Use either --history or --revision')
+    if (!files[0] && (values.history || values.revision !== undefined))
+      throw new Error('--history and --revision need a slug')
+    const article = files[0] && `/admin/articles/${articleSlug.parse(files[0])}`
     console.log(
       JSON.stringify(
-        await api(
-          files[0]
-            ? `/admin/articles/${articleSlug.parse(files[0])}`
-            : '/admin/articles',
-        ),
+        !article
+          ? await allPages(api, '/admin/articles')
+          : values.history
+            ? await allPages(api, `${article}/revisions`)
+            : values.revision !== undefined
+              ? await api(
+                  `${article}/revisions/${z.string().uuid().parse(values.revision)}`,
+                )
+              : await api(article),
         null,
         2,
       ),
