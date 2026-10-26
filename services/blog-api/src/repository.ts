@@ -143,8 +143,16 @@ export class Repository {
     return { items: rows.results, page, pageSize, total }
   }
   private async validateMedia(content: Draft) {
-    for (const reference of mediaReferences(content)) {
-      const stored = await this.media(reference.id)
+    const references = mediaReferences(content)
+    if (!references.length) return
+    // One query for the distinct IDs; every occurrence is still checked.
+    const rows = await this.statement(
+      'SELECT * FROM media WHERE id IN (SELECT value FROM json_each(?))',
+      JSON.stringify([...new Set(references.map((m) => m.id))]),
+    ).all<MediaRow>()
+    const found = new Map(rows.results.map((row) => [row.id, row]))
+    for (const reference of references) {
+      const stored = found.get(reference.id)
       if (
         !stored ||
         stored.width !== reference.width ||
