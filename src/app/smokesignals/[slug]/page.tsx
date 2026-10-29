@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return result.status === 200
     ? {
         ...pageMetadata(
-          `/blog/${result.article.slug}`,
+          `/smokesignals/${result.article.slug}`,
           result.article.title,
           result.article.excerpt,
         ),

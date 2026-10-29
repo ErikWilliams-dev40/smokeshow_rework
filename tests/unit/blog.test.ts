@@ -24,7 +24,7 @@ import { MEDIA_MAX_BYTES } from '@/server/blog/transport.server'
 const sample = articles[0]!
 const png = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10, 0])
 const fetchMock = vi.fn<typeof fetch>()
-const request = new Request('https://site.example.test/blog/media/cover')
+const request = new Request('https://site.example.test/smokesignals/media/cover')
 const list = (items: unknown[] = [sample]) => ({
   items,
   page: 1,
@@ -356,7 +356,7 @@ describe('request-scoped status and metadata data', () => {
         status === 200 ? Response.json(sample) : new Response(null, { status }),
       )
       const response = await blogResponse(
-        new Request(`https://site.test/blog/${sample.slug}`),
+        new Request(`https://site.test/smokesignals/${sample.slug}`),
         async () => {
           const first = await articleResult(sample.slug)
           const second = await articleResult(sample.slug)
@@ -384,10 +384,13 @@ describe('request-scoped status and metadata data', () => {
     )
     const responses = await Promise.all(
       [sample.slug, 'other'].map((slug) =>
-        blogResponse(new Request(`https://site.test/blog/${slug}`), async () => {
-          await new Promise((resolve) => setTimeout(resolve, 1))
-          return Response.json(await articleResult(slug))
-        }),
+        blogResponse(
+          new Request(`https://site.test/smokesignals/${slug}`),
+          async () => {
+            await new Promise((resolve) => setTimeout(resolve, 1))
+            return Response.json(await articleResult(slug))
+          },
+        ),
       ),
     )
     expect(responses.map((r) => r.status)).toEqual([200, 404])
@@ -401,7 +404,7 @@ describe('request-scoped status and metadata data', () => {
       ),
     ).toBe(response)
     expect(
-      await blogResponse(new Request('https://site.test/blog/media/id'), () =>
+      await blogResponse(new Request('https://site.test/smokesignals/media/id'), () =>
         Promise.resolve(response),
       ),
     ).toBe(response)

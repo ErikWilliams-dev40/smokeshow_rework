@@ -31,7 +31,7 @@ function Logo({ small = false }: { small?: boolean }) {
   return (
     <Link
       className={`${styles.logo} ${small ? styles.smallLogo : ''}`}
-      href="/blog"
+      href="/smokesignals"
       aria-label="Smoke Signals home"
     >
       <Image src="/brand/ss-mark.webp" width={40} height={40} alt="" unoptimized />
@@ -48,7 +48,12 @@ export function BlogSearch({
   inputRef?: React.RefObject<HTMLInputElement | null>
 }) {
   return (
-    <form action="/blog" method="get" role="search" className={styles.searchForm}>
+    <form
+      action="/smokesignals"
+      method="get"
+      role="search"
+      className={styles.searchForm}
+    >
       <input type="hidden" name="view" value="all" />
       {query?.section && <input type="hidden" name="section" value={query.section} />}
       <input
@@ -252,7 +257,7 @@ export function BlogChrome({
               {(latest?.[section] ?? []).slice(0, 2).map((story) => (
                 <Link
                   key={story.slug}
-                  href={`/blog/${story.slug}`}
+                  href={`/smokesignals/${story.slug}`}
                   prefetch={false}
                   onClick={close}
                 >

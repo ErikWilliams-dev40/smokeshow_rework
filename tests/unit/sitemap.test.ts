@@ -31,7 +31,10 @@ describe('blog discovery', () => {
         ],
       }),
     )
-    expect(await collectArticlePaths(load)).toEqual(['/blog/first', '/blog/second'])
+    expect(await collectArticlePaths(load)).toEqual([
+      '/smokesignals/first',
+      '/smokesignals/second',
+    ])
     expect(load).toHaveBeenCalledTimes(3)
   })
   it('fails rather than silently truncating failed or changing pagination', async () => {
@@ -51,10 +54,10 @@ describe('blog discovery', () => {
   })
   it('preserves meaningful archive pagination and escapes XML', () => {
     expect(blogCanonical(normalizeBlogQuery({ page: '2', section: 'vapes' }))).toBe(
-      '/blog?view=all&section=vapes&page=2',
+      '/smokesignals?view=all&section=vapes&page=2',
     )
     expect(blogCanonical(normalizeBlogQuery({ view: 'all', page: '1' }))).toBe(
-      '/blog?view=all',
+      '/smokesignals?view=all',
     )
     expect(sitemapXml(['https://example.test/?a=1&b=2'])).toContain('&amp;')
   })
@@ -76,7 +79,7 @@ describe('blog discovery', () => {
     const response = await sitemapResponse()
     const xml = await response.text()
     expect(response.status).toBe(200)
-    expect(xml).toContain(`https://smokeshowlabs.com/blog/${sample.slug}`)
+    expect(xml).toContain(`https://smokeshowlabs.com/smokesignals/${sample.slug}`)
     expect(xml).toContain('https://smokeshowlabs.com/privacy')
     expect(xml).not.toContain('<loc>https://smokeshowlabs.com/wholesale</loc>')
   })
@@ -85,7 +88,7 @@ describe('blog discovery', () => {
       match: vi.fn().mockResolvedValue(
         Response.json({
           generated: Date.now() - 600_000,
-          paths: ['/blog/cached-approved'],
+          paths: ['/smokesignals/cached-approved'],
         }),
       ),
       put: vi.fn(),
@@ -94,7 +97,7 @@ describe('blog discovery', () => {
     vi.mocked(listArticles).mockRejectedValueOnce(new Error('offline'))
     const response = await sitemapResponse()
     expect(response.status).toBe(200)
-    expect(await response.text()).toContain('/blog/cached-approved')
+    expect(await response.text()).toContain('/smokesignals/cached-approved')
     expect(cache.put).not.toHaveBeenCalled()
   })
   it('refuses cached discovery older than one day', async () => {
@@ -103,7 +106,7 @@ describe('blog discovery', () => {
         match: vi.fn().mockResolvedValue(
           Response.json({
             generated: Date.now() - 86_400_001,
-            paths: ['/blog/old'],
+            paths: ['/smokesignals/old'],
           }),
         ),
       }),

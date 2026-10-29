@@ -8,7 +8,7 @@ export async function collectArticlePaths(
   const pages = Math.max(1, Math.ceil(first.total / first.pageSize))
   if (pages > 500)
     throw new Error('Sitemap exceeds discovery limit; add sitemap partitioning')
-  const paths = new Set(first.items.map((article) => `/blog/${article.slug}`))
+  const paths = new Set(first.items.map((article) => `/smokesignals/${article.slug}`))
   for (let page = 2; page <= pages; page += 4) {
     if (now() - started > 15_000) throw new Error('Sitemap discovery timed out')
     const batch = await Promise.all(
@@ -17,7 +17,7 @@ export async function collectArticlePaths(
     for (const result of batch) {
       if (result.total !== first.total || result.pageSize !== first.pageSize)
         throw new Error('Article pagination changed during discovery')
-      for (const article of result.items) paths.add(`/blog/${article.slug}`)
+      for (const article of result.items) paths.add(`/smokesignals/${article.slug}`)
     }
   }
   return [...paths].sort()

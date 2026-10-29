@@ -7,7 +7,7 @@ import { blogConfiguration } from '@/server/blog/transport.server'
 import { siteConfig } from './metadata'
 const recordSchema = z.object({
   generated: z.number(),
-  paths: z.array(z.string().regex(/^\/blog\/[a-z0-9-]{1,120}$/)).max(6000),
+  paths: z.array(z.string().regex(/^\/smokesignals\/[a-z0-9-]{1,120}$/)).max(6000),
 })
 export async function sitemapResponse(): Promise<Response> {
   const config = siteConfig()

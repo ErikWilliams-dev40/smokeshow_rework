@@ -8,7 +8,7 @@ const get = (url, headers) =>
 try {
   switch (process.argv[2]) {
     case 'outage': {
-      for (const path of [`/blog/canary-${randomUUID()}`, '/api/health/blog']) {
+      for (const path of [`/smokesignals/canary-${randomUUID()}`, '/api/health/blog']) {
         const response = await get(site + path)
         assert.equal(response.status, 503)
         assert.equal(response.headers.get('retry-after'), '60')
@@ -26,7 +26,9 @@ try {
       // Bounded traffic to the canary's separate namespace, never the main site.
       for (let batch = 0; batch < 24 && !denied; batch++) {
         const responses = await Promise.all(
-          Array.from({ length: 10 }, () => get(site + '/blog/media/canary-missing')),
+          Array.from({ length: 10 }, () =>
+            get(site + '/smokesignals/media/canary-missing'),
+          ),
         )
         for (const response of responses) {
           assert.ok([404, 429].includes(response.status))

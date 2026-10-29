@@ -36,7 +36,7 @@ describe('consent session', () => {
     ['https://example.com', '/'],
     ['//example.com', '/'],
     ['/wholesale?x=1', '/'],
-    ['/blog', '/'],
+    ['/smokesignals', '/'],
     ['', '/'],
   ])('allows only exact destinations: %s', async (input, destination) => {
     const form = new FormData()

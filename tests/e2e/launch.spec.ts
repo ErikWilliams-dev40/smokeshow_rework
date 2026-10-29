@@ -47,17 +47,17 @@ test('local indexing, robots, canonicals and search', async ({ page, request }) 
   )
   const robots = await request.get('/robots.txt')
   expect(robots.ok()).toBe(true)
-  expect(await robots.text()).not.toContain('/blog/media')
+  expect(await robots.text()).not.toContain('/smokesignals/media')
   expect(await robots.text()).not.toContain('Disallow: /\n')
   const sitemap = await request.get('/sitemap.xml')
   expect(sitemap.status()).toBe(200)
   expect(await sitemap.text()).not.toContain('<loc>')
-  await page.goto('/blog?view=all&page=2&section=vapes')
+  await page.goto('/smokesignals?view=all&page=2&section=vapes')
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     'href',
-    /\/blog\?view=all&section=vapes&page=2$/,
+    /\/smokesignals\?view=all&section=vapes&page=2$/,
   )
-  await page.goto('/blog?q=vapes')
+  await page.goto('/smokesignals?q=vapes')
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
     'content',
     /noindex/,

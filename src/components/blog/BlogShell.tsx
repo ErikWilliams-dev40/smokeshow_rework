@@ -33,14 +33,14 @@ export function BlogShell({
       <main id="main" tabIndex={-1} className={styles.page}>
         {article && (
           <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
-            <Link href="/blog">Smoke Signals</Link>
+            <Link href="/smokesignals">Smoke Signals</Link>
             <Link href={blogHref({ archive: true })}>All stories</Link>
           </nav>
         )}
         {children}
       </main>
       <footer className={styles.footer}>
-        <Link href="/blog" className={`${styles.logo} ${styles.footerLogo}`}>
+        <Link href="/smokesignals" className={`${styles.logo} ${styles.footerLogo}`}>
           <Image src="/brand/ss-mark.webp" width={40} height={40} alt="" unoptimized />
           <span>SMOKE SIGNALS</span>
         </Link>
@@ -62,9 +62,9 @@ export function BlogShell({
           </div>
           <div>
             <h2>More</h2>
-            <Link href="/blog?view=all&section=compliance">Compliance</Link>
-            <Link href="/blog?view=all&section=retail-tips">Retail tips</Link>
-            <Link href="/blog?view=all">All stories</Link>
+            <Link href="/smokesignals?view=all&section=compliance">Compliance</Link>
+            <Link href="/smokesignals?view=all&section=retail-tips">Retail tips</Link>
+            <Link href="/smokesignals?view=all">All stories</Link>
             <Link href="/#how-it-works">How it works</Link>
           </div>
           <div>
@@ -98,7 +98,7 @@ export function BlogUnavailable() {
     <div className={styles.empty}>
       <h1>Articles are unavailable</h1>
       <p>Please try again later.</p>
-      <Link href="/blog">Return to Smoke Signals</Link>
+      <Link href="/smokesignals">Return to Smoke Signals</Link>
     </div>
   )
 }

@@ -42,7 +42,7 @@ export function blogHref(query: Partial<BlogQuery> = {}) {
   if (query.section) params.set('section', query.section)
   if (query.q) params.set('q', query.q)
   if (query.page && query.page > 1) params.set('page', String(query.page))
-  return `/blog${params.size ? `?${params}` : ''}`
+  return `/smokesignals${params.size ? `?${params}` : ''}`
 }
 
 export function articleDateLabel(date: string, now: number) {

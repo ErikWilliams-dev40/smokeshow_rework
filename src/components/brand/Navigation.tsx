@@ -48,7 +48,7 @@ export function Navigation() {
           <Wordmark />
         </Link>
         <nav className={styles.desktop} aria-label="Main navigation">
-          <Link href="/blog">Smoke Signals</Link>
+          <Link href="/smokesignals">Smoke Signals</Link>
           <Link href="/wholesale-products">Wholesale products</Link>
           <a href="#products">Products</a>
           <a href="#brands">Brands</a>
@@ -77,7 +77,7 @@ export function Navigation() {
           hidden={!open}
         >
           {[
-            ['Smoke Signals', '/blog'],
+            ['Smoke Signals', '/smokesignals'],
             ['Wholesale products', '/wholesale-products'],
             ['Products', '#products'],
             ['Brands', '#brands'],

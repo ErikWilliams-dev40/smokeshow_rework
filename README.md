@@ -24,7 +24,7 @@ and `/wholesale` signup. The wholesale overview (`/wholesale-products`), four po
 | Homepage | Responsive screenshot recreation with hero form, brands, categories, Helix, process and contact footer |
 | Sales phone strip | Site-wide strip above every route with the sales number, shared with the homepage contact section (#75) |
 | Policy pages | Final Return & Exchange (`/returns`), Shipping (`/shipping`), Privacy (`/privacy`) and Terms of Website Use (`/terms`) copy, public without consent and linked from the footer (#44, #46, #48, #52, #56) |
-| Blog | Smoke Signals magazine, category archives, search and articles at `/blog`, served from a private server-side API (#76, #83); see [Public blog](#public-blog) |
+| Blog | Smoke Signals magazine, category archives, search and articles at `/smokesignals`, served from a private server-side API (#76, #83); see [Public blog](#public-blog) |
 | Health endpoint | Uncached `GET /api/health` reports the deployed commit and a D1 check; 503 when D1 does not answer, with bounded, redacted failure logs (#68) |
 | Consent session | Server-set 30-day consent cookie, Secure in production builds, with fixed post-consent destinations (#67) |
 | Tests | Vitest guards, validation, draft and smoke-clock tests; Playwright regressions against the production preview, plus a stubbed blog API suite |
@@ -120,7 +120,7 @@ it. It temporarily writes `.dev.vars.local-preview` and restores it afterwards.
 
 ## Public blog
 
-The public `/blog` pages use the Smoke Signals editorial design, with a magazine
+The public `/smokesignals` pages use the Smoke Signals editorial design, with a magazine
 homepage, category navigation, searchable archives and a shared article shell.
 Approved structured articles come from a private server-side API, with images
 proxied through the same origin. The persistent API and publishing CLI are in
@@ -315,7 +315,7 @@ corepack pnpm exec cf deploy --mode staging --prebuilt --provision=false \
 Check the deployed `/api/health` JSON for `status: "ok"`, `checks.d1: "ok"`,
 and `commit` equal to the full deployed SHA. Test the preview with
 `PLAYWRIGHT_BASE_URL=<deployed-url> corepack pnpm test:e2e` and check the four
-policy pages and `/blog`. The workers.dev address needs no
+policy pages and `/smokesignals`. The workers.dev address needs no
 custom-domain DNS. This preview does not constitute a production release or
 business approval; the normal production gates below still apply.
 

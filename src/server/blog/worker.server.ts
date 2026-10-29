@@ -9,11 +9,11 @@ export async function blogResponse(
   const url = new URL(request.url)
   if (
     !['GET', 'HEAD'].includes(request.method) ||
-    !/^\/blog(?:\/|$)/.test(url.pathname) ||
-    url.pathname.startsWith('/blog/media/')
+    !/^\/smokesignals(?:\/|$)/.test(url.pathname) ||
+    url.pathname.startsWith('/smokesignals/media/')
   )
     return render()
-  const match = /^\/blog\/([^/]+)\/?$/.exec(url.pathname)
+  const match = /^\/smokesignals\/([^/]+)\/?$/.exec(url.pathname)
   let status: number | undefined
   let response: Response
   if (match?.[1]) {

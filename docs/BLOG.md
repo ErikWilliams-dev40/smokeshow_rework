@@ -1,6 +1,6 @@
 # Blog implementation and operations
 
-The public `/blog` and `/blog/[slug]` pages use the private v1 API described in
+The public `/smokesignals` and `/smokesignals/[slug]` pages use the private v1 API described in
 `src/domain/article.ts`. The browser never contacts that API. Articles do not
 require age consent; the root layout still renders the frozen hemp notice.
 The separate API is implemented in `services/blog-api`, with D1 revisions,
@@ -120,7 +120,7 @@ staging or production deployment is performed by these changes.
 
 ## Smoke Signals design (#81)
 
-`/blog` is the editorial magazine homepage. Article pages share its light shell,
+`/smokesignals` is the editorial magazine homepage. Article pages share its light shell,
 sections drawer, footer and wholesale links. Blog styling is scoped: other routes
 keep the Brand theme, and the root phone strip and frozen hemp notice stay in place.
 The existing Jost font and `/brand/ss-mark.webp` are served locally. Prototype
@@ -140,12 +140,14 @@ Approved adaptations from the handoff:
 
 ### Public URLs
 
-- `/blog`: magazine. `?section=flower` filters only its Latest list.
-- `/blog?view=all`: archive. Add `section=flower` to filter by category.
-- `/blog?q=packaging`: archive search; combine `section`, `q` and `page`.
-- Existing `/blog?page=2` links remain archive links. Pagination preserves filters;
+- `/smokesignals`: magazine. `?section=flower` filters only its Latest list.
+- `/smokesignals?view=all`: archive. Add `section=flower` to filter by category.
+- `/smokesignals?q=packaging`: archive search; combine `section`, `q` and `page`.
+- Existing `/smokesignals?page=2` links remain archive links. Pagination preserves filters;
   first-page archive links explicitly keep `view=all`.
-- `/blog/[slug]` and `/blog/media/[id]`: existing detail/media routes.
+- `/smokesignals/[slug]` and `/smokesignals/media/[id]`: existing detail/media routes.
+- Old `/blog` URLs redirect permanently (308) to the same path under
+  `/smokesignals`, keeping the query string (#135).
 
 Unknown/duplicate categories become Latest; invalid/duplicate pages become 1.
 Search trims whitespace and limits input to 200 characters. Empty search displays

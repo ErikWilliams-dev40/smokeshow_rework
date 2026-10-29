@@ -5,7 +5,7 @@ import { salesContact } from '@/content/splash'
 const routes = [
   '/',
   '/wholesale',
-  '/blog',
+  '/smokesignals',
   '/privacy',
   '/terms',
   '/returns',

@@ -196,7 +196,7 @@ try {
   for (let i = 0; i < 100; i++) {
     if (preview.exitCode !== null) throw new Error('Website preview exited')
     try {
-      if ((await fetch(`${siteUrl}/blog`)).status === 200) {
+      if ((await fetch(`${siteUrl}/smokesignals`)).status === 200) {
         ready = true
         break
       }
@@ -215,13 +215,13 @@ try {
   page.on('request', (request) => {
     if (request.url().startsWith('http')) origins.add(new URL(request.url()).origin)
   })
-  await page.goto(`${siteUrl}/blog`, { waitUntil: 'networkidle' })
+  await page.goto(`${siteUrl}/smokesignals`, { waitUntil: 'networkidle' })
   assert.ok((await page.locator('body').innerText()).includes(input.content.title))
-  await page.goto(`${siteUrl}/blog?view=all&section=flower&q=packaging`, {
+  await page.goto(`${siteUrl}/smokesignals?view=all&section=flower&q=packaging`, {
     waitUntil: 'networkidle',
   })
   assert.ok((await page.locator('body').innerText()).includes(input.content.title))
-  const articleResponse = await page.goto(`${siteUrl}/blog/${input.slug}`, {
+  const articleResponse = await page.goto(`${siteUrl}/smokesignals/${input.slug}`, {
     waitUntil: 'networkidle',
   })
   assert.equal(articleResponse.status(), 200)
@@ -296,11 +296,14 @@ try {
     ).status,
     404,
   )
-  assert.equal((await page.goto(`${siteUrl}/blog/never-published`)).status(), 404)
+  assert.equal(
+    (await page.goto(`${siteUrl}/smokesignals/never-published`)).status(),
+    404,
+  )
   await mf.dispose()
   mf = undefined
   assert.equal(
-    (await page.goto(`${siteUrl}/blog/not-cached-during-outage`)).status(),
+    (await page.goto(`${siteUrl}/smokesignals/not-cached-during-outage`)).status(),
     503,
   )
   console.log(
