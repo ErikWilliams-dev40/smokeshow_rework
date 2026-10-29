@@ -6,7 +6,7 @@ const payloadSchema = z.object({
   version: z.number().int().positive(),
   expires: z.number().int().positive(),
 })
-export type Verification = z.infer<typeof payloadSchema>
+type Verification = z.infer<typeof payloadSchema>
 function base64(bytes: Uint8Array) {
   return btoa(String.fromCharCode(...bytes))
     .replaceAll('+', '-')

@@ -14,7 +14,7 @@ function SectionHeading({ children, note }: { children: ReactNode; note?: string
     </div>
   )
 }
-export function SignupBand() {
+function SignupBand() {
   return (
     <section
       id="signup"

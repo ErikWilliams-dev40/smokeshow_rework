@@ -3,7 +3,7 @@ import { getEnv } from '@/server/cloudflare/env'
 import { safeError } from '@/server/logging'
 import { BlogUnavailableError, BlogNotFoundError } from './errors'
 
-export const BLOG_TIMEOUT_MS = 5000
+const BLOG_TIMEOUT_MS = 5000
 export const MEDIA_MAX_BYTES = 5_000_000
 const JSON_MAX_BYTES = 2_000_000
 

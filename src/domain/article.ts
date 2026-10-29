@@ -17,7 +17,6 @@ export const articleSlug = z
   .min(1)
   .max(120)
   .regex(/^[a-z0-9-]+$/)
-export type ArticleSlug = z.infer<typeof articleSlug>
 
 export const mediaId = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/)
 
@@ -30,7 +29,7 @@ export const media = z.object({
 export type Media = z.infer<typeof media>
 
 /** Compliance sign-off. Only approved articles may render. */
-export const articleReview = z.object({
+const articleReview = z.object({
   status: z.literal('approved'),
   approvedBy: z.string().min(1),
   approvedAt: z.iso.datetime({ offset: true }),

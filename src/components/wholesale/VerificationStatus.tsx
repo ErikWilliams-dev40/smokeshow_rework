@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react'
 import type { ContactDetails } from '@/content/wholesale'
 import type { LeadState } from '@/domain/leads'
 import { salesContact } from '@/content/splash'
-import styles from './VerificationPreview.module.css'
+import styles from './VerificationStatus.module.css'
 
 export function VerificationStatus({
   details,

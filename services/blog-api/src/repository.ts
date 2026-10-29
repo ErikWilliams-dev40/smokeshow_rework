@@ -25,7 +25,7 @@ type RevisionRow = {
   created_at: string
   created_by: string
 }
-export type MediaRow = {
+type MediaRow = {
   id: string
   object_key: string
   mime: string
