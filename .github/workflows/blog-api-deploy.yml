@@ -8,7 +8,7 @@ on:
         type: string
         required: true
       approved-sha:
-        description: Full SHA from the reviewed release record; must match.
+        description: Full SHA from the environment release record; must match.
         type: string
         required: true
       deploy-production:
@@ -49,10 +49,13 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .nvmrc
-      - name: Verify merged SHA and approved record
+      - name: Verify merged SHA and environment release record
         env:
           COMMIT_SHA: ${{ inputs.commit-sha }}
           APPROVED_SHA: ${{ inputs.approved-sha }}
+          # Staging-only dispatches do not require independent human review.
+          # Any production dispatch retains the original reviewed-record gate.
+          BLOG_MODE: ${{ inputs.deploy-production && 'production' || 'staging' }}
         run: |
           set -euo pipefail
           test "$(node -p 'process.versions.node.split(".")[0]')" = "$(cat .nvmrc)"

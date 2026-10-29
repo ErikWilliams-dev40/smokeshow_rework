@@ -222,3 +222,19 @@ express any of them:
 
 All three are checked by `release-auditor` and by the human reviewer. The schema
 can prove a record is *well-formed*; only a person can confirm it is *true*.
+
+## Blog staging-only releases
+
+The operator removed independent human review as a prerequisite for blog staging
+on 2026-10-29. A staging-only dispatch (`deploy-production=false`) reads the
+append-only record at `releases/staging/<sha>.json`. It must explicitly set
+`deployment_environment: "staging"`; set `human_reviewer: null` when independent
+review has not happened. Do not invent a reviewer or record self-review as peer
+approval. CI tests, security results, immutable SHA matching, merged-code checks,
+rollback safety, credentials, backups, and readiness checks still apply.
+
+A dispatch that includes production continues to read `releases/<sha>.json` and
+requires an independent human reviewer plus the existing production Environment
+approval. It rejects staging-only records even when a reviewer is present. Later
+production approval gets its own append-only production record; never edit the
+staging record to imply it was reviewed.

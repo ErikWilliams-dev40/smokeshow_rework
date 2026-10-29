@@ -12,7 +12,7 @@ const env = {
   COMMIT_SHA: 'a'.repeat(40),
   APPROVED_SHA: 'a'.repeat(40),
   GITHUB_REPOSITORY: 'House-of-Helix-CMD/smokeshow_rework',
-  BLOG_MODE: 'staging',
+  BLOG_MODE: 'production',
   CLOUDFLARE_ACCOUNT_ID: 'b'.repeat(32),
   CLOUDFLARE_API_TOKEN: 'test-cloudflare-credential',
   BLOG_DB_ID: '11111111-2222-4333-8444-555555555555',
@@ -55,6 +55,33 @@ describe('blog release gates', () => {
     expect(() =>
       validateRecord({ ...record, commit_sha: 'b'.repeat(40) }, env),
     ).toThrow()
+  })
+  it('allows an honest staging-only record without independent human review', () => {
+    const staging = {
+      ...record,
+      human_reviewer: null,
+      deployment_environment: 'staging',
+    }
+    expect(() =>
+      validateRecord(staging, { ...env, BLOG_MODE: 'staging' }),
+    ).not.toThrow()
+    // The staging record cannot be reused for production, even with a reviewer.
+    for (const human_reviewer of [null, 'reviewer'])
+      expect(() => validateRecord({ ...staging, human_reviewer }, env)).toThrow()
+    expect(() => validateRecord({ ...record, human_reviewer: null }, env)).toThrow()
+    expect(() => validateRecord(staging, { ...env, BLOG_MODE: undefined })).toThrow()
+    expect(() => validateRecord(staging, { ...env, BLOG_MODE: 'stagng' })).toThrow()
+    expect(() => validateRecord(record, { ...env, BLOG_MODE: 'staging' })).toThrow()
+    for (const change of [
+      { test_status: 'failed' },
+      { security_review_status: 'pending' },
+      { rollback_safe: false },
+      { business_approval_required: false },
+      { commit_sha: 'b'.repeat(40) },
+    ])
+      expect(() =>
+        validateRecord({ ...staging, ...change }, { ...env, BLOG_MODE: 'staging' }),
+      ).toThrow()
   })
   it('rejects missing, placeholder and shared credentials before deployment', () => {
     expect(() => validateConfiguration(env)).not.toThrow()
