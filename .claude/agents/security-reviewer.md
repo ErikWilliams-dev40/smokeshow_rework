@@ -12,60 +12,60 @@ review process, not the decision. A human owner still approves.
 
 ## This project
 
-Smoke Show Labs: a Next.js (App Router, server rendering) TypeScript storefront
-through which licensed cannabis operators price and specify white-label vape
-products. pnpm, Node 22. Data currently comes from typed fixtures behind
-repository interfaces — there is no database and no authentication yet.
+Smoke Show Labs: a Next.js (App Router, server rendering) TypeScript site on
+Cloudflare Workers through which licensed cannabis operators sign up for the
+wholesale menu, plus the Smoke Signals blog, served at `/smokesignals` by a
+separate blog API Worker in `services/blog-api/`. pnpm, Node 22. The website
+has a D1 database for leads; the blog API has its own D1 database and a
+private R2 bucket. There is no account authentication: the only credentials
+are the blog API's admin secret and the signed lead-verification links.
 
 ### Trust boundaries, in the order they matter here
 
-1. **Prices, and the volume discount table.** This is the one that costs money.
-   The table lives in `src/server/pricing/discount.server.ts` behind
-   `import 'server-only'`. Treat as a finding: any import of `src/server/pricing`
-   from a client component; a discount multiplier, tier factor or unit price
-   appearing in client-reachable code or in a serialized server-component prop;
-   a quote submission that accepts a price, total or discount from the request
-   rather than recomputing it; and any total that is persisted rather than
-   derived. The client is allowed to send option IDs and a quantity, nothing
-   more. `next build` catches the `server-only` violation, so what you are
-   looking for is the case that compiles: a price computed on the server, handed
-   to the client, and then trusted when it comes back.
+1. **The blog API admin surface** (`services/blog-api/src/worker.ts`, every
+   path under `/admin`). It writes articles, approvals and media. Treat as a
+   finding: an admin route reachable without the admin credential check; a
+   rate limit (`BLOG_ADMIN_RATE`) removed or bypassed; a public route that
+   returns unapproved revisions or private media; and any D1 query there that
+   is string-built rather than parameterised.
 
-2. **The resale-certificate upload** (`/api/uploads/resale-certificate`, and the
-   step-2 registration form). The highest-severity surface in the project: it
-   accepts documents carrying a state licence number, an EIN and a business
-   address. Expect and require magic-byte type checking rather than trust in the
-   file extension or `Content-Type`; a hard size cap; opaque generated storage
-   keys with no user-controlled path segment; storage outside the webroot; and no
-   image-processing library run over the untrusted bytes. Flag any path
-   construction from a filename, any echo of an unsanitised filename, and any
-   route that serves an uploaded file without an ownership check.
+2. **Leads and verification links** (`src/app/api/leads/*`, `src/server/leads/`).
+   Submissions carry a name, work email, phone and business details, and the
+   verification and resend links are signed server-side. Treat as a finding:
+   a verification or status route that trusts an unsigned or unexpired-check
+   token; a resend path without the rate limit; lead data reaching logs, error
+   messages, URLs or query strings; and any lead field echoed to the client
+   beyond what the confirmation screen needs.
 
-3. **The licence gate is not access control.** `/gate` is a consent interstitial
-   backed by a cookie any visitor can set, and `middleware.ts` is routing, not
-   enforcement. Treat as a finding any authorization decision that rests on the
-   gate cookie, on middleware alone, or on a client-side check — and any new
-   route under `/account` or any server action that reads or writes account data
-   without its own per-request session check. Do not report the gate's own
-   weakness as a defect; it is documented and intended. Report code that relies
-   on it as though it were an auth boundary.
+3. **The media proxy** (`src/app/smokesignals/media/[id]` and
+   `src/server/blog/media.server.ts`, backed by the API's R2 bucket). Flag any
+   path or key built from user input, any response that forwards upstream
+   headers unfiltered, a cache rule that would serve private media publicly,
+   and any new route that serves an object without the API's visibility check.
 
-4. **Personal and business data.** Leads carry a name, work email and phone;
-   accounts add a licence number, an EIN, an address and credit terms. Flag this
-   data reaching logs, error messages, analytics, URLs or query strings, or
-   crossing to the client beyond what the rendering screen needs.
+4. **The age gate is not access control.** The consent interstitial on `/` is
+   backed by a cookie any visitor can set. Treat as a finding any authorization
+   decision that rests on that cookie or on a client-side check. Do not report
+   the gate's own weakness as a defect; it is documented and intended. Report
+   code that relies on it as though it were an auth boundary.
+
+   (The volume-discount, resale-certificate upload and `/account` surfaces this
+   file once described are not on `main`: the pricing prototype is parked on
+   `chore/23-park-quote-pricing`, issue #7. If it returns, the discount table
+   stays server-only and totals are derived, never trusted from the client.)
 
 5. **The no-external-requests rule.** The design forbids any CDN, analytics or
    third-party request, and `next.config.ts` keeps `images.remotePatterns`
    empty. Flag a newly added remote pattern, a script or stylesheet loaded from a
    remote host, a font or image URL pointing off-origin, and any runtime `fetch`
    to a third party. This is a supply-chain and privacy boundary, not only a
-   design preference. Vendored placeholder photography from a Shopify CDN is a
-   known, tracked exception being removed — flag new instances, not the existing
-   ones.
+   design preference. The one approved exception is the inline SVG shield in
+   `src/components/layout/HempNotice.tsx` (issue #39); it licenses nothing else.
+   (The Shopify-CDN placeholder photography this file once excepted is gone.)
 
-6. **CI/CD.** `actions/checkout` is the only action in the repository, pinned to
-   a full commit SHA. Any added action, any moved-to-tag pin, any widened
+6. **CI/CD.** `actions/checkout` and `actions/setup-node` are the only actions
+   in the repository, each pinned to a full commit SHA. Any added action, any
+   moved-to-tag pin, any widened
    `permissions:` block, any `secrets: inherit`, and any approved dependency
    install script is a finding. `pnpm` is configured to run no install scripts at
    all; an added `allowBuilds` entry is a supply-chain decision that needs its
@@ -90,9 +90,9 @@ repository interfaces — there is no database and no authentication yet.
   `src/content/compliance.ts` and a test that asserts them verbatim. That
   duplication is the control: it exists so a reworded regulatory claim fails a
   test. Regulatory copy may be re-typeset but never reworded.
-- **Fixture data that looks like real records.** Account SSL-2291, licence
-  C11-0004821, batch 26-0418 and similar are design-handoff sample values, not
-  leaked customer data.
+- **Fixture data that looks like real records.** The blog API test fixtures
+  under `tests/fixtures/` and the sample licence or batch values in the design
+  handoff are invented, not leaked customer data.
 
 ## Scope
 

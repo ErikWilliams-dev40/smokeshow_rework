@@ -27,7 +27,7 @@ local/staging/production Worker builds, real local D1 persistence and additive m
 91 browser consent/accessibility/layout tests, and eight controlled blog API browser
 tests. Email delivery tests use mocks/simulation; actual sending requires staging.
 The dependency audit passes under the existing advisory exception documented in
-REVIEW.md. Performance data and reproduction instructions are in PERFORMANCE.md.
+REVIEW.md (removed in b52df9b, #110, on 2026-10-26; no exception remains). Performance data and reproduction instructions are in PERFORMANCE.md.
 
 Use CONFIGURATION.md for the credentials/information still required, LEADS.md for
 verification/outbox recovery, and RELEASE.md for staging, launch and data-preserving

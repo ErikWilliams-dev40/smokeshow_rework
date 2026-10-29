@@ -181,27 +181,28 @@ its own tracking issue and provider details, not an implemented feature.
 
 ```text
 src/app/                         App Router pages: home, wholesale, blog, policies, health
-src/components/                  blog, brand, compliance, hero, layout, motion, policy, splash, wholesale
+src/components/                  blog, brand, compliance, hero, layout, motion, policy, public, seo, splash, wholesale
 src/content/                     Frozen compliance strings, page copy and final policy text
-src/domain/ src/data/            Zod schemas and the typed fixtures they parse
-src/server/                      Server-only blog client, Cloudflare env, pricing, session
+src/domain/                      Zod schemas and the types inferred from them
+src/server/                      Server-only blog client, Cloudflare env, leads, logging, SEO, session
 src/styles/                      Tokens, base styles, motion and utilities
 public/fonts/                    Bodoni Moda and Jost fonts served locally
-public/brand/                    HOUSE OF HELIX logo variants
+public/brand/                    Smoke Show logo and mark, HOUSE OF HELIX logo variants
 tests/                          unit/, guards/, e2e/ (Playwright), fixtures/ (blog API stub)
 design_handoff_wholesale_b2b/    Original design prototype and screenshots
 docs/                           Lifecycle, workflows, release metadata and plans
 policies/                       Governance provenance and policy index
 standards/ security/            Engineering and security guidance
 onboarding/ templates/          Contributor guidance and reusable documents
-architecture/decisions/         Place for architecture decision records
+docs/decisions/                 Architecture decision records (ADRs)
 .github/                        CI, PR/issue templates and code-owner routing
 ```
 
 The stack is Next.js App Router, React, TypeScript and plain CSS/CSS Modules.
 Brand (dark) is the default root class; Editorial (light) uses the root tokens.
 The launch screens share one markup tree. There is no customer authentication.
-The existing D1 health binding is not used to store inquiry submissions.
+D1 stores wholesale leads and their email-verification state
+(`migrations/0001_leads.sql`); `/api/health` checks the same binding.
 
 ## Design references and constraints
 
@@ -275,8 +276,8 @@ the `staging` Environment is missing `CLOUDFLARE_API_TOKEN` or `DEPLOY_URL`,
 builds in staging mode with the SHA compiled into `/api/health`, and deploys with
 `cf deploy --prebuilt --provision=false`. The Worker version is tagged with
 the 12-character short SHA, and its message is `sha=<sha> run=<id>`.
-`staging-health-check` then probes `/api/health`. No D1
-migrations are applied.
+`staging-health-check` then probes `/api/health`. The staging job applies the
+additive D1 migrations in `migrations/` before deploying.
 
 The `staging` GitHub Environment accepts deployments from `main` only. It holds
 the secret `CLOUDFLARE_API_TOKEN` and the variable `DEPLOY_URL`. `deploy.yml`

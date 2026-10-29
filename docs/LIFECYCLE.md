@@ -68,9 +68,9 @@ All four must pass. They are **not yet configured as required status checks** â€
 see [Required status checks](#required-status-checks--deferred) â€” so until that is
 done they are advisory and a PR can technically merge red.
 
-These ship as placeholders that **fail** until customized. A placeholder that
-exited `0` would show a green check for work that never happened; see
-[`WORKFLOWS.md`](WORKFLOWS.md).
+All four are configured and run the package scripts in CLAUDE.md's command
+table. (They shipped from the template as placeholders that failed on purpose;
+see [`WORKFLOWS.md`](WORKFLOWS.md) for why.)
 
 ## 5. AI/security review
 
