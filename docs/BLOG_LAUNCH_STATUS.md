@@ -1,9 +1,10 @@
 # Blog staging preparation — 2026-10-26
 
-Status: local validation passed; staging infrastructure is partially prepared.
-No blog API was deployed, no remote migration was applied, and no real content
-was imported or approved. Production work is deferred at the owner's request.
-The owner will supply the three pilot articles and licensed images later.
+Status (updated 2026-10-29): the staging blog API is deployed and the three
+pilot articles in `articles/pilot/` are published on staging with homepage
+curation; see [Staging publication](#staging-publication--2026-10-29). The
+sections below record the 2026-10-26 preparation as it stood then. No licensed
+images are included. Production work is deferred at the owner's request.
 
 ## Candidate and verification
 
@@ -173,3 +174,27 @@ Read back afterwards: 9 tables (`articles`, `revisions`, `approvals`,
 The deploy workflow reapplies the same directory, so the migration step is
 idempotent. No credential, environment variable, Worker or release record was
 created, and the website still has no API origin.
+
+## Staging publication — 2026-10-29
+
+The blog API was first released to staging by hand at b37925b and c8c7826, then
+by the **Deploy** workflow, which since #130 releases the API before the website
+(run 40938567707, 61ac0cd, all staging jobs green). The website's blog readiness
+reports the same commit as the API.
+
+At the operator's instruction, the `articles/pilot/` package was then published
+to staging with the publishing CLI built from 61ac0cd: imported as drafts with
+the operator editor credential and approved with `--checklist` using the operator
+owner credential. The boxes in `articles/pilot/REVIEW.md` were not ticked as part
+of this step.
+
+| Slug | Draft and published revision | Article version |
+| --- | --- | --- |
+| `write-a-wholesale-order-brief` | `b49c19fe-9300-4840-ad08-ff641611c277` | 2 |
+| `compare-all-in-one-vape-hardware` | `25e18d5e-ea56-4c9f-9466-1e4286d572ec` | 2 |
+| `wholesale-shipment-receiving-checklist` | `c8dc555c-692a-410e-a8e5-d1f0d1fa1e3e` | 2 |
+
+`articles/pilot/homepage.json` was applied as homepage version 2. `/blog` and all
+three article pages return 200 on `https://smokeshow-web-staging.dev40.workers.dev`
+and list the curated stories. The CLI ran on Node 24.22.2 because Node 22 was not
+installed on the publishing host.

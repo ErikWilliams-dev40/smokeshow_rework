@@ -1,0 +1,102 @@
+{
+  "slug": "wholesale-shipment-receiving-checklist",
+  "content": {
+    "title": "A receiving checklist for wholesale shipments",
+    "excerpt": "A practical workflow for checking deliveries, recording discrepancies and keeping your team aligned.",
+    "category": "retail-tips",
+    "author": "Smoke Signals",
+    "body": [
+      {
+        "type": "paragraph",
+        "text": "Receiving is where a purchase order becomes physical inventory. A consistent checklist helps your team compare what arrived with what was ordered, preserve useful records and route questions before products are mixed into available stock."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Prepare before the delivery"
+      },
+      {
+        "type": "paragraph",
+        "text": "Give the receiving team the current order records and enough context to recognize an exception. If the order changed after confirmation, make sure the newest approved version replaces older copies at the receiving point."
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          "The current purchase order and any approved change records.",
+          "The expected item and quantity list.",
+          "A named receiving contact and an escalation contact.",
+          "Space to inspect and stage cartons.",
+          "A process for recording batch, lot or other product identifiers where supplied."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Check the shipment before putting it away"
+      },
+      {
+        "type": "paragraph",
+        "text": "Use a consistent sequence and record results as you go. The goal is to create a receiving record that another team member can understand without having been present at the delivery."
+      },
+      {
+        "type": "list",
+        "ordered": true,
+        "items": [
+          "Compare the delivery details with the expected shipment.",
+          "Inspect outer cartons and note visible damage before moving items into stock.",
+          "Count cartons and reconcile item quantities against the packing list and purchase order.",
+          "Check product names, SKUs or other identifiers against the order records.",
+          "Record batch, lot and date information where applicable.",
+          "Set aside unresolved or damaged items for review rather than mixing them with accepted stock."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Document discrepancies while details are fresh"
+      },
+      {
+        "type": "paragraph",
+        "text": "When something does not match, record what you expected, what you received and how you identified the difference. Keep the relevant order, packing and product identifiers together. Follow the supplier’s agreed contact process and retain the packaging until the issue is understood."
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          "Purchase order and shipment references.",
+          "The affected item and quantity.",
+          "A concise description of the discrepancy.",
+          "Clear photographs when damage or labeling differences are involved.",
+          "The name of the person notified and the next agreed action."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Close the loop with inventory and accounting"
+      },
+      {
+        "type": "paragraph",
+        "text": "Accepted quantities, unresolved items and supplier credits can affect different internal records. Assign one owner to confirm that the receiving record is complete, then make that record available to the teams responsible for inventory and invoice review. Avoid letting each team reconstruct the delivery from a separate set of notes."
+      },
+      {
+        "type": "paragraph",
+        "text": "If only part of an order is resolved, distinguish accepted items from items still under review. Record partial receipts explicitly so the remaining balance is visible and the same discrepancy is not reported twice."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Make the checklist repeatable"
+      },
+      {
+        "type": "paragraph",
+        "text": "Review the receiving process after exceptions and after routine deliveries. Repeated questions may reveal a missing field, an unclear handoff or order information that arrives too late. Update one controlled checklist and tell the team which version to use."
+      },
+      {
+        "type": "paragraph",
+        "text": "Add product-specific and internal control steps your operation needs instead of relying on a generic list alone. A useful receiving process is short enough to follow during a busy delivery and detailed enough to support the next decision."
+      }
+    ]
+  }
+}

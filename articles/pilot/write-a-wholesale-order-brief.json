@@ -1,0 +1,104 @@
+{
+  "slug": "write-a-wholesale-order-brief",
+  "content": {
+    "title": "Write a wholesale order brief your team can use",
+    "excerpt": "A practical framework for turning an early product idea into a focused wholesale conversation.",
+    "category": "wholesale",
+    "author": "Smoke Signals",
+    "body": [
+      {
+        "type": "paragraph",
+        "text": "A clear wholesale brief gives your team and your supplier the same starting point. It does not need to answer every technical question. It should explain what you want to make, which decisions are already settled and where you need guidance."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Start with the business need"
+      },
+      {
+        "type": "paragraph",
+        "text": "Describe the opportunity before listing product features. A line extension, a new brand launch and a replacement for an existing item create different conversations. Include the people who will use the brief internally so purchasing, production and brand stakeholders can work from the same information."
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          "The product category you want to discuss.",
+          "The business goal behind the order.",
+          "Your intended sales channel and launch stage.",
+          "The internal contact who owns the next decision."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Define the product before the pitch"
+      },
+      {
+        "type": "paragraph",
+        "text": "List the characteristics you already know without treating early assumptions as final specifications. If a detail is still open, label it as a question. This makes it easier for the wholesale team to recommend options instead of simply pricing a fixed request."
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          "Format, size or capacity.",
+          "Materials, finishes or other physical requirements.",
+          "Branding and artwork needs.",
+          "Estimated order quantity and possible reorder pattern.",
+          "Packaging, filling or other production services you want to explore."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Separate requirements from preferences"
+      },
+      {
+        "type": "paragraph",
+        "text": "Not every idea needs to become a constraint. Sort the brief into three groups so trade-offs are visible when options arrive."
+      },
+      {
+        "type": "list",
+        "ordered": true,
+        "items": [
+          "Required: details the selected product must include.",
+          "Preferred: details you want but can discuss changing.",
+          "Open: decisions where you want the supplier to explain the available choices."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Bring operations into the conversation"
+      },
+      {
+        "type": "paragraph",
+        "text": "A product decision can affect artwork, packaging, filling, labeling and receiving. Add the operational details you already have and identify missing owners. You do not need to solve every workflow in the first brief, but you should make the dependencies visible."
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          "Artwork status and the person responsible for final files.",
+          "Packaging and labeling questions that need review.",
+          "Your desired delivery window and any fixed internal milestones.",
+          "The receiving location and operational contact for later planning."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Finish with questions and a next step"
+      },
+      {
+        "type": "paragraph",
+        "text": "End the brief with the decisions you want the conversation to resolve. Useful questions include which information is still missing, whether samples are appropriate, what artwork comes next and which details a written quote will confirm. Ask for one clear follow-up rather than ending with a general request for options."
+      },
+      {
+        "type": "paragraph",
+        "text": "Before sending the brief, check that quantities, dates and product details agree wherever they appear. Keep a single current version so later changes do not split the conversation across conflicting documents. When you are ready to contact Smoke Show Labs, bring this brief to the wholesale signup conversation and use it to focus the questions for your salesperson."
+      }
+    ]
+  }
+}
