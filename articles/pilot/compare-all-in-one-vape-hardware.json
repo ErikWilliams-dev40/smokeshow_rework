@@ -1,0 +1,107 @@
+{
+  "slug": "compare-all-in-one-vape-hardware",
+  "content": {
+    "title": "How to compare all-in-one vape hardware",
+    "excerpt": "A buyer’s framework for evaluating format, fill compatibility, branding and production requirements.",
+    "category": "vapes",
+    "author": "Smoke Signals",
+    "body": [
+      {
+        "type": "paragraph",
+        "text": "Two all-in-one devices can look similar while asking very different things of your production process. A useful comparison starts with the oil and workflow you plan to use, then considers the device, branding and order requirements as one system."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Begin with the oil and filling process"
+      },
+      {
+        "type": "paragraph",
+        "text": "Give the supplier a clear description of the oil and the filling process under discussion. Ask which device details matter for that combination and what information is still needed. Do not assume that a device used for one formulation or production setup is automatically the right choice for another."
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          "The oil type and relevant formulation information.",
+          "The target fill volume.",
+          "The intended filling and capping method.",
+          "Expected batch sizes and changeover requirements."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Evaluate the device as a system"
+      },
+      {
+        "type": "paragraph",
+        "text": "Build a side-by-side specification sheet for every model on the shortlist. Use the same fields for each one so a missing answer is visible rather than hidden by a longer product description."
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          "Tank capacity and construction.",
+          "Heating element and stated resistance.",
+          "Airflow and activation method.",
+          "Battery specification and charging connection.",
+          "Mouthpiece, housing and available exterior finishes."
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "Specifications are a starting point, not evidence of performance. Evaluate samples with the oil and process you intend to use, and record what you observe. Keep model and revision identifiers attached to the results so later hardware changes do not get confused with the samples you reviewed."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Create a repeatable sample review"
+      },
+      {
+        "type": "list",
+        "ordered": true,
+        "items": [
+          "Agree on evaluation criteria before the samples arrive.",
+          "Label each sample with its model and revision.",
+          "Review filling, capping, handling and packaging steps with the relevant team members.",
+          "Record observations against the same criteria for every model.",
+          "Document open questions and resolve them before selecting a final specification."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Look beyond the device"
+      },
+      {
+        "type": "paragraph",
+        "text": "The hardware is only one part of the order. Branding, packaging and production requirements can change both the scope of the project and the information your team needs to supply. Discuss these items while comparing models rather than after making a selection."
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          "Artwork, color and decoration requirements.",
+          "Packaging dimensions and compatibility questions.",
+          "Documentation available for the exact model.",
+          "Order minimums, production timing and the reorder process.",
+          "The person responsible for approving the final written specification."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Turn the comparison into a shortlist"
+      },
+      {
+        "type": "paragraph",
+        "text": "A simple decision matrix can keep the review grounded. List your required criteria first, then add preferences and record whether each model is confirmed, unconfirmed or unsuitable. Avoid turning every preference into a numerical score if the underlying answers are still uncertain."
+      },
+      {
+        "type": "paragraph",
+        "text": "Before placing an order, reconcile the selected sample, specification sheet, artwork and written quote. They should describe the same model and scope. A disciplined comparison gives your team a clear record of why the device was selected and which details still need confirmation."
+      }
+    ]
+  }
+}

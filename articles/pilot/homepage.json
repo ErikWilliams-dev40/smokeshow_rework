@@ -1,0 +1,15 @@
+{
+  "lead": ["write-a-wholesale-order-brief"],
+  "rail": [
+    "compare-all-in-one-vape-hardware",
+    "wholesale-shipment-receiving-checklist"
+  ],
+  "feature": ["compare-all-in-one-vape-hardware"],
+  "featured": [
+    "wholesale-shipment-receiving-checklist",
+    "write-a-wholesale-order-brief",
+    "compare-all-in-one-vape-hardware"
+  ],
+  "shelf": ["compare-all-in-one-vape-hardware"],
+  "complianceRetail": ["wholesale-shipment-receiving-checklist"]
+}
