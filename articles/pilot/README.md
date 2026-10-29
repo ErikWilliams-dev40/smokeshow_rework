@@ -11,10 +11,18 @@ Every article requires owner and counsel review before import approval.
 | `write-a-wholesale-order-brief.json` | Wholesale | Help buyers prepare a focused first conversation. |
 | `compare-all-in-one-vape-hardware.json` | Vapes | Provide a repeatable hardware evaluation framework. |
 | `wholesale-shipment-receiving-checklist.json` | Retail tips | Support consistent receiving and discrepancy records. |
+| `how-to-read-a-hemp-lab-report.json` | Compliance | Explain how to read a Certificate of Analysis and the 2026 federal hemp changes. |
 
-`homepage.json` places all three stories across the compatible homepage slots. The
-vapes article is eligible for On the shelf; the receiving article is eligible for
-Compliance & Retail. Latest lists remain automatic.
+`homepage.json` places the first three stories across the compatible homepage
+slots. The vapes article is eligible for On the shelf; the receiving article is
+eligible for Compliance & Retail. Latest lists remain automatic.
+
+The lab report article is converted from the owner's Markdown draft, last
+fact-checked 2026-10-29. Its prose is unchanged. Headings are sentence case, its
+tables and checklist are lists, and its inline links are a closing Sources list,
+because the API stores plain-text blocks only. It is not in `homepage.json`.
+Once approved it appears in the automatic Latest lists and the Compliance section.
+Add it to `complianceRetail` only after it is approved.
 
 The manifests intentionally omit covers and inline images. They are complete and
 valid without media. If licensed images are added later, follow the image format,
@@ -31,7 +39,8 @@ corepack pnpm build:blog-tools
 corepack pnpm blog validate \
   articles/pilot/write-a-wholesale-order-brief.json \
   articles/pilot/compare-all-in-one-vape-hardware.json \
-  articles/pilot/wholesale-shipment-receiving-checklist.json
+  articles/pilot/wholesale-shipment-receiving-checklist.json \
+  articles/pilot/how-to-read-a-hemp-lab-report.json
 corepack pnpm blog curate articles/pilot/homepage.json --dry-run
 ```
 
