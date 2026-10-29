@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { wholesaleSchema } from '@/content/wholesale'
-export const submissionKey = z.uuid()
+const submissionKey = z.uuid()
 export const leadSubmission = wholesaleSchema.extend({
   submissionId: submissionKey,
   website: z.string().max(200).default(''),

@@ -5,7 +5,7 @@ const KEY = 'ss_wholesale_draft'
 const draftSchema = z.object({
   interest: z.enum(interests).optional(),
 })
-export type WholesaleDraft = z.infer<typeof draftSchema>
+type WholesaleDraft = z.infer<typeof draftSchema>
 
 export function readDraft(): WholesaleDraft {
   try {

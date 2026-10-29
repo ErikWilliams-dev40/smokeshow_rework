@@ -55,7 +55,7 @@ which resolves the version pinned by `packageManager` in `package.json`.
 src/app/          routes (App Router); api/ holds route handlers.
                   README.md describes current launch routes.
 src/styles/       tokens.css (both themes, lifted verbatim from the handoff),
-                  base.css, motion.css, utilities.css (.ov and .sl only)
+                  base.css, motion.css, utilities.css (.sl only)
 src/components/   layout/ primitives/ product/ hero/ compliance/
 src/content/      compliance.ts — the frozen compliance strings
 src/domain/       Zod schemas and the types inferred from them

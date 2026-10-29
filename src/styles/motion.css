@@ -1,119 +1,12 @@
 /**
- * Motion layer — the shared keyframe vocabulary and the reduced-motion policy.
+ * Motion layer — the reduced-motion policy.
  *
- * Every animation here drives the `translate` / `rotate` / `scale` longhands
- * and never the `transform` shorthand. The hero's four smoke plumes each carry
- * an ambient drift that has to compose with whatever transform a parent or a
- * hover state applies; the shorthand overwrites instead of composing, which
- * stops the drift with no error and no visual clue. Stylelint fails the build
- * on `transform` in this file for that reason.
- *
- * Timings and offsets are from design_handoff_wholesale_b2b/README.md
- * § Hero smoke stage. They are spec, not suggestion — the client tuned them.
+ * The hero smoke is a canvas particle system (src/components/hero), so no
+ * CSS keyframes live here any more. Any animation added to this file must
+ * drive the `translate` / `rotate` / `scale` longhands and never the
+ * `transform` shorthand, which overwrites instead of composing; Stylelint
+ * fails the build on `transform` in this file for that reason.
  */
-
-/* Plume p1 — the near-left drift. */
-@keyframes ss-a {
-  0% {
-    translate: -3% 3%;
-    rotate: 0deg;
-    scale: 1.1;
-  }
-
-  50% {
-    translate: 7% -5%;
-    rotate: 9deg;
-    scale: 1.28;
-  }
-
-  100% {
-    translate: -3% 3%;
-    rotate: 0deg;
-    scale: 1.1;
-  }
-}
-
-/* Plume p2 — the wide right-hand mass, counter-rotating against p1. */
-@keyframes ss-b {
-  0% {
-    translate: 6% -4%;
-    rotate: 0deg;
-    scale: 1.34;
-  }
-
-  50% {
-    translate: -8% 6%;
-    rotate: -11deg;
-    scale: 1.14;
-  }
-
-  100% {
-    translate: 6% -4%;
-    rotate: 0deg;
-    scale: 1.34;
-  }
-}
-
-/* Plume p3 — a rising column that fades in and back out across one pass. */
-@keyframes ss-c {
-  0% {
-    translate: 0 18%;
-    scale: 0.96;
-    opacity: 0;
-  }
-
-  18% {
-    opacity: 0.62;
-  }
-
-  100% {
-    translate: 0 -26%;
-    scale: 1.4;
-    opacity: 0;
-  }
-}
-
-/* Plume p4 — as p3, drifting left as it rises. Runs on a -14s delay. */
-@keyframes ss-d {
-  0% {
-    translate: 0 22%;
-    scale: 1.02;
-    opacity: 0;
-  }
-
-  22% {
-    opacity: 0.5;
-  }
-
-  100% {
-    translate: -6% -30%;
-    scale: 1.46;
-    opacity: 0;
-  }
-}
-
-/* Film grain. Stepped, so it jitters rather than slides. */
-@keyframes ss-grain {
-  0% {
-    translate: 0 0;
-  }
-
-  25% {
-    translate: -2% 2%;
-  }
-
-  50% {
-    translate: 2% -2%;
-  }
-
-  75% {
-    translate: -2% -1%;
-  }
-
-  100% {
-    translate: 0 0;
-  }
-}
 
 /*
  * Reduced motion holds every ambient animation on its current frame rather than

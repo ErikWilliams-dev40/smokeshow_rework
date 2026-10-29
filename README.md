@@ -27,7 +27,7 @@ and `/wholesale` signup. The wholesale overview (`/wholesale-products`), four po
 | Blog | Smoke Signals magazine, category archives, search and articles at `/smokesignals`, served from a private server-side API (#76, #83); see [Public blog](#public-blog) |
 | Health endpoint | Uncached `GET /api/health` reports the deployed commit and a D1 check; 503 when D1 does not answer, with bounded, redacted failure logs (#68) |
 | Consent session | Server-set 30-day consent cookie, Secure in production builds, with fixed post-consent destinations (#67) |
-| Tests | Vitest guards, validation, draft and smoke-clock tests; Playwright regressions against the production preview, plus a stubbed blog API suite |
+| Tests | Vitest guards, validation and draft tests; Playwright regressions against the production preview, plus a stubbed blog API suite |
 | Governance | Vendored policies, standards, security guidance and onboarding documents |
 | Brand assets | Local HOUSE OF HELIX logo variants in `public/brand/` |
 | Compliance copy | Age-gate sentence and a site-wide hemp product notice (21+) on every route, frozen in `src/content/compliance.ts` and guarded verbatim |

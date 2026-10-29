@@ -441,10 +441,6 @@
   line-height: 1.7;
 }
 
-.footerLogo {
-  text-decoration: none;
-}
-
 .footer h2 {
   margin: 0 0 12px;
   color: var(--ink);
@@ -459,7 +455,7 @@
   line-height: 1.8;
 }
 
-.footer > div > :where(a:not(.footerLogo)) {
+.footer > div > :where(a) {
   display: block;
   text-decoration: none;
 }

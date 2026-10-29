@@ -10,7 +10,7 @@ export type PolicyBlock =
   | { readonly kind: 'paragraph'; readonly content: readonly PolicyInline[] }
   | { readonly kind: 'list'; readonly items: readonly (readonly PolicyInline[])[] }
 
-export type PolicySection = {
+type PolicySection = {
   readonly heading: string
   readonly blocks: readonly PolicyBlock[]
 }
@@ -373,7 +373,7 @@ export const privacy: PolicyPageCopy = {
   copyright: '© 2026 Smoke Show Distro LLC. All rights reserved.',
 }
 
-// Transcribed from ./termsOfWebsite.txt; preserve the supplied policy wording.
+// Transcribed from ./terms_of_website.txt; preserve the supplied policy wording.
 export const terms: PolicyPageCopy = {
   brand: 'SMOKE SHOW LABS',
   title: 'TERMS OF WEBSITE USE',
