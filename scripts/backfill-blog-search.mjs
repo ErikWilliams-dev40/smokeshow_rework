@@ -8,6 +8,11 @@ import { pathToFileURL } from 'node:url'
 // A search projection, not authoritative content. Rebuild after an older Worker
 // has handled writes during rollback. Pause administrative writes for the run.
 export async function backfillSearch(query) {
+  const [guard] = await query([
+    { sql: 'SELECT maintenance FROM blog_control WHERE id = 1', params: [] },
+  ])
+  if (!guard?.success || guard.results?.[0]?.maintenance !== 1)
+    throw new Error('Database write barrier must be active before backfill')
   let cursor = '',
     count = 0
   for (;;) {

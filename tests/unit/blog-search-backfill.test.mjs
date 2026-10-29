@@ -29,6 +29,8 @@ describe('search projection rebuild', () => {
           statements.map(({ sql, params }) => db.prepare(sql).bind(...params)),
         )
       }
+      await expect(backfillSearch(query)).rejects.toThrow('write barrier')
+      sqlite.exec('UPDATE blog_control SET maintenance = 1')
       expect(await backfillSearch(query)).toBe(205)
       expect(await backfillSearch(query)).toBe(205)
       expect(largest).toBe(100)

@@ -94,6 +94,27 @@ try {
     .replace(/\s+/g, ' ')
   await db.exec(sql)
   assert.equal((await call('/health')).status, 200)
+  await db.prepare('UPDATE blog_control SET maintenance = 1 WHERE id = 1').run()
+  assert.equal(
+    (
+      await call(
+        '/admin/articles',
+        'POST',
+        {
+          slug: 'paused-runtime',
+          content: {
+            title: 'Paused',
+            excerpt: 'Paused',
+            body: [{ type: 'paragraph', text: 'Paused' }],
+          },
+        },
+        editor,
+      )
+    ).status,
+    503,
+  )
+  assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM articles').first()).n, 0)
+  await db.prepare('UPDATE blog_control SET maintenance = 0 WHERE id = 1').run()
   const bytes = await readFile('public/brand/ss-logo.png')
   const upload = await mf.dispatchFetch('https://api.invalid/admin/media', {
     method: 'POST',

@@ -92,6 +92,12 @@ export class Repository {
         error instanceof Error
           ? `${error.message} ${error.cause instanceof Error ? error.cause.message : ''}`
           : ''
+      if (message.includes('blog_maintenance'))
+        throw new HttpError(
+          503,
+          'blog_maintenance',
+          'Editorial writes are temporarily paused',
+        )
       if (
         message.includes('version_conflict') ||
         message.includes('UNIQUE constraint failed: articles.slug')

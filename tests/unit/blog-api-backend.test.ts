@@ -681,6 +681,78 @@ describe('publishing hardening regressions', () => {
     ).toBe(400)
   })
 
+  it('advances legacy curation versions without double-counting current writes', async () => {
+    await approve(await create('one'))
+    database.sqlite.exec(
+      `UPDATE homepage SET selections = '{"lead":["one"]}' WHERE id = 1`,
+    )
+    expect(
+      await read(await call('/admin/homepage', 'GET', undefined, editorToken)),
+    ).toMatchObject({ version: 2 })
+    expect(
+      (
+        await call(
+          '/admin/homepage',
+          'PUT',
+          { expectedVersion: 1, selections: {} },
+          ownerToken,
+        )
+      ).status,
+    ).toBe(409)
+    expect(
+      await read(
+        await call(
+          '/admin/homepage',
+          'PUT',
+          { expectedVersion: 2, selections: {} },
+          ownerToken,
+        ),
+      ),
+    ).toMatchObject({ version: 3 })
+  })
+
+  it('blocks already authenticated mutations at the database barrier without partial state', async () => {
+    const before = database.sqlite
+      .prepare('SELECT COUNT(*) AS n FROM audit_events')
+      .get()?.n
+    const original = env.BLOG_DB.batch.bind(env.BLOG_DB)
+    vi.spyOn(env.BLOG_DB, 'batch').mockImplementationOnce(async (statements) => {
+      database.sqlite.exec('UPDATE blog_control SET maintenance = 1 WHERE id = 1')
+      return original(statements)
+    })
+    const response = await call(
+      '/admin/articles',
+      'POST',
+      { slug: 'paused', content },
+      editorToken,
+    )
+    expect(response.status).toBe(503)
+    expect(response.headers.get('Retry-After')).toBe('60')
+    for (const table of ['articles', 'revisions', 'approvals'])
+      expect(
+        database.sqlite.prepare(`SELECT COUNT(*) AS n FROM ${table}`).get()?.n,
+      ).toBe(0)
+    expect(
+      database.sqlite.prepare('SELECT COUNT(*) AS n FROM audit_events').get()?.n,
+    ).toBe(before)
+    // A legacy transaction that writes before inserting its audit event also rolls back.
+    await expect(
+      original([
+        env.BLOG_DB.prepare(
+          'UPDATE homepage SET selections = \'{"lead":["paused"]}\' WHERE id = 1',
+        ),
+        env.BLOG_DB.prepare(
+          "INSERT INTO audit_events VALUES ('legacy','owner','curate',NULL,NULL,NULL,'now')",
+        ),
+      ]),
+    ).rejects.toThrow('blog_maintenance')
+    expect(database.sqlite.prepare('SELECT version FROM homepage').get()?.version).toBe(
+      1,
+    )
+    database.sqlite.exec('UPDATE blog_control SET maintenance = 0 WHERE id = 1')
+    expect((await create('resumed')).version).toBe(1)
+  })
+
   it('reports invalid stored data as unavailable and rejects ignored admin filters', async () => {
     for (const query of ['category=flower', 'q=text', 'page=1&page=2'])
       expect(

@@ -29,14 +29,17 @@ release record are required before deployment. Production is excluded from this 
    separate workflow PR. Create `releases/<approved-sha>.json` with actual evidence.
 2. Preserve staging D1/R2 exports in restricted storage and restore into scratch
    resources. Compare table counts and media hashes before any migration. Existing
-   staging contains the original schema; apply 0002/0003 without modifying 0001.
+   staging contains the original schema; apply 0002–0004 without modifying 0001.
 3. Provision the GitHub staging variables and credentials. Use separate operator
    editor/owner and temporary verification editor/owner identities. Retain raw
    tokens only in the restricted local handoff; the API registry contains digests.
 4. On first deployment there is no API writer. On subsequent upgrades, temporarily
    replace the API admin registry with `[]` before migrations/backfill. The release
-   restores the configured registry only when the new Worker is deployed. If any
-   step fails, keep writes paused, investigate, and rerun the idempotent backfill.
+   sets `blog_control.maintenance=1` after migrations as a database write barrier,
+   then backfills. Already authenticated requests cannot commit through that guard.
+   Deployment restores credentials while the database guard remains active. Only a
+   successful exact-SHA API readiness check clears the guard. On failure, keep it
+   active, investigate, and rerun the idempotent backfill.
 5. Dispatch API staging only, then the website at the same reviewed SHA. Both
    health checks must pass. Never promote merely because the leads health is green.
 6. Run `node scripts/verify-blog-staging.mjs` with `COMMIT_SHA`, `BLOG_API_TOKEN`,
@@ -72,11 +75,13 @@ The review stack is [#118](https://github.com/House-of-Helix-CMD/smokeshow_rewor
 (publishing), [#119](https://github.com/House-of-Helix-CMD/smokeshow_rework/pull/119)
 (capacity), [#120](https://github.com/House-of-Helix-CMD/smokeshow_rework/pull/120)
 (readiness), and [#121](https://github.com/House-of-Helix-CMD/smokeshow_rework/pull/121)
-(workflows). Dependent PRs target their predecessor until it merges; retarget them
-to main and rerun the main-targeted review gates before merging.
+(workflows). These PRs were merged concurrently into their respective bases; only
+the publishing changes reached main in that sequence. Follow-up application and
+workflow PRs target main separately and carry the remaining work plus review fixes.
+A merge by the developing account is not independent human approval.
 
 Local Node 22.23.4 / pnpm 12.3.4 evidence: frozen installation, full lint,
-265 unit/guard tests across 31 suites, website/API/CLI build, real Worker D1/R2
+268 unit/guard tests across 31 suites, website/API/CLI build, real Worker D1/R2
 persistence integration, CLI/browser publishing integration, all eight authenticated
 fault-injection browser checks, and 91 browser regressions passed. Eight stub tests
 are intentionally skipped in the general browser suite and run separately. The
@@ -104,3 +109,10 @@ Independent human approval, the reviewed release record, actual staging deployme
 the 15-minute live observation, populated-media recovery, canary outage/throttling,
 and final verification-token revocation remain outstanding. No production change
 or claim of live staging acceptance is implied by these local/CI results.
+
+The review follow-up adds descriptor-based bounded file reads (including replacement
+files), a legacy curation version trigger, and a database-enforced maintenance
+barrier. Search backfill refuses to run without that barrier. Tests cover a 1 GB
+sparse replacement image, legacy/new curation versions, authenticated in-flight
+write rejection, transaction rollback, and resumed writes. The original scratch
+rehearsal above covered migrations 0002/0003; 0004 also runs in local real-D1 tests.

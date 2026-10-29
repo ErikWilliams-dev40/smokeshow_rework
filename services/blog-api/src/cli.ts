@@ -1,4 +1,5 @@
-import { readFile, realpath, stat } from 'node:fs/promises'
+import { open, realpath } from 'node:fs/promises'
+import { constants } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
@@ -84,9 +85,37 @@ async function allPages(api: ReturnType<typeof apiClient>, endpoint: string) {
   }
 }
 
+/** Read a single regular file descriptor with a fixed allocation, even if it grows. */
+export async function readLimitedFile(filename: string, max: number) {
+  const file = await open(
+    filename,
+    constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK,
+  )
+  try {
+    const info = await file.stat()
+    if (!info.isFile()) throw new Error('Expected a regular file')
+    if (info.size > max) throw new Error(`File exceeds ${max} byte limit`)
+    const bytes = Buffer.alloc(max + 1)
+    let size = 0
+    while (size <= max) {
+      const result = await file.read(bytes, size, bytes.length - size, null)
+      if (!result.bytesRead) return bytes.subarray(0, size)
+      size += result.bytesRead
+    }
+    throw new Error(`File exceeds ${max} byte limit`)
+  } finally {
+    await file.close()
+  }
+}
+
 export async function prepareImport(filename: string) {
-  if ((await stat(filename)).size > 256_000) throw new Error('Manifest exceeds 256 KB')
-  const input = manifest.parse(JSON.parse(await readFile(filename, 'utf8')))
+  const input = manifest.parse(
+    JSON.parse(
+      new TextDecoder('utf-8', { fatal: true }).decode(
+        await readLimitedFile(filename, 256_000),
+      ),
+    ),
+  )
   const root = await realpath(path.dirname(path.resolve(filename)))
   const uploads = new Map<string, { filename: string; mime: string }>()
   const resolved = new Map<string, { id: string; width: number; height: number }>()
@@ -97,9 +126,7 @@ export async function prepareImport(filename: string) {
       throw new Error('Image must be inside the manifest directory')
     const previous = resolved.get(filename)
     if (previous) return { ...previous, alt: value.alt }
-    if ((await stat(filename)).size > 5_000_000) throw new Error('Image exceeds 5 MB')
-    const bytes = new Uint8Array(await readFile(filename))
-    if (bytes.length > 5_000_000) throw new Error('Image exceeds 5 MB')
+    const bytes = new Uint8Array(await readLimitedFile(filename, 5_000_000))
     const mime = (
       {
         '.png': 'image/png',
@@ -241,7 +268,7 @@ export async function importArticle(
   if (current && options.update && options.version === undefined)
     throw new Error('Updates require --version')
   for (const [id, item] of prepared.uploads) {
-    const bytes = new Uint8Array(await readFile(item.filename))
+    const bytes = new Uint8Array(await readLimitedFile(item.filename, 5_000_000))
     if (bytes.length > 5_000_000 || digest(bytes) !== id)
       throw new Error('Image changed since validation; validate again')
     replacements.set(
@@ -365,11 +392,15 @@ export async function main(args = process.argv.slice(2)) {
   }
   if (command === 'curate') {
     if (files.length !== 1) throw new Error('Provide one curation file')
-    if ((await stat(files[0]!)).size > 256_000)
-      throw new Error('Curation exceeds limit')
     if (!values['dry-run'] && version === undefined)
       throw new Error('Curation requires --version from inspect-homepage')
-    const selections = curation.parse(JSON.parse(await readFile(files[0]!, 'utf8')))
+    const selections = curation.parse(
+      JSON.parse(
+        new TextDecoder('utf-8', { fatal: true }).decode(
+          await readLimitedFile(files[0]!, 256_000),
+        ),
+      ),
+    )
     console.log(
       JSON.stringify(
         values['dry-run']
