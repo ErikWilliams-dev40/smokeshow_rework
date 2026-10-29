@@ -23,9 +23,11 @@ is in beta, and it ships with Cloudflare's new `cf` CLI and a typed
 
 ## Decision
 
-We run the app on Cloudflare Workers through vinext (`vinext`, `@vinext/cloudflare`,
-`@cloudflare/vite-plugin`), configured by `cloudflare.config.ts` and operated with
-the `cf` CLI. Records live in D1 (one database per environment, migrations in
+We run the app on Cloudflare Workers through vinext (`vinext`,
+`@cloudflare/vite-plugin`), configured by `cloudflare.config.ts`, built with
+`vite build` and deployed with `cf deploy --prebuilt` (the `cf` CLI; the
+`@vinext/cloudflare` deploy wrapper was dropped once the workflows called `cf`
+directly). Records live in D1 (one database per environment, migrations in
 `migrations/`), transactional mail goes through the `send_email` binding, and form
 abuse is throttled with a rate-limit binding. Environments are Vite modes:
 `cloudflare.config.ts` exports a factory on `ctx.mode`, and the deploy workflow

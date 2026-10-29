@@ -6,7 +6,7 @@ const { scripts } = JSON.parse(
 ) as { scripts: Record<string, string> }
 
 describe('toolchain', () => {
-  it.each(['build', 'build:api', 'build:blog-tools'])(
+  it.each(['build', 'build:api', 'build:blog-tools', 'lint'])(
     '%s invokes nested pnpm commands through Corepack without a global shim',
     (script) => {
       const commands = (scripts[script] ?? '')

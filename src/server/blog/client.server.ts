@@ -22,7 +22,7 @@ const envelope = articlePage
 const approval = z.object({ review: z.object({ status: z.literal('approved') }) })
 const CACHE_SECONDS = 300
 
-export function parseArticle(value: unknown): Article {
+function parseArticle(value: unknown): Article {
   if (!approval.safeParse(value).success) throw new BlogNotFoundError()
   const result = article.safeParse(value)
   if (!result.success) throw new BlogUnavailableError('Invalid approved article')

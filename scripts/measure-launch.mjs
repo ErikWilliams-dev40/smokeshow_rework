@@ -1,6 +1,6 @@
 import { chromium } from '@playwright/test'
 import { writeFile } from 'node:fs/promises'
-const base = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4187'
+const base = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4173'
 const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader'] })
 const results = []
 for (const [name, path, consent] of [

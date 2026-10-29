@@ -6,7 +6,7 @@ import { salesContact } from '@/content/splash'
 
 const { phone } = salesContact
 const suppliedPolicy = readFileSync(
-  new URL('../../src/content/termsOfWebsite.txt', import.meta.url),
+  new URL('../../src/content/terms_of_website.txt', import.meta.url),
   'utf8',
 )
   .replace(/\r\n/g, '\n')

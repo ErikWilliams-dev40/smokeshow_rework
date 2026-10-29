@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { publicRoutes } from '@/content/seo/routes'
-export const primaryLinks = [
+const primaryLinks = [
   { path: '/wholesale-products', label: 'Wholesale products' },
   { path: '/smokesignals', label: 'Smoke Signals' },
   { path: '/wholesale', label: 'Get the Wholesale Menu' },

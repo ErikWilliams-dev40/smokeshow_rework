@@ -12,7 +12,7 @@ Guidance for Claude Code working in this repository.
   `/smokesignals` from a separate blog API Worker in `services/blog-api/`.
   The catalogue and quote-pricing prototype is parked (issue #7), not shipped.
 - **Stack:** TypeScript on Next.js (App Router, server rendering), React, pnpm,
-  Node 22 (`.nvmrc` pins the major, `engines` requires >=22.12). Styling is
+  Node 22 (`.nvmrc` pins the major, `engines` requires >=22.13). Styling is
   plain CSS with CSS Modules over a custom-property token system — deliberately
   not Tailwind, see below. Vitest for units, Playwright for end-to-end and
   visual review.
@@ -64,18 +64,12 @@ src/app/          routes (App Router): /, wholesale, smokesignals, policies,
                   leads route handlers.
 src/styles/       tokens.css (both themes, lifted verbatim from the handoff),
                   base.css, motion.css, utilities.css (.sl only)
-src/components/   blog/ brand/ compliance/ hero/ layout/ motion/ policy/
-                  public/ seo/ splash/ wholesale/
-src/content/      compliance.ts (the frozen compliance strings), page copy,
-                  policy text
+src/components/   layout/ primitives/ product/ hero/ compliance/
+src/content/      compliance.ts — the frozen compliance strings
 src/domain/       Zod schemas and the types inferred from them
-src/server/       server-only code: blog/, cloudflare/, leads/, seo/, session/
-services/blog-api the blog API Worker (own migrations/, cf config, CLI)
-articles/         article JSON the blog CLI imports
-migrations/       website D1 migrations (leads)
-scripts/          blog, leads and launch verification scripts
-tests/            unit/ guards/ e2e/ fixtures/ helpers/ setup/
-public/           fonts/ and brand/ — all assets are local
+src/server/       server-only code: session/, blog/, leads/, cloudflare/
+tests/            unit/ guards/ e2e/ (including browser screenshots)
+public/           fonts/, brand/, photography/ — all assets are local
 policies/         Company governance vendored from helix-engineering: the
                   policies, standards, security rules and templates this
                   project follows. Read them; never import them. The sibling
@@ -88,11 +82,11 @@ design_handoff_wholesale_b2b/
 
 ### Things about this codebase that are load-bearing
 
-- **The volume discount table is server-owned.** It lives in
-  `src/server/pricing/discount.server.ts` behind `import 'server-only'` and must
-  never reach the browser. The client sends option IDs and a quantity and
-  receives computed numbers; it never applies the multiplier itself. All totals
-  are derived, never stored.
+- **Pricing is parked, not shipped.** The catalogue, quote builder and volume
+  discount prototype live on branch `chore/23-park-quote-pricing` (issue #7)
+  and are not on `main`. If it returns, the discount table stays server-owned
+  behind `import 'server-only'`: the client sends option IDs and a quantity
+  and receives computed numbers, and totals are derived, never stored.
 - **Compliance copy may be re-typeset but never reworded.** Six strings live in
   `src/content/compliance.ts` and are rendered only through `ComplianceText`. A
   test asserts them verbatim.

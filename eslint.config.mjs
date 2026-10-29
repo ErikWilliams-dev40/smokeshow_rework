@@ -9,8 +9,12 @@ export default tseslint.config(
       // Cloudflare build output, generated Worker types and local state.
       '.cloudflare/**',
       '.vinext/**',
-      '.wrangler/**',
       'dist/**',
+      // Tool caches and test output.
+      '.cache/**',
+      'test-results/**',
+      'coverage/**',
+      'playwright-report/**',
       'services/**/.cloudflare/**',
       'services/**/dist/**',
       'services/**/node_modules/**',

@@ -3,7 +3,7 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 import type { Article } from '@/domain/article'
 import { getArticle, BlogNotFoundError } from './client.server'
 
-export type ArticleResult = { status: 200; article: Article } | { status: 404 | 503 }
+type ArticleResult = { status: 200; article: Article } | { status: 404 | 503 }
 const requestState = new AsyncLocalStorage<{ slug: string; result: ArticleResult }>()
 export async function articleResult(slug: string): Promise<ArticleResult> {
   const current = requestState.getStore()
