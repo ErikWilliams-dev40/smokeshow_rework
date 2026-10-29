@@ -220,3 +220,15 @@ abbe0ce (run 40950846361). After that, the updated `articles/pilot/homepage.json
 (#137) was applied with the operator owner credential as homepage version 3. The
 lab report article is now first in Compliance & Retail, third in the rail and
 fourth in Featured. The lead, feature and shelf slots are unchanged.
+
+Later the same day, #139 revised the article to resolve its review items. The
+revision reframes it for licensed buyers, removes the facility claim, corrects
+the federal-law statements against the enacted laws and CRS, and replaces the
+mislinked sources. The revision was imported with the operator editor credential
+(`--update --version 2`). Its stored content was checked against the manifest,
+and it was approved with `--checklist` using the operator owner credential.
+Counsel review of the legal content remains open in `articles/pilot/REVIEW.md`.
+
+| Slug | Draft and published revision | Article version |
+| --- | --- | --- |
+| `how-to-read-a-hemp-lab-report` | `e99be270-5d4e-4732-8ae0-a35b97c46af3` | 4 |

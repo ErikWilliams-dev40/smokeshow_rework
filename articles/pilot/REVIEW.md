@@ -55,28 +55,34 @@ Manifest: `wholesale-shipment-receiving-checklist.json`
 ### How to read a hemp product lab report
 
 Manifest: `how-to-read-a-hemp-lab-report.json`. Converted from the owner's draft,
-last fact-checked 2026-10-29. Imported and approved on staging on 2026-10-29
-(revision `fd41aa5d-a075-4388-b8bb-73db634e2020`) at the operator's instruction,
-before the items below were resolved. Any edit needs a fresh approval.
+last fact-checked 2026-10-29. First approved on staging on 2026-10-29 as revision
+`fd41aa5d-a075-4388-b8bb-73db634e2020`, at the operator's instruction and before
+these items were resolved. #139 revised the article to resolve them. Any edit
+needs a fresh approval.
 
-- [ ] Audience: the draft was written for a general consumer audience ("shoppers",
-      "before you buy", "from us or anyone else"). The compliance checklist
-      requires copy that addresses licensed businesses and does not suggest
-      consumer sales. Decide whether to reframe or accept it.
-- [ ] Legal status: the article describes federal hemp law changes in detail
-      (November 12 and December 11, 2026; 0.4 mg total THC per container;
-      Public Law 119-103). Counsel confirms it is accurate, makes no
-      jurisdiction-specific legality claim, and agrees a date to re-review it.
-      The DPS Law status is stated "as of October 19, 2026".
-- [ ] Company claim: confirm "made in an FDA-registered facility in Los Angeles"
-      and that it cannot be read as FDA approval.
+- [x] Audience: reframed for licensed businesses and trade buyers (#139). The
+      shopper wording, "before you buy" and "from us or anyone else" are gone,
+      and the opening note names the audience.
+- [ ] Legal status: #139 checked every federal-law statement against the enacted
+      laws (P.L. 119-37, P.L. 119-103), CRS IF13136 and LSB11496, and current
+      bill status, as of 2026-10-28. Corrections: November 12 products lose hemp
+      status (not "classified as marijuana"); the container definition is the
+      statute's, not CRS's; the December 11 cap covers total THC and similar
+      cannabinoids. Counsel still confirms accuracy and agrees a re-review date,
+      at the latest December 11, 2026.
+- [x] Company claim: removed at the owner's decision (#139).
 - [ ] Disclaimer: the closing disclaimer is the author's own, not the frozen
-      hemp notice in `src/content/compliance.ts`. Confirm that is intended.
-- [ ] Sources: the Sources list repeats the draft's link targets. In three places
-      the link did not point at the source named in the text, so check them:
-      ANAB links to LegalClarity, "the USDA's hemp regulations" links to a
-      Cova Software blog post, and the lead-leaching hardware report is a 2019
-      Business Insider article. The consumer guide is a Yahoo Finance repost.
+      hemp notice in `src/content/compliance.ts`. #139 widened it from "your
+      state" to every jurisdiction where the reader operates. Confirm that is
+      intended.
+- [ ] Sources: #139 replaced the mislinked and weak citations. ANAB now links
+      to its directory, the USDA formula to 7 CFR 990.1, and the hardware claim
+      to McDaniel et al. (2021). ACS Laboratory replaces the Yahoo Finance and
+      THD Wholesale sources, and the JAMA Network Open study replaces the Hopkins
+      press release. Wording now matches the evidence: the FDA figures, the
+      97-product third-party testing study, and no "imported" hardware. ANAB,
+      congress.gov and the USDA AMS page refuse automated requests, so open
+      those links once in a browser.
 - [ ] Confirm that URLs shown as plain text, without links, are acceptable.
 - [ ] Complete every item in the shared checks and repository compliance checklist.
 - [ ] Owner approves the exact imported revision through the publishing API.
