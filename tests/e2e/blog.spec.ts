@@ -71,13 +71,13 @@ test('homepage exposes Blog in desktop and mobile navigation', async ({
   await expect(
     page
       .getByRole('navigation', { name: 'Main navigation', exact: true })
-      .getByRole('link', { name: 'Blog', exact: true }),
+      .getByRole('link', { name: 'Smoke Signals', exact: true }),
   ).toBeVisible()
   await page.setViewportSize({ width: 390, height: 844 })
   await page.getByRole('button', { name: /Menu/ }).click()
   await page
     .getByRole('navigation', { name: 'Mobile navigation' })
-    .getByRole('link', { name: 'Blog', exact: true })
+    .getByRole('link', { name: 'Smoke Signals', exact: true })
     .click()
   await expect(page).toHaveURL(/\/blog$/)
 })
