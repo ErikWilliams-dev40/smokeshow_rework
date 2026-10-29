@@ -65,3 +65,42 @@ projection are backward compatible with the prior Worker. An older Worker does n
 maintain the search projection; pause writes and rebuild it before upgrading again.
 Do not restore a backup over live data as a routine rollback. Never treat synthetic
 owner approvals as human code review or approval of real editorial content.
+
+## Implementation evidence — 2026-10-29
+
+The review stack is [#118](https://github.com/House-of-Helix-CMD/smokeshow_rework/pull/118)
+(publishing), [#119](https://github.com/House-of-Helix-CMD/smokeshow_rework/pull/119)
+(capacity), [#120](https://github.com/House-of-Helix-CMD/smokeshow_rework/pull/120)
+(readiness), and [#121](https://github.com/House-of-Helix-CMD/smokeshow_rework/pull/121)
+(workflows). Dependent PRs target their predecessor until it merges; retarget them
+to main and rerun the main-targeted review gates before merging.
+
+Local Node 22.23.4 / pnpm 12.3.4 evidence: frozen installation, full lint,
+265 unit/guard tests across 31 suites, website/API/CLI build, real Worker D1/R2
+persistence integration, CLI/browser publishing integration, all eight authenticated
+fault-injection browser checks, and 91 browser regressions passed. Eight stub tests
+are intentionally skipped in the general browser suite and run separately. The
+normal high-severity dependency audit reported no known vulnerabilities.
+The staging-canary build was inspected: separate Worker name and namespace 1106,
+no scheduled triggers, lead processing disabled, and the intended API binding.
+Logs are local ignored `.cache/hardening-*.log` files; CI is the durable check record.
+
+The staging Environment now has `BLOG_API_URL`, `BLOG_API_TOKEN`, and
+`BLOG_ADMIN_CREDENTIALS`. Distinct operator and temporary verification editor/owner
+credentials were generated; raw credentials remain in a mode-0600 handoff inside a
+mode-0700 directory outside the repository. Worker token reconciliation occurs in
+the reviewed deployment workflow. No credential value is included in this record.
+
+The original staging D1 schema/data was exported with cf read queries and restored
+into an isolated scratch D1 database. All nine table inventories matched (only the
+homepage seed and original migration record were nonempty). Both new migrations and
+the cf-driven search backfill passed there. The source R2 inventory was empty; the
+scratch bucket also had no objects, public access, or custom domains. Both scratch
+resources were then removed. Restricted backup evidence is retained outside the
+repository. This proves an empty-library recovery rehearsal, not restoration of a
+populated media library; repeat that check after staging content acceptance.
+
+Independent human approval, the reviewed release record, actual staging deployment,
+the 15-minute live observation, populated-media recovery, canary outage/throttling,
+and final verification-token revocation remain outstanding. No production change
+or claim of live staging acceptance is implied by these local/CI results.

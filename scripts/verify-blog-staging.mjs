@@ -32,7 +32,7 @@ const report = {
 }
 const slugs = [],
   suffix = randomUUID().slice(0, 8)
-let priorCuration, ourCurationVersion, browser
+let priorCuration, ourCurationVersion, browser, privateImageId
 async function call(
   route,
   {
@@ -87,6 +87,60 @@ async function website(path, status) {
     assert.equal(html.includes(token), false, 'Credential appeared in website output')
   return html
 }
+async function cleanup() {
+  const attempt = async (label, work) => {
+    try {
+      await work()
+    } catch {
+      report.outcome = 'failed'
+      report.checks.push(`Cleanup incomplete: ${label}`)
+      process.exitCode = 1
+    }
+  }
+  if (ourCurationVersion !== undefined)
+    await attempt('curation changed; inspect before restoring', () =>
+      json('/admin/homepage', {
+        token: owner,
+        method: 'PUT',
+        body: {
+          expectedVersion: ourCurationVersion,
+          selections: priorCuration.selections,
+        },
+      }),
+    )
+  for (const slug of slugs)
+    await attempt(`inspect synthetic slug ${slug}`, async () => {
+      const current = await inspect(slug)
+      await json(`/admin/articles/${slug}/withdraw`, {
+        token: owner,
+        method: 'POST',
+        body: { expectedVersion: current.version },
+      })
+      await call(`/articles/${slug}`, { status: 404 })
+    })
+  if (privateImageId)
+    await attempt('verify final public media withdrawal', () =>
+      call(`/media/${privateImageId}`, { status: 404 }),
+    )
+  if (slugs.length)
+    await attempt('verify website withdrawal propagation', async () => {
+      const until = Date.now() + 330_000
+      for (;;) {
+        const response = await fetch(`${site}/blog/${slugs[0]}`, {
+          signal: AbortSignal.timeout(10_000),
+        })
+        await response.body?.cancel()
+        if (response.status === 404) break
+        if (response.status !== 200 || Date.now() >= until)
+          throw new Error('Withdrawal did not propagate')
+        await setTimeout(10_000)
+      }
+      report.checks.push(
+        'Synthetic publications withdrawn and website cache expiry verified',
+      )
+    })
+}
+
 try {
   await checkHealth({ BLOG_DEPLOY_URL: api, BLOG_API_TOKEN: reader, COMMIT_SHA: sha })
   await checkWebsiteBlog({ DEPLOY_URL: site, COMMIT_SHA: sha })
@@ -119,6 +173,7 @@ try {
     mime: 'image/png',
     status: 201,
   })
+  privateImageId = privateImage.id
   await call(`/media/${privateImage.id}`, { status: 404 })
   const cover = {
     id: privateImage.id,
@@ -140,13 +195,13 @@ try {
         },
       ],
     }
+    slugs.push(slug)
     const created = await json('/admin/articles', {
       token: editor,
       method: 'POST',
       body: { slug, content },
       status: 201,
     })
-    slugs.push(slug)
     await call(`/articles/${slug}`, { status: 404 })
     await call(`/admin/articles/${slug}/approve`, {
       token: editor,
@@ -240,45 +295,7 @@ try {
   process.exitCode = 1
 } finally {
   await browser?.close()
-  try {
-    if (ourCurationVersion !== undefined)
-      await json('/admin/homepage', {
-        token: owner,
-        method: 'PUT',
-        body: {
-          expectedVersion: ourCurationVersion,
-          selections: priorCuration.selections,
-        },
-      })
-    for (const slug of slugs) {
-      const current = await inspect(slug)
-      await json(`/admin/articles/${slug}/withdraw`, {
-        token: owner,
-        method: 'POST',
-        body: { expectedVersion: current.version },
-      })
-      await call(`/articles/${slug}`, { status: 404 })
-    }
-    if (slugs.length) {
-      const until = Date.now() + 330_000
-      for (;;) {
-        const response = await fetch(`${site}/blog/${slugs[0]}`, {
-          signal: AbortSignal.timeout(10_000),
-        })
-        if (response.status === 404) break
-        if (response.status !== 200 || Date.now() >= until)
-          await Promise.reject(new Error('Withdrawal did not propagate'))
-        await setTimeout(10_000)
-      }
-      report.checks.push(
-        'Synthetic publications withdrawn and website cache expiry verified',
-      )
-    }
-  } catch {
-    report.outcome = 'failed'
-    report.checks.push('Cleanup incomplete: inspect synthetic slugs before retrying')
-    process.exitCode = 1
-  }
+  await cleanup()
   report.slugs = slugs
   report.finishedAt = new Date().toISOString()
   await mkdir('.cache/staging-verification', { recursive: true })
