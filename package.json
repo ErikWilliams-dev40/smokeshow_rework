@@ -5,7 +5,7 @@
   "description": "Smoke Show Labs \u2014 wholesale lead-capture site for licensed cannabis operators",
   "packageManager": "pnpm@12.3.4",
   "engines": {
-    "node": ">=22.12.0 <23"
+    "node": ">=22.13.0 <23"
   },
   "scripts": {
     "dev": "vite dev --port 3000",
@@ -15,18 +15,16 @@
     "blog": "node services/blog-api/dist/cli/blog.mjs",
     "build:local": "vite build --mode local-preview",
     "preview": "vite preview --port 4173 --strictPort",
-    "deploy": "vinext-cloudflare deploy --skip-build",
     "typecheck": "cf workers types && tsc --noEmit",
     "lint:es": "eslint .",
     "lint:css": "stylelint \"src/**/*.css\" --allow-empty-input",
     "lint:format": "prettier --check .",
-    "lint": "cf workers types && tsc --noEmit && eslint . && stylelint \"src/**/*.css\" --allow-empty-input && prettier --check .",
+    "lint": "corepack pnpm typecheck && corepack pnpm lint:es && corepack pnpm lint:css && corepack pnpm lint:format",
     "format": "prettier --write .",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:leads": "node scripts/test-leads.mjs",
     "test:watch": "vitest",
-    "cf:types": "cf workers types",
     "db:migrate:local": "cf d1 migrations apply 00000000-0000-4000-8000-000000000001 --local --dir migrations --persist-to .cloudflare/state",
     "db:migrate:staging": "cf d1 migrations apply $DB_ID_STAGING --mode staging --dir migrations",
     "db:migrate:prod": "cf d1 migrations apply $DB_ID_PRODUCTION --mode production --dir migrations",
@@ -35,14 +33,13 @@
     "test:blog-library": "corepack pnpm build:api && node scripts/test-blog-library.mjs"
   },
   "dependencies": {
-    "@vinext/cloudflare": "1.1.0",
     "next": "^16.4.2",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-server-dom-webpack": "19.3.0",
     "server-only": "^0.0.1",
     "vinext": "1.1.0",
-    "zod": "^4.5.4"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "2.0.0-beta.sha-52b0dc0e9",
