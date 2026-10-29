@@ -2,14 +2,19 @@
   "lead": ["write-a-wholesale-order-brief"],
   "rail": [
     "compare-all-in-one-vape-hardware",
-    "wholesale-shipment-receiving-checklist"
+    "wholesale-shipment-receiving-checklist",
+    "how-to-read-a-hemp-lab-report"
   ],
   "feature": ["compare-all-in-one-vape-hardware"],
   "featured": [
     "wholesale-shipment-receiving-checklist",
     "write-a-wholesale-order-brief",
-    "compare-all-in-one-vape-hardware"
+    "compare-all-in-one-vape-hardware",
+    "how-to-read-a-hemp-lab-report"
   ],
   "shelf": ["compare-all-in-one-vape-hardware"],
-  "complianceRetail": ["wholesale-shipment-receiving-checklist"]
+  "complianceRetail": [
+    "how-to-read-a-hemp-lab-report",
+    "wholesale-shipment-receiving-checklist"
+  ]
 }

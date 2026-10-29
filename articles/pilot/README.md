@@ -13,16 +13,15 @@ Every article requires owner and counsel review before import approval.
 | `wholesale-shipment-receiving-checklist.json` | Retail tips | Support consistent receiving and discrepancy records. |
 | `how-to-read-a-hemp-lab-report.json` | Compliance | Explain how to read a Certificate of Analysis and the 2026 federal hemp changes. |
 
-`homepage.json` places the first three stories across the compatible homepage
-slots. The vapes article is eligible for On the shelf; the receiving article is
-eligible for Compliance & Retail. Latest lists remain automatic.
+`homepage.json` places all four stories across the compatible homepage slots. The
+vapes article is eligible for On the shelf. The receiving and lab report articles
+are eligible for Compliance & Retail. Latest lists remain automatic.
 
 The lab report article is converted from the owner's Markdown draft, last
 fact-checked 2026-10-29. Its prose is unchanged. Headings are sentence case, its
 tables and checklist are lists, and its inline links are a closing Sources list,
-because the API stores plain-text blocks only. It is not in `homepage.json`.
-Once approved it appears in the automatic Latest lists and the Compliance section.
-Add it to `complianceRetail` only after it is approved.
+because the API stores plain-text blocks only. `homepage.json` places it first in
+Compliance & Retail, third in the rail and fourth in Featured (#137).
 
 The manifests intentionally omit covers and inline images. They are complete and
 valid without media. If licensed images are added later, follow the image format,
