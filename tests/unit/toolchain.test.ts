@@ -1,14 +1,23 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
-/**
- * A placeholder so `test.yml` runs a real suite rather than reporting success
- * for a runner that found nothing. Vitest exits non-zero on an empty run, which
- * would make the gate fail for a reason unrelated to the code under test.
- *
- * Delete this once the pricing tests land — see the plan's PR 12.
- */
+const { scripts } = JSON.parse(
+  readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
+) as { scripts: Record<string, string> }
+
 describe('toolchain', () => {
-  it('runs the test suite', () => {
-    expect(1 + 1).toBe(2)
-  })
+  it.each(['build', 'build:api', 'build:blog-tools'])(
+    '%s invokes nested pnpm commands through Corepack without a global shim',
+    (script) => {
+      const commands = (scripts[script] ?? '')
+        .split('&&')
+        .map((command) => command.trim())
+        .filter((command) => /\bpnpm\b/.test(command))
+
+      expect(commands.length).toBeGreaterThan(0)
+      for (const command of commands) {
+        expect(command).toMatch(/^corepack pnpm /)
+      }
+    },
+  )
 })
