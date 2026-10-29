@@ -15,8 +15,8 @@ vi.mock('next/navigation', () => ({
     throw new Error('NOT_FOUND')
   },
 }))
-import BlogPage from '@/app/blog/page'
-import ArticlePage, { generateMetadata } from '@/app/blog/[slug]/page'
+import BlogPage from '@/app/smokesignals/page'
+import ArticlePage, { generateMetadata } from '@/app/smokesignals/[slug]/page'
 import { ArticleBody } from '@/components/blog/ArticleBody'
 import { selectHomepage } from '@/server/blog/selection'
 import { articles } from '@/server/blog/fixtures'

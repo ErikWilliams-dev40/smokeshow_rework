@@ -5,7 +5,7 @@ export async function blogTrafficResponse(
   env: Pick<Env, 'DEPLOYMENT_ENV' | 'BLOG_RATE'>,
 ): Promise<Response | undefined> {
   const path = new URL(request.url).pathname
-  if (!/^\/blog(?:\/|$)/.test(path) && path !== '/sitemap.xml') return
+  if (!/^\/smokesignals(?:\/|$)/.test(path) && path !== '/sitemap.xml') return
   // Loopback preview tests share one IP; deployed environments always enforce.
   if (env.DEPLOYMENT_ENV === 'local') return
   try {

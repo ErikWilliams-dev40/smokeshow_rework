@@ -96,7 +96,9 @@ describe('Smoke Signals content and navigation', () => {
       archive: false,
     })
     const query = normalizeBlogQuery({ section: 'flower', q: ' packaging ', page: '2' })
-    expect(blogHref(query)).toBe('/blog?view=all&section=flower&q=packaging&page=2')
+    expect(blogHref(query)).toBe(
+      '/smokesignals?view=all&section=flower&q=packaging&page=2',
+    )
     for (const page of ['0', '-1', 'abc', '1.5', '999999999999999999999', ['1', '2']])
       expect(normalizeBlogQuery({ page }).page).toBe(1)
     expect(

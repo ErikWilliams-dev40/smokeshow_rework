@@ -36,7 +36,7 @@ export function StoryCard({
         : 'h3'
   return (
     <article className={`${styles.story} ${styles[variant]}`}>
-      <Link href={`/blog/${story.slug}`} prefetch={false}>
+      <Link href={`/smokesignals/${story.slug}`} prefetch={false}>
         <StoryImage media={story.cover} priority={variant === 'lead'} />
         <div className={styles.storyCopy}>
           {story.category && !['latest', 'shelf'].includes(variant) && (

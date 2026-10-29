@@ -9,7 +9,7 @@ test('public fixture blog supports pagination, article rendering and real 404s',
     if (new URL(request.url()).origin !== new URL(baseURL!).origin)
       external.push(request.url())
   })
-  const response = await page.goto('/blog?view=all')
+  const response = await page.goto('/smokesignals?view=all')
   expect(response?.status()).toBe(200)
   await expect(
     page.getByRole('heading', { name: 'All stories', exact: true }),
@@ -29,14 +29,30 @@ test('public fixture blog supports pagination, article rendering and real 404s',
     await expect(image).toHaveJSProperty('naturalWidth', 2400)
   }
   expect(external).toEqual([])
-  expect((await page.goto('/blog/missing'))?.status()).toBe(404)
+  expect((await page.goto('/smokesignals/missing'))?.status()).toBe(404)
+})
+
+test('old /blog URLs redirect permanently to /smokesignals', async ({ request }) => {
+  for (const [from, to] of [
+    ['/blog', '/smokesignals'],
+    ['/blog?view=all&section=vapes', '/smokesignals?view=all&section=vapes'],
+    [
+      '/blog/planning-a-wholesale-inquiry',
+      '/smokesignals/planning-a-wholesale-inquiry',
+    ],
+  ] as const) {
+    const response = await request.get(from, { maxRedirects: 0 })
+    expect(response.status()).toBe(308)
+    const location = new URL(response.headers().location ?? '', 'http://site.test')
+    expect(location.pathname + location.search).toBe(to)
+  }
 })
 
 for (const theme of ['brand', 'editorial']) {
   test(`blog ${theme} theme at desktop and mobile widths`, async ({
     page,
   }, testInfo) => {
-    await page.goto('/blog/planning-a-wholesale-inquiry')
+    await page.goto('/smokesignals/planning-a-wholesale-inquiry')
     await page.evaluate((name) => {
       document.documentElement.className = name === 'brand' ? 'brand' : ''
     }, theme)
@@ -79,15 +95,15 @@ test('homepage exposes Blog in desktop and mobile navigation', async ({
     .getByRole('navigation', { name: 'Mobile navigation' })
     .getByRole('link', { name: 'Smoke Signals', exact: true })
     .click()
-  await expect(page).toHaveURL(/\/blog$/)
+  await expect(page).toHaveURL(/\/smokesignals$/)
 })
 
 test('normalizes invalid page parameters and handles empty pages', async ({ page }) => {
   for (const query of ['0', '-1', 'abc', '1.5', '9999999999999999999999']) {
-    await page.goto(`/blog?page=${query}`)
+    await page.goto(`/smokesignals?page=${query}`)
     await expect(page.getByText('Page 1', { exact: true })).toBeVisible()
   }
-  await page.goto('/blog?page=99')
+  await page.goto('/smokesignals?page=99')
   await expect(page.getByText('No articles yet on this page.')).toBeVisible()
 })
 

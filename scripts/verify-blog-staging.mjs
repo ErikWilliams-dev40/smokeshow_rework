@@ -126,7 +126,7 @@ async function cleanup() {
     await attempt('verify website withdrawal propagation', async () => {
       const until = Date.now() + 330_000
       for (;;) {
-        const response = await fetch(`${site}/blog/${slugs[0]}`, {
+        const response = await fetch(`${site}/smokesignals/${slugs[0]}`, {
           signal: AbortSignal.timeout(10_000),
         })
         await response.body?.cancel()
@@ -241,7 +241,7 @@ try {
       `/admin/articles/${slug}/revisions/${created.draftRevisionId}/approvals`,
       { token: owner },
     )
-    await website(`/blog/${slug}`, 200)
+    await website(`/smokesignals/${slug}`, 200)
   }
   const curated = await json('/admin/homepage', {
     token: owner,
@@ -267,14 +267,14 @@ try {
   const page = await browser.newPage()
   const origins = new Set()
   page.on('request', (request) => origins.add(new URL(request.url()).origin))
-  await page.goto(`${site}/blog/${slugs[0]}`, { waitUntil: 'networkidle' })
+  await page.goto(`${site}/smokesignals/${slugs[0]}`, { waitUntil: 'networkidle' })
   assert.deepEqual([...origins], [site])
   assert.ok(await page.locator('h1').count())
   const html = await page.content()
   for (const token of [reader, editor, owner]) assert.equal(html.includes(token), false)
-  await website(`/blog?view=all&section=flower&q=${suffix}`, 200)
-  await website(`/blog/missing-${suffix}`, 404)
-  await website(`/blog/media/${privateImage.id}`, 200)
+  await website(`/smokesignals?view=all&section=flower&q=${suffix}`, 200)
+  await website(`/smokesignals/missing-${suffix}`, 404)
+  await website(`/smokesignals/media/${privateImage.id}`, 200)
   report.checks.push(
     'Roles, private media, publishing, optimistic conflicts, rollback, curation, filtering, same-origin browser and credential absence',
   )

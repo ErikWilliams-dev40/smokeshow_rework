@@ -27,7 +27,7 @@ describe('public content and structured data', () => {
       organizationSchema(origin),
       websiteSchema(origin),
       articleSchema(origin, articles[0]!),
-      breadcrumbSchema(origin, [{ label: 'Blog', path: '/blog' }]),
+      breadcrumbSchema(origin, [{ label: 'Blog', path: '/smokesignals' }]),
     ]
     const keys: string[] = []
     function walk(value: unknown) {

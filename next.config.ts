@@ -24,6 +24,14 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [],
   },
+
+  // Smoke Signals moved from /blog (#135). Keep old links and indexed URLs working.
+  async redirects() {
+    return [
+      { source: '/blog', destination: '/smokesignals', permanent: true },
+      { source: '/blog/:path*', destination: '/smokesignals/:path*', permanent: true },
+    ]
+  },
 }
 
 export default nextConfig

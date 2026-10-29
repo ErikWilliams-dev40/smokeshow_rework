@@ -7,6 +7,6 @@ export const publicBreadcrumbs = (path: string, label: string): Breadcrumb[] => 
 export const articleBreadcrumbs = (
   article: Pick<Article, 'title' | 'slug'>,
 ): Breadcrumb[] => [
-  { label: 'Smoke Signals', path: '/blog' },
-  { label: article.title, path: `/blog/${article.slug}` },
+  { label: 'Smoke Signals', path: '/smokesignals' },
+  { label: article.title, path: `/smokesignals/${article.slug}` },
 ]

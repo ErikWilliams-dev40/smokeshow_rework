@@ -6,7 +6,7 @@ const results = []
 for (const [name, path, consent] of [
   ['gate', '/', false],
   ['homepage', '/', true],
-  ['blog', '/blog', false],
+  ['blog', '/smokesignals', false],
   ['overview', '/wholesale-products', false],
   ['signup', '/wholesale', true],
 ]) {

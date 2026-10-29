@@ -5,7 +5,7 @@ for (const width of [320, 390, 768, 1024, 1280, 1440]) {
     await page.setViewportSize({ width, height: 900 })
     const errors: string[] = []
     page.on('pageerror', (error) => errors.push(error.message))
-    await page.goto('/blog')
+    await page.goto('/smokesignals')
     await expect(page).toHaveTitle('Smoke Signals | Smoke Show Labs')
     await expect(
       page.getByRole('heading', { name: 'Planning a wholesale inquiry', exact: true }),
@@ -55,7 +55,7 @@ for (const width of [320, 390, 768, 1024, 1280, 1440]) {
 }
 
 test('category URLs, archive, search and history work together', async ({ page }) => {
-  await page.goto('/blog')
+  await page.goto('/smokesignals')
   await page
     .getByRole('navigation', { name: 'Blog sections', exact: true })
     .getByRole('link', { name: 'Flower', exact: true })
@@ -79,14 +79,14 @@ test('category URLs, archive, search and history work together', async ({ page }
   await expect(page.getByRole('heading', { name: 'Flower stories' })).toBeVisible()
   await page.goBack()
   await expect(page.getByRole('heading', { name: 'Flower', exact: true })).toBeVisible()
-  await page.goto('/blog?q=not-a-real-story')
+  await page.goto('/smokesignals?q=not-a-real-story')
   await expect(page.getByText('No articles yet on this page.')).toBeVisible()
 })
 
 test('drawer traps focus, expands sections, searches and dismisses from the backdrop', async ({
   page,
 }) => {
-  await page.goto('/blog')
+  await page.goto('/smokesignals')
   await page.getByRole('button', { name: 'Open search' }).click()
   const drawer = page.getByRole('dialog')
   await expect(drawer.getByRole('searchbox')).toBeFocused()
@@ -116,7 +116,7 @@ test('mobile signup dismisses for the tab and every CTA uses the existing wholes
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/blog')
+  await page.goto('/smokesignals')
   const bar = page.getByRole('complementary', { name: 'Wholesale menu signup' })
   await expect(bar).toBeVisible()
   await expect(bar.getByRole('link', { name: 'Sign up' })).toHaveAttribute(
@@ -139,7 +139,7 @@ test('article shell and navigation remain usable without JavaScript', async ({
 }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, baseURL })
   const page = await context.newPage()
-  await page.goto('/blog')
+  await page.goto('/smokesignals')
   await page
     .getByRole('navigation', { name: 'Blog sections', exact: true })
     .getByRole('link', { name: 'Flower', exact: true })
@@ -167,7 +167,7 @@ test('article shell and navigation remain usable without JavaScript', async ({
 test('reduced motion disables smoke and blog color stays editorial in either root theme', async ({
   page,
 }) => {
-  await page.goto('/blog')
+  await page.goto('/smokesignals')
   const smoke = page.locator('[class*="topSmoke"] i').first()
   expect(await smoke.evaluate((el) => getComputedStyle(el).animationName)).toBe('none')
   const shell = page.locator('[data-motion]')

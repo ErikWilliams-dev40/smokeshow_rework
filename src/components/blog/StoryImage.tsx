@@ -13,7 +13,7 @@ export function StoryImage({ media, priority }: { media?: Media; priority: boole
     <div className={styles.storyImage}>
       {media && !failed ? (
         <Image
-          src={`/blog/media/${media.id}`}
+          src={`/smokesignals/media/${media.id}`}
           alt={media.alt}
           width={media.width}
           height={media.height}

@@ -36,14 +36,16 @@ export function articleSchema(origin: string, article: Article) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    '@id': `${origin}/blog/${article.slug}#article`,
+    '@id': `${origin}/smokesignals/${article.slug}#article`,
     headline: article.title,
     description: article.excerpt,
     datePublished: article.publishedAt,
     ...(article.updatedAt ? { dateModified: article.updatedAt } : {}),
     ...(article.author ? { author: { '@type': 'Person', name: article.author } } : {}),
-    ...(article.cover ? { image: `${origin}/blog/media/${article.cover.id}` } : {}),
-    mainEntityOfPage: `${origin}/blog/${article.slug}`,
+    ...(article.cover
+      ? { image: `${origin}/smokesignals/media/${article.cover.id}` }
+      : {}),
+    mainEntityOfPage: `${origin}/smokesignals/${article.slug}`,
     publisher: { '@id': `${origin}/#organization` },
   }
 }
