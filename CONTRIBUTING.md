@@ -97,7 +97,7 @@ PR title.
 
 ## Local setup
 
-**Prerequisites:** Node 22.12 or later within Node 22 (`.nvmrc` pins the major)
+**Prerequisites:** Node 22.13 or later within Node 22 (`.nvmrc` pins the major)
 and pnpm. pnpm is pinned by the `packageManager` field, so you do not need to
 choose a version:
 

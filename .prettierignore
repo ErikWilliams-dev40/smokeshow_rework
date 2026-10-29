@@ -3,15 +3,8 @@
 # what the designer shipped.
 design_handoff_wholesale_b2b/
 
-.next/
-.cloudflare/
-services/**/.cloudflare/
-services/**/dist/
-services/**/node_modules/
-.vinext/
-.wrangler/
-dist/
-node_modules/
+# Build output, caches and node_modules are already listed in .gitignore, which
+# Prettier 3 reads alongside this file. Only the lockfile needs naming here.
 pnpm-lock.yaml
 
 # Prose is hard-wrapped by hand in this repository and Prettier would reflow it,

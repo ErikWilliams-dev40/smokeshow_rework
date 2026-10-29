@@ -10,7 +10,7 @@ Guidance for Claude Code working in this repository.
   licensed cannabis operators specify and price white-label vape products
   (hardware, terpenes, blending and filling, packaging).
 - **Stack:** TypeScript on Next.js (App Router, server rendering), React, pnpm,
-  Node 22 (`.nvmrc` pins the major, `engines` requires >=22.12). Styling is
+  Node 22 (`.nvmrc` pins the major, `engines` requires >=22.13). Styling is
   plain CSS with CSS Modules over a custom-property token system — deliberately
   not Tailwind, see below. Vitest for units, Playwright for end-to-end and
   visual review.

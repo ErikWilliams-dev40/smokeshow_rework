@@ -21,7 +21,10 @@ allowBuilds:
   unrs-resolver: false
   workerd: false
 
-# Keep vulnerable transitive versions out until their parents raise the minimums.
+# Keep vulnerable versions out until their parents raise the minimums. zod is
+# both a direct dependency (^4.6.6 in both manifests) and a transitive one:
+# Cloudflare packages still pin 4.4.3 and 4.6.5, and only this override lifts
+# those, so it stays even though the manifests already require 4.6.6.
 overrides:
   zod@<4.6.6: 4.6.6
   undici@>=7.0.0 <7.30.1: 7.30.1

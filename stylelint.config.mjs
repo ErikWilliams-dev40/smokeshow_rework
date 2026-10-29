@@ -14,12 +14,6 @@
 /** @type {import('stylelint').Config} */
 const config = {
   extends: ['stylelint-config-standard'],
-  ignoreFiles: [
-    'design_handoff_wholesale_b2b/**',
-    'design_handoff_smoke_signals_blog/**',
-    '.next/**',
-    'node_modules/**',
-  ],
   rules: {
     // The token blocks are lifted verbatim from the handoff prototype. Custom
     // property names there are already consistent; do not enforce a pattern
@@ -45,11 +39,7 @@ const config = {
       },
     },
     {
-      files: [
-        'src/styles/motion.css',
-        'src/components/hero/**/*.css',
-        '**/*.motion.css',
-      ],
+      files: ['src/styles/motion.css', 'src/components/hero/**/*.css'],
       rules: {
         'property-disallowed-list': [
           ['transform'],
