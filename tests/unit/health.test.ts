@@ -4,8 +4,10 @@ const { first, prepare } = vi.hoisted(() => {
   const first = vi.fn()
   return { first, prepare: vi.fn(() => ({ first })) }
 })
-vi.mock('@/server/cloudflare/env', () => ({ getEnv: () => ({ DB: { prepare } }) }))
-import { GET } from '@/app/api/health/route'
+vi.mock('@/server/cloudflare/env', () => ({
+  getEnv: () => ({ DB: { prepare }, LEADS_ENABLED: 'false' }),
+}))
+import { GET, readinessSql } from '@/app/api/health/route'
 import { safeError } from '@/server/logging'
 
 describe('readiness', () => {
@@ -14,6 +16,7 @@ describe('readiness', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
   })
   afterEach(() => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
     vi.unstubAllGlobals()
   })
@@ -29,9 +32,9 @@ describe('readiness', () => {
       expect(await response.json()).toEqual({
         status: ok ? 'ok' : 'degraded',
         commit: 'test-commit',
-        checks: { d1: ok ? 'ok' : 'error' },
+        checks: { d1: ok ? 'ok' : 'error', leads: 'disabled' },
       })
-      expect(prepare).toHaveBeenCalledWith('select 1')
+      expect(prepare).toHaveBeenCalledWith(readinessSql)
       if (!ok)
         expect(console.error).toHaveBeenCalledWith('D1 readiness failed', {
           name: 'Error',
@@ -39,6 +42,15 @@ describe('readiness', () => {
         })
     },
   )
+
+  it('returns 503 within three seconds when storage stalls', async () => {
+    vi.useFakeTimers()
+    first.mockImplementation(() => new Promise(() => {}))
+    const pending = GET()
+    await vi.advanceTimersByTimeAsync(3000)
+    expect((await pending).status).toBe(503)
+    expect(vi.getTimerCount()).toBe(0)
+  })
 
   it('bounds and redacts messages without serializing arbitrary properties', () => {
     const error = Object.assign(

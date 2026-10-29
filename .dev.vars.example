@@ -1,6 +1,7 @@
 # Local values for the secrets declared in cloudflare.config.ts. Copy to
-# .dev.vars (ignored) and fill in. Production and staging values are set with
-# `cf workers secrets update <NAME> --mode <mode>`, never committed.
+# .dev.vars (ignored) and fill in. Set deployed secrets on the matching Worker
+# through Cloudflare Settings > Variables and Secrets, never in this file.
+# See docs/launch/LEADS.md for credential setup and rotation.
 LEAD_TOKEN_SECRET=
 
 # Private blog API bearer token; unused when local fixtures are enabled.

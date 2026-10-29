@@ -2,32 +2,32 @@
 import { useRef, useState } from 'react'
 import type { ContactDetails } from '@/content/wholesale'
 import type { LeadState } from '@/domain/leads'
+import { LeadRequestError, requestLead, submissionIdentity } from './lead-client'
 
 export function useLeadSubmission() {
-  const key = useRef<string | null>(null)
+  const key = useRef<{ id: string; identity: string } | null>(null)
+  const inFlight = useRef(false)
   const [state, setState] = useState<LeadState | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [conflict, setConflict] = useState(false)
   async function request(path: string, body: object) {
-    if (busy) return false
+    if (inFlight.current) return false
+    inFlight.current = true
     setBusy(true)
     setError('')
+    setConflict(false)
     try {
-      const response = await fetch(path, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-      const data = await response.json<LeadState & { error?: string }>()
-      if (!response.ok) throw new Error(data.error ?? 'Please try again.')
-      setState(data)
+      setState(await requestLead(path, body))
       return true
     } catch (cause) {
+      setConflict(cause instanceof LeadRequestError && cause.status === 409)
       setError(
         cause instanceof Error ? cause.message : 'Unable to connect. Please try again.',
       )
       return false
     } finally {
+      inFlight.current = false
       setBusy(false)
     }
   }
@@ -35,16 +35,26 @@ export function useLeadSubmission() {
     state,
     busy,
     error,
+    conflict,
     submit(details: ContactDetails & { interest?: string }, website: string) {
-      key.current ??= crypto.randomUUID()
-      return request('/api/leads', { ...details, website, submissionId: key.current })
+      if (inFlight.current) return Promise.resolve(false)
+      const identity = submissionIdentity(details)
+      if (key.current?.identity !== identity)
+        key.current = { id: crypto.randomUUID(), identity }
+      return request('/api/leads', {
+        ...details,
+        website,
+        submissionId: key.current.id,
+      })
     },
-    resend: () => request('/api/leads/resend', { submissionId: key.current }),
-    refresh: () => request('/api/leads/status', { submissionId: key.current }),
+    resend: () => request('/api/leads/resend', { submissionId: key.current?.id }),
+    refresh: () => request('/api/leads/status', { submissionId: key.current?.id }),
     reset() {
+      if (inFlight.current) return
       key.current = null
       setState(null)
       setError('')
+      setConflict(false)
     },
   }
 }

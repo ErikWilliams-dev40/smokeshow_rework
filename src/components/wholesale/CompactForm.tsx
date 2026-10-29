@@ -137,6 +137,11 @@ export function CompactForm() {
         aria-busy={lead.busy}
       >
         {lead.error ? <p role="alert">{lead.error}</p> : null}
+        {lead.conflict ? (
+          <button type="button" onClick={editDetails}>
+            Start a new inquiry with these details
+          </button>
+        ) : null}
         {Object.keys(errors).length ? (
           <div ref={summary} className={styles.errorSummary} role="alert" tabIndex={-1}>
             <h3>Check your details</h3>

@@ -101,15 +101,20 @@ test('real local lead submission persists and can be queried without personal da
   }
   const first = await request.post('/api/leads', { headers, data })
   expect(first.status(), await first.text()).toBe(202)
-  expect(await first.json()).toEqual({ status: 'pending', delivery: 'sent' })
+  expect(await first.json()).toEqual({ status: 'pending', delivery: 'queued' })
   const retry = await request.post('/api/leads', { headers, data })
   expect(retry.status()).toBe(202)
-  const status = await request.post('/api/leads/status', {
-    headers,
-    data: { submissionId },
-  })
-  expect(await status.json()).toEqual({ status: 'pending', delivery: 'sent' })
-  expect(await status.text()).not.toContain(email)
+  await expect
+    .poll(async () => {
+      const status = await request.post('/api/leads/status', {
+        headers,
+        data: { submissionId },
+      })
+      expect(await status.text()).not.toContain(email)
+      const body: unknown = await status.json()
+      return body
+    })
+    .toEqual({ status: 'pending', delivery: 'sent' })
   expect(
     (
       await request.post('/api/leads', {
