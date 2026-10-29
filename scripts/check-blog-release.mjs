@@ -18,6 +18,7 @@ const login = (value) =>
   typeof value === 'string' && value.trim() ? value.trim().toLowerCase() : null
 export function validateRecord(record, env) {
   validateIdentity(env)
+  const staging = env.BLOG_MODE === 'staging'
   const reviewer = login(record.human_reviewer),
     developer = login(record.developer)
   if (
@@ -25,14 +26,20 @@ export function validateRecord(record, env) {
     record.repository !== env.GITHUB_REPOSITORY ||
     record.test_status !== 'passed' ||
     record.security_review_status !== 'passed' ||
-    !reviewer ||
     !developer ||
-    reviewer === developer ||
+    (staging
+      ? record.deployment_environment !== 'staging' ||
+        (record.human_reviewer !== null && (!reviewer || reviewer === developer))
+      : record.deployment_environment === 'staging' ||
+        !reviewer ||
+        reviewer === developer) ||
     record.business_approval_required !== true ||
     typeof record.database_migration !== 'boolean' ||
     record.rollback_safe !== true
   )
-    throw new Error('A reviewed, tested, rollback-safe release record is required')
+    throw new Error(
+      'A tested, rollback-safe release record with the required environment approvals is required',
+    )
 }
 export function validateConfiguration(env) {
   validateIdentity(env)
@@ -159,7 +166,12 @@ async function main() {
       break
     case 'record':
       validateRecord(
-        JSON.parse(await readFile(`releases/${env.COMMIT_SHA}.json`, 'utf8')),
+        JSON.parse(
+          await readFile(
+            `releases/${env.BLOG_MODE === 'staging' ? 'staging/' : ''}${env.COMMIT_SHA}.json`,
+            'utf8',
+          ),
+        ),
         env,
       )
       break

@@ -48,8 +48,8 @@
       "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$"
     },
     "human_reviewer": {
-      "description": "GitHub login of the human who approved the pull request. Must differ from developer: self-review does not satisfy the peer-approval gate.",
-      "type": "string",
+      "description": "GitHub login of the human who approved the pull request. Must differ from developer: self-review does not satisfy the peer-approval gate. Null is allowed only for an explicitly staging-only record; it does not claim independent review.",
+      "type": ["string", "null"],
       "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$"
     },
     "test_status": {
@@ -89,7 +89,7 @@
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
     },
     "waiver_authorized_by": {
-      "description": "GitHub login of the Technical Admin who authorized the security-review waiver. Required only when security_review_status is 'waived', and forbidden otherwise. ONLY a Technical Admin may authorize a waiver; this schema records who did, but cannot verify that they hold that role — see docs/RELEASE_METADATA.md.",
+      "description": "GitHub login of the Technical Admin who authorized the security-review waiver. Required only when security_review_status is 'waived', and forbidden otherwise. ONLY a Technical Admin may authorize a waiver; this schema records who did, but cannot verify that they hold that role \u2014 see docs/RELEASE_METADATA.md.",
       "type": "string",
       "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$"
     },
@@ -104,10 +104,18 @@
       "type": "string",
       "format": "date-time",
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "deployment_environment": {
+      "description": "Optional staging-only scope. Such a record is never accepted for production.",
+      "const": "staging"
     }
   },
   "if": {
-    "properties": { "security_review_status": { "const": "waived" } },
+    "properties": {
+      "security_review_status": {
+        "const": "waived"
+      }
+    },
     "required": ["security_review_status"]
   },
   "then": {
@@ -117,9 +125,21 @@
   "else": {
     "$comment": "Waiver fields are meaningless without a waiver, and their presence alongside 'passed' would misrepresent the record. Forbid rather than ignore.",
     "allOf": [
-      { "not": { "required": ["waiver_authorized_by"] } },
-      { "not": { "required": ["waiver_reason"] } },
-      { "not": { "required": ["waiver_timestamp"] } }
+      {
+        "not": {
+          "required": ["waiver_authorized_by"]
+        }
+      },
+      {
+        "not": {
+          "required": ["waiver_reason"]
+        }
+      },
+      {
+        "not": {
+          "required": ["waiver_timestamp"]
+        }
+      }
     ]
   },
   "$comment": "Three rules cannot be expressed in JSON Schema and are enforced by review instead (see .claude/agents/release-auditor.md): human_reviewer must differ from developer; rollback_safe must be false for a destructive migration; and waiver_authorized_by must actually hold the Technical Admin role.",
@@ -156,6 +176,25 @@
       "waiver_authorized_by": "tech-admin-login",
       "waiver_reason": "Upstream advisory affects a dev-only dependency not present in the production build; tracked in issue #218.",
       "waiver_timestamp": "2026-08-11T08:51:00Z"
+    }
+  ],
+  "allOf": [
+    {
+      "if": {
+        "required": ["deployment_environment"],
+        "properties": {
+          "deployment_environment": {
+            "const": "staging"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "human_reviewer": {
+            "type": "string"
+          }
+        }
+      }
     }
   ]
 }

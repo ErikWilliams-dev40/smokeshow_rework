@@ -2,8 +2,10 @@
 
 Issue #110 tracks publication correctness and staging activation; #73 tracks traffic
 controls and #74 tracks public-media authorization. This document specifies checks,
-not a claim that staging has passed. Independent human review and the append-only
-release record are required before deployment. Production is excluded from this run.
+not a claim that staging has passed. On 2026-10-29 the operator removed the
+independent human-review prerequisite for staging. Automated tests, security checks,
+merged code and an append-only staging release record remain required. Production
+retains independent review and business approval and is excluded from this run.
 
 ## Endpoint and failure matrix
 
@@ -24,9 +26,10 @@ release record are required before deployment. Production is excluded from this 
 
 ## Release and recovery sequence
 
-1. Run the complete Node 22 verification sequence and obtain CI/security and human
-   review on each PR. Merge publishing, capacity and readiness changes before the
-   separate workflow PR. Create `releases/<approved-sha>.json` with actual evidence.
+1. Run the complete Node 22 verification sequence and obtain passing CI/security
+   results on each PR. Independent human review is not required for staging. Merge publishing, capacity and readiness changes before the
+   separate workflow PR. Create `releases/staging/<approved-sha>.json` with actual evidence,
+   `deployment_environment: "staging"`, and `human_reviewer: null` if unreviewed.
 2. Preserve staging D1/R2 exports in restricted storage and restore into scratch
    resources. Compare table counts and media hashes before any migration. Existing
    staging contains the original schema; apply 0002–0004 without modifying 0001.
@@ -105,7 +108,7 @@ resources were then removed. Restricted backup evidence is retained outside the
 repository. This proves an empty-library recovery rehearsal, not restoration of a
 populated media library; repeat that check after staging content acceptance.
 
-Independent human approval, the reviewed release record, actual staging deployment,
+The staging release record, actual staging deployment,
 the 15-minute live observation, populated-media recovery, canary outage/throttling,
 and final verification-token revocation remain outstanding. No production change
 or claim of live staging acceptance is implied by these local/CI results.
