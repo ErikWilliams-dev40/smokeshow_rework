@@ -18,7 +18,7 @@ The connected Cloudflare accounts did not return a zone for smokeshowlabs.com.
 | Verified sender address | `MAIL_FROM` Environment variable | Transactional email sender |
 | Sales inbox | `SALES_INBOX` Environment variable | Verified lead notifications |
 | Controlled staging recipients | Comma-separated `LEAD_TEST_RECIPIENTS` Environment variable | Recipient allowlist, including the staging sales inbox |
-| Live approved-content API URL | `BLOG_API_URL` Environment variable, separately per environment | Blog articles, images and production sitemap |
+| Live approved-content API URL | `BLOG_API_URL` Environment variable, separately per environment | Blog articles, images and production sitemap; required in staging and production, HTTPS, and never the website's own origin |
 | Lead activation | `LEADS_ENABLED=true` only after setup | Enables deployed submission and scheduled mail delivery |
 | Human reviewers | GitHub team/user names | CODEOWNERS and required production Environment approval |
 
@@ -28,7 +28,7 @@ The connected Cloudflare accounts did not return a zone for smokeshowlabs.com.
 | --- | --- | --- |
 | `CLOUDFLARE_API_TOKEN` | GitHub staging/production Environment secrets, separately scoped | Worker deployment and D1 migrations; never a repository-wide fallback |
 | `LEAD_TOKEN_SECRET` | Worker secret, separately per environment | Cryptographically random value, at least 32 characters; signs 24-hour verification links |
-| `BLOG_API_TOKEN` | Worker secret, separately per environment | Private blog API access; no browser exposure |
+| `BLOG_API_TOKEN` | Worker secret, separately per environment | Private blog API access; no browser exposure. Must be the same read token the API Worker verifies in that environment |
 
 Do not paste secret values into chat, source, issues, PRs or logs. There is no
 separate email API key when using the native Cloudflare email binding. Local
