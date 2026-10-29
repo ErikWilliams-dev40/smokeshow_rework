@@ -5,7 +5,9 @@ describe('public blog traffic controls', () => {
   it.each(['/blog', '/blog/story', '/blog/media/id', '/sitemap.xml'])(
     'limits %s without retaining client IP',
     async (path) => {
-      const limit = vi.fn().mockResolvedValue({ success: false })
+      const limit = vi
+        .fn<(input: { key: string }) => Promise<{ success: boolean }>>()
+        .mockResolvedValue({ success: false })
       const response = await blogTrafficResponse(
         new Request(`https://site.test${path}`, {
           headers: { 'CF-Connecting-IP': '192.0.2.1' },
@@ -14,9 +16,7 @@ describe('public blog traffic controls', () => {
       )
       expect(response?.status).toBe(429)
       expect(response?.headers.get('Retry-After')).toBe('60')
-      expect(limit.mock.calls[0]?.[0]).toEqual({
-        key: expect.stringMatching(/^[a-f0-9]{64}$/),
-      })
+      expect(limit.mock.calls[0]?.[0].key).toMatch(/^[a-f0-9]{64}$/)
     },
   )
   it('leaves unrelated routes available and fails closed on missing identity or limiter failure', async () => {

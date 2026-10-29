@@ -851,7 +851,7 @@ describe('publishing hardening regressions', () => {
 
 describe('bounded public queries and admin traffic', () => {
   it('throttles an authenticated admin before storage access', async () => {
-    vi.mocked(env.BLOG_ADMIN_RATE.limit).mockResolvedValueOnce({ success: false })
+    vi.spyOn(env.BLOG_ADMIN_RATE, 'limit').mockResolvedValueOnce({ success: false })
     const prepare = vi.spyOn(database.db, 'prepare')
     const response = await call('/admin/articles', 'GET', undefined, editorToken)
     expect(response.status).toBe(429)
