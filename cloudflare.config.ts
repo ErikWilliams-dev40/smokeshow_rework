@@ -27,16 +27,17 @@ function resolveMode(mode: string | undefined): Mode {
 export default defineConfig((ctx) => {
   const mode = resolveMode(ctx.mode)
   const suffix = mode === 'production' ? '' : `-${mode}`
+  const stagingCanary = mode === 'staging' && process.env.BLOG_STAGING_CANARY === 'true'
 
   return {
     accountId:
       process.env.CLOUDFLARE_ACCOUNT_ID ||
       (mode === 'staging' ? '8441cc5cfd234da96da8cdf090d94658' : undefined),
     worker: defineWorker({
-      name: `smokeshow-web${suffix}`,
+      name: `smokeshow-web${suffix}${stagingCanary ? '-canary' : ''}`,
       entrypoint: './src/worker.ts',
       triggers: [
-        triggers.scheduled({ schedule: '*/5 * * * *' }),
+        ...(stagingCanary ? [] : [triggers.scheduled({ schedule: '*/5 * * * *' })]),
         ...(mode === 'production' && process.env.PRODUCTION_ZONE_ID
           ? [
               triggers.fetch({
@@ -80,6 +81,16 @@ export default defineConfig((ctx) => {
         // Non-secret URL is supplied at build time; runtime access uses getEnv().
         BLOG_API_URL: bindings.text(process.env.BLOG_API_URL ?? ''),
         BLOG_API_TOKEN: bindings.secret(),
+        BLOG_RATE: bindings.rateLimit({
+          namespace: stagingCanary
+            ? '1106'
+            : mode === 'production'
+              ? '1102'
+              : mode === 'staging'
+                ? '1101'
+                : '1105',
+          simple: { limit: 120, period: 60 },
+        }),
         ...(mode === 'local'
           ? {}
           : {
@@ -91,7 +102,11 @@ export default defineConfig((ctx) => {
         DB: bindings.d1({ name: `smokeshow-leads${suffix}`, id: D1_IDS[mode] }),
 
         LEADS_ENABLED: bindings.text(
-          mode === 'local' ? 'true' : (process.env.LEADS_ENABLED ?? 'false'),
+          stagingCanary
+            ? 'false'
+            : mode === 'local'
+              ? 'true'
+              : (process.env.LEADS_ENABLED ?? 'false'),
         ),
         EMAIL:
           mode === 'local'

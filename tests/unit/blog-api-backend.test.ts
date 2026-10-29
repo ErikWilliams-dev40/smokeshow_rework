@@ -63,6 +63,7 @@ beforeEach(() => {
   bucket = memoryMedia()
   env = {
     BLOG_DB: database.db,
+    BLOG_ADMIN_RATE: { limit: vi.fn().mockResolvedValue({ success: true }) },
     BLOG_MEDIA: bucket as unknown as R2Bucket,
     COMMIT_SHA: 'test',
     BLOG_API_TOKEN: readToken,
@@ -680,6 +681,78 @@ describe('publishing hardening regressions', () => {
     ).toBe(400)
   })
 
+  it('advances legacy curation versions without double-counting current writes', async () => {
+    await approve(await create('one'))
+    database.sqlite.exec(
+      `UPDATE homepage SET selections = '{"lead":["one"]}' WHERE id = 1`,
+    )
+    expect(
+      await read(await call('/admin/homepage', 'GET', undefined, editorToken)),
+    ).toMatchObject({ version: 2 })
+    expect(
+      (
+        await call(
+          '/admin/homepage',
+          'PUT',
+          { expectedVersion: 1, selections: {} },
+          ownerToken,
+        )
+      ).status,
+    ).toBe(409)
+    expect(
+      await read(
+        await call(
+          '/admin/homepage',
+          'PUT',
+          { expectedVersion: 2, selections: {} },
+          ownerToken,
+        ),
+      ),
+    ).toMatchObject({ version: 3 })
+  })
+
+  it('blocks already authenticated mutations at the database barrier without partial state', async () => {
+    const before = database.sqlite
+      .prepare('SELECT COUNT(*) AS n FROM audit_events')
+      .get()?.n
+    const original = env.BLOG_DB.batch.bind(env.BLOG_DB)
+    vi.spyOn(env.BLOG_DB, 'batch').mockImplementationOnce(async (statements) => {
+      database.sqlite.exec('UPDATE blog_control SET maintenance = 1 WHERE id = 1')
+      return original(statements)
+    })
+    const response = await call(
+      '/admin/articles',
+      'POST',
+      { slug: 'paused', content },
+      editorToken,
+    )
+    expect(response.status).toBe(503)
+    expect(response.headers.get('Retry-After')).toBe('60')
+    for (const table of ['articles', 'revisions', 'approvals'])
+      expect(
+        database.sqlite.prepare(`SELECT COUNT(*) AS n FROM ${table}`).get()?.n,
+      ).toBe(0)
+    expect(
+      database.sqlite.prepare('SELECT COUNT(*) AS n FROM audit_events').get()?.n,
+    ).toBe(before)
+    // A legacy transaction that writes before inserting its audit event also rolls back.
+    await expect(
+      original([
+        env.BLOG_DB.prepare(
+          'UPDATE homepage SET selections = \'{"lead":["paused"]}\' WHERE id = 1',
+        ),
+        env.BLOG_DB.prepare(
+          "INSERT INTO audit_events VALUES ('legacy','owner','curate',NULL,NULL,NULL,'now')",
+        ),
+      ]),
+    ).rejects.toThrow('blog_maintenance')
+    expect(database.sqlite.prepare('SELECT version FROM homepage').get()?.version).toBe(
+      1,
+    )
+    database.sqlite.exec('UPDATE blog_control SET maintenance = 0 WHERE id = 1')
+    expect((await create('resumed')).version).toBe(1)
+  })
+
   it('reports invalid stored data as unavailable and rejects ignored admin filters', async () => {
     for (const query of ['category=flower', 'q=text', 'page=1&page=2'])
       expect(
@@ -845,5 +918,102 @@ describe('publishing hardening regressions', () => {
       status: 400,
       code: 'invalid_body',
     })
+  })
+})
+
+describe('bounded public queries and admin traffic', () => {
+  it('throttles an authenticated admin before storage access', async () => {
+    vi.spyOn(env.BLOG_ADMIN_RATE, 'limit').mockResolvedValueOnce({ success: false })
+    const prepare = vi.spyOn(database.db, 'prepare')
+    const response = await call('/admin/articles', 'GET', undefined, editorToken)
+    expect(response.status).toBe(429)
+    expect(response.headers.get('Retry-After')).toBe('60')
+    expect(prepare).not.toHaveBeenCalled()
+  })
+  it('preserves filtering and homepage selection with 10,000 articles and bounded result sets', async () => {
+    const { selectHomepage } = await import('../../src/domain/blog-selection')
+    const addArticle = database.sqlite.prepare(
+      'INSERT INTO articles(slug,draft_revision,published_revision,published_at,updated_at,category,search_text,created_at) VALUES(?,?,?,?,?,?,?,?)',
+    )
+    const addRevision = database.sqlite.prepare(
+      'INSERT INTO revisions VALUES(?,?,?,?,?,?)',
+    )
+    const addApproval = database.sqlite.prepare(
+      'INSERT INTO approvals VALUES(?,?,?,?,1)',
+    )
+    const addPublication = database.sqlite.prepare(
+      'INSERT INTO publication VALUES(?,?)',
+    )
+    const summaries = []
+    database.sqlite.exec('BEGIN')
+    for (let i = 0; i < 10000; i++) {
+      const slug = `story-${i.toString().padStart(5, '0')}`,
+        id = crypto.randomUUID(),
+        approvalId = crypto.randomUUID()
+      const now = new Date(1700000000000 + i * 1000).toISOString()
+      const item = {
+        ...content,
+        title: i === 9999 ? 'ÉDITION İSTANBUL' : `Story ${i}`,
+        category: ['flower', 'vapes', 'compliance'][i % 3],
+      }
+      addArticle.run(
+        slug,
+        id,
+        id,
+        now,
+        now,
+        item.category!,
+        `${item.title} ${item.excerpt}`.toLowerCase(),
+        now,
+      )
+      addRevision.run(id, slug, JSON.stringify(item), 'hash', now, 'writer')
+      addApproval.run(approvalId, id, 'Owner', now)
+      addPublication.run(slug, approvalId)
+      summaries.push(
+        article.parse({
+          ...item,
+          slug,
+          publishedAt: now,
+          review: { status: 'approved', approvedBy: 'Owner', approvedAt: now },
+        }),
+      )
+    }
+    database.sqlite.exec('COMMIT')
+    const query = articlePage.parse(
+      await (await call('/articles?q=ÉDITION&pageSize=1')).json(),
+    )
+    expect(query.total).toBe(1)
+    expect(query.items[0]?.slug).toBe('story-09999')
+    const unicode = articlePage.parse(
+      await (await call('/articles?q=%C4%B0STANBUL')).json(),
+    )
+    expect(unicode.total).toBe(1)
+    const repo = new Repository(database.db)
+    const curated = {
+      lead: ['story-00000'],
+      rail: [],
+      feature: [],
+      featured: [],
+      shelf: [],
+      complianceRetail: [],
+    }
+    await repo.curate(curated, 1, { id: 'owner', name: 'Owner', role: 'owner' })
+    const prepare = vi.spyOn(database.db, 'prepare')
+    const homepage = await repo.homepage()
+    const { articleSummary } = await import('../../src/domain/article')
+    expect(homepage).toEqual(
+      selectHomepage(
+        summaries.map((item) => articleSummary.parse(item)),
+        curated,
+      ),
+    )
+    const summaryQueries = prepare.mock.calls.filter(([sql]) =>
+      sql.includes('json_remove'),
+    )
+    expect(summaryQueries).toHaveLength(12)
+    expect(summaryQueries.every(([sql]) => sql.includes('LIMIT ?'))).toBe(true)
+    const page = await repo.list({ page: 2, pageSize: 50, category: 'flower', q: '' })
+    expect(page.total).toBe(3334)
+    expect(page.items).toHaveLength(50)
   })
 })

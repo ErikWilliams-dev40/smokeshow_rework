@@ -2,6 +2,7 @@ import {
   article,
   articlePage,
   articleSummary,
+  articleCategory,
   type Article,
 } from '../../../src/domain/article'
 import { selectHomepage } from '../../../src/domain/blog-selection'
@@ -91,6 +92,12 @@ export class Repository {
         error instanceof Error
           ? `${error.message} ${error.cause instanceof Error ? error.cause.message : ''}`
           : ''
+      if (message.includes('blog_maintenance'))
+        throw new HttpError(
+          503,
+          'blog_maintenance',
+          'Editorial writes are temporarily paused',
+        )
       if (
         message.includes('version_conflict') ||
         message.includes('UNIQUE constraint failed: articles.slug')
@@ -380,11 +387,12 @@ export class Repository {
         id,
       ),
       this.statement(
-        'UPDATE articles SET published_revision = ?, published_at = COALESCE(published_at, ?), updated_at = ?, category = ?, version = version + 1 WHERE slug = ?',
+        'UPDATE articles SET published_revision = ?, published_at = COALESCE(published_at, ?), updated_at = ?, category = ?, search_text = ?, version = version + 1 WHERE slug = ?',
         revisionId,
         now,
         now,
         content.category ?? null,
+        `${content.title} ${content.excerpt}`.toLowerCase(),
         slug,
       ),
     ])
@@ -411,31 +419,47 @@ export class Repository {
     return publicArticle(row)
   }
   async list(query: { page: number; pageSize: number; category?: string; q: string }) {
-    // SQLite lower() is ASCII-only; normalize in JS to match the site's Unicode
-    // substring behavior. Only summaries are read, never the entire body archive.
-    const rows = await this.summaries()
-    const filtered = rows.filter(
-      (a) =>
-        (!query.category || a.category === query.category) &&
-        (!query.q ||
-          `${a.title} ${a.excerpt}`.toLowerCase().includes(query.q.toLowerCase())),
-    )
-    return articlePage.parse({
-      items: filtered.slice(
+    const where =
+      " WHERE (? IS NULL OR a.category = ?) AND (? = '' OR instr(a.search_text, ?) > 0)"
+    const values = [
+      query.category ?? null,
+      query.category ?? null,
+      query.q.toLowerCase(),
+      query.q.toLowerCase(),
+    ]
+    const results = await this.batch<PublicRow & { total: number }>([
+      this.summaryStatement(
+        where,
+        values,
+        query.pageSize,
         (query.page - 1) * query.pageSize,
-        query.page * query.pageSize,
       ),
+      this.statement(`SELECT COUNT(*) AS total ${publishedFrom}${where}`, ...values),
+    ])
+    return articlePage.parse({
+      items: this.parseSummaries(results[0]!.results),
       page: query.page,
       pageSize: query.pageSize,
-      total: filtered.length,
+      total: results[1]!.results[0]!.total,
     })
   }
-  private async summaries() {
-    const rows = await this.statement(
+  private summaryStatement(
+    where = '',
+    values: (string | number | null)[] = [],
+    limit = 50,
+    offset = 0,
+  ) {
+    return this.statement(
       `SELECT a.slug, a.published_at, a.updated_at, ap.approved_by, ap.approved_at,
-      json_remove(r.content, '$.body') AS content ${publishedFrom} ORDER BY a.published_at DESC, a.slug ASC`,
-    ).all<PublicRow>()
-    return rows.results.map((r) =>
+      json_remove(r.content, '$.body') AS content ${publishedFrom}${where}
+      ORDER BY a.published_at DESC, a.slug ASC LIMIT ? OFFSET ?`,
+      ...values,
+      limit,
+      offset,
+    )
+  }
+  private parseSummaries(rows: PublicRow[]) {
+    return rows.map((r) =>
       articleSummary.parse({
         ...draft.omit({ body: true }).parse(JSON.parse(r.content)),
         slug: r.slug,
@@ -449,13 +473,31 @@ export class Repository {
     )
   }
   async homepage() {
-    const stored = await this.statement(
-      'SELECT selections FROM homepage WHERE id = 1',
-    ).first<string>('selections')
-    return selectHomepage(
-      await this.summaries(),
-      curation.parse(JSON.parse(stored ?? '{}')),
+    const { selections } = await this.inspectHomepage()
+    const slugs = [...new Set(Object.values(selections).flat())]
+    const results = await this.batch<PublicRow>([
+      this.summaryStatement('', [], 6),
+      this.summaryStatement(
+        " WHERE a.category IN ('flower','vapes','edibles','pre-rolls','concentrates')",
+        [],
+        4,
+      ),
+      this.summaryStatement(" WHERE a.category IN ('compliance','retail-tips')", [], 6),
+      ...articleCategory.options.map((category) =>
+        this.summaryStatement(' WHERE a.category = ?', [category], 5),
+      ),
+      this.summaryStatement(
+        ' WHERE a.slug IN (SELECT value FROM json_each(?))',
+        [JSON.stringify(slugs)],
+        19,
+      ),
+    ])
+    const unique = new Map(
+      results
+        .flatMap((result) => this.parseSummaries(result.results))
+        .map((item) => [item.slug, item]),
     )
+    return selectHomepage([...unique.values()], selections)
   }
   async inspectHomepage() {
     const row = await this.statement(
@@ -472,7 +514,13 @@ export class Repository {
     expected: number,
     actor: Actor,
   ) {
-    const published = await this.summaries()
+    const selected = [...new Set(Object.values(selections).flat())]
+    const rows = await this.summaryStatement(
+      ' WHERE a.slug IN (SELECT value FROM json_each(?))',
+      [JSON.stringify(selected)],
+      19,
+    ).all<PublicRow>()
+    const published = this.parseSummaries(rows.results)
     for (const [slot, slugs] of Object.entries(selections)) {
       if (new Set(slugs).size !== slugs.length)
         throw new HttpError(422, 'invalid_selection', 'Duplicate curated article')

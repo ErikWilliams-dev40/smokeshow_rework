@@ -19,6 +19,11 @@ export default defineConfig((ctx) => {
         traces: { enabled: true, headSamplingRate: 0.01 },
       },
       env: {
+        BLOG_ADMIN_RATE: bindings.rateLimit({
+          namespace:
+            mode === 'production' ? '1104' : mode === 'staging' ? '1103' : '1100',
+          simple: { limit: 60, period: 60 },
+        }),
         BLOG_DB: bindings.d1({
           name: `smokeshow-blog${suffix}`,
           id:

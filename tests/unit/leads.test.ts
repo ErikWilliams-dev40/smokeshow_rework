@@ -31,6 +31,7 @@ beforeEach(() => {
   environment.current = {
     DB: store.db,
     BLOG_API_URL: '',
+    BLOG_RATE: { limit: vi.fn().mockResolvedValue({ success: true }) },
     BLOG_API_TOKEN: '',
     BLOG_ALLOW_FIXTURES: 'false',
     ASSETS: { fetch: vi.fn(), connect: vi.fn() },

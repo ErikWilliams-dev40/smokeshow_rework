@@ -41,8 +41,12 @@ function notFound(): never {
 async function route(request: Request, env: BlogEnv, actor: Actor) {
   const path = new URL(request.url).pathname,
     method = request.method
+  if (path.startsWith('/admin')) {
+    requireRole(actor, 'editor')
+    if (!(await env.BLOG_ADMIN_RATE.limit({ key: actor.id })).success)
+      throw new HttpError(429, 'rate_limited', 'Too many requests')
+  }
   const repo = new Repository(env.BLOG_DB)
-  if (path.startsWith('/admin')) requireRole(actor, 'editor')
   if (method === 'GET' && path === '/health') {
     const checks = { d1: false, r2: false }
     const results = await Promise.allSettled([

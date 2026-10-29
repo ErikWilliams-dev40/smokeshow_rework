@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { mkdtemp, writeFile, cp, rm, symlink } from 'node:fs/promises'
+import { mkdtemp, writeFile, cp, rm, symlink, truncate } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import {
   prepareImport,
+  readLimitedFile,
   apiClient,
   importArticle,
   ApiError,
@@ -195,6 +196,29 @@ describe('bounded CLI inspection and imports', () => {
       'changed since validation',
     )
     expect(api).toHaveBeenCalledTimes(1)
+  })
+  it('bounds file reads and rejects oversized replacement images before uploading', async () => {
+    const { folder, filename } = await manifest({
+      ...content,
+      cover: { file: 'logo.png', alt: 'Logo' },
+    })
+    const image = path.join(folder, 'logo.png')
+    await cp('public/brand/ss-logo.png', image)
+    const prepared = await prepareImport(filename)
+    await truncate(image, 1_000_000_000)
+    const api = vi
+      .fn<ReturnType<typeof apiClient>>()
+      .mockRejectedValueOnce(new ApiError(404, 'not_found'))
+    await expect(importArticle(prepared, api, { update: false })).rejects.toThrow(
+      'byte limit',
+    )
+    expect(api).toHaveBeenCalledTimes(1)
+    await writeFile(image, '12345')
+    expect((await readLimitedFile(image, 5)).toString()).toBe('12345')
+    await expect(readLimitedFile(image, 4)).rejects.toThrow('byte limit')
+    const link = path.join(folder, 'replacement.png')
+    await symlink(image, link)
+    await expect(readLimitedFile(link, 5)).rejects.toThrow()
   })
   it('requires an inspected curation version before making a request', async () => {
     const { folder } = await manifest(content)
