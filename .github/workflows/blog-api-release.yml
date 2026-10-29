@@ -32,6 +32,8 @@ jobs:
       url: ${{ vars.BLOG_DEPLOY_URL }}
     env:
       COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+      DEBUG: ""
+      CF_SEND_TELEMETRY: "false"
       BLOG_MODE: ${{ inputs.environment }}
       COMMIT_SHA: ${{ inputs.commit-sha }}
       APPROVED_SHA: ${{ inputs.approved-sha }}
@@ -65,7 +67,9 @@ jobs:
         with:
           ref: ${{ github.sha }}
           path: .release-tools
-          sparse-checkout: scripts/check-blog-release.mjs
+          sparse-checkout: |
+            scripts/check-blog-release.mjs
+            scripts/backfill-blog-search.mjs
           sparse-checkout-cone-mode: false
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -83,10 +87,36 @@ jobs:
         run: corepack pnpm install --frozen-lockfile
       - name: Build exact API version
         run: corepack pnpm --dir services/blog-api exec vite build --mode "$BLOG_MODE"
+      - name: Pause existing administrative writes before schema and projection changes
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          worker=smokeshow-blog-api
+          if [ "$BLOG_MODE" = staging ]; then worker=smokeshow-blog-api-staging; fi
+          corepack pnpm exec cf workers list > "$RUNNER_TEMP/blog-workers.json"
+          exists=$(node --input-type=module -e '
+            import {readFileSync} from "node:fs";
+            const workers = JSON.parse(readFileSync(process.argv[1], "utf8"));
+            if (!Array.isArray(workers)) throw new Error("Invalid inventory");
+            console.log(workers.some(w => w.name === process.argv[2]));
+          ' "$RUNNER_TEMP/blog-workers.json" "$worker")
+          if [ "$exists" = true ]; then
+            corepack pnpm exec cf workers secrets update BLOG_ADMIN_CREDENTIALS \
+              --worker "$worker" --type secret_text --text '[]'
+          fi
+          # The next deploy restores the intended registry. Failure deliberately
+          # leaves writes paused until an operator investigates and resumes.
+
       - name: Apply additive blog migrations
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: corepack pnpm --dir services/blog-api exec cf d1 migrations apply "$BLOG_DB_ID" --mode "$BLOG_MODE" --dir migrations
+      - name: Rebuild and verify the Unicode search projection
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          BLOG_WRITES_PAUSED: "true"
+        run: node .release-tools/scripts/backfill-blog-search.mjs
       - name: Deploy provisioned API with environment secrets
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

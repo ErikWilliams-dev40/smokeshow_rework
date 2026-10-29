@@ -109,6 +109,7 @@ jobs:
     # the repository, including production credentials to a staging job.
     secrets:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      BLOG_API_TOKEN: ${{ secrets.BLOG_API_TOKEN }}
 
   staging-health-check:
     name: Staging health check
@@ -149,6 +150,7 @@ jobs:
       environment: production
     secrets:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      BLOG_API_TOKEN: ${{ secrets.BLOG_API_TOKEN }}
 
   production-health-check:
     name: Production health check

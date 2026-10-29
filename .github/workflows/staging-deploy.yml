@@ -30,6 +30,9 @@ on:
         description: Base URL the deployment is reachable at, for the health check.
         value: ${{ jobs.deploy.outputs.url }}
     secrets:
+      BLOG_API_TOKEN:
+        description: Read credential shared with the deployed blog API.
+        required: true
       CLOUDFLARE_API_TOKEN:
         description: Cloudflare API token for the Worker. Stored on the Environment.
         # Fails the run if the caller omits it. It cannot tell whether the value
@@ -70,6 +73,8 @@ jobs:
       # Corepack otherwise prompts before downloading the pinned pnpm, which
       # would hang a non-interactive runner.
       COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+      DEBUG: ""
+      CF_SEND_TELEMETRY: "false"
       CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
       DB_ID_STAGING: ${{ vars.DB_ID_STAGING }}
       DB_ID_PRODUCTION: ${{ vars.DB_ID_PRODUCTION }}
@@ -170,13 +175,29 @@ jobs:
           COMMIT_SHA: ${{ inputs.commit-sha }}
           DEPLOY_URL: ${{ vars.DEPLOY_URL }}
           RUN_ID: ${{ github.run_id }}
+          BLOG_API_TOKEN: ${{ secrets.BLOG_API_TOKEN }}
+          BLOG_WEBSITE_SECRETS_FILE: ${{ runner.temp }}/blog-website-secrets.json
           CF_QUIET: "1"
         # --provision=false: resources are created by an admin, never as a side
         # effect of a deploy. The message carries the full SHA so rollback can
         # find this version again.
         run: |
           set -euo pipefail
+          trap 'rm -f "$BLOG_WEBSITE_SECRETS_FILE"' EXIT
+          node --input-type=module -e '
+            import {writeFileSync} from "node:fs";
+            const token = process.env.BLOG_API_TOKEN;
+            if (!/^[\x21-\x7e]{32,512}$/.test(token ?? "")) throw new Error("Invalid blog read credential");
+            writeFileSync(process.env.BLOG_WEBSITE_SECRETS_FILE, JSON.stringify({BLOG_API_TOKEN:token}), {mode:0o600,flag:"wx"});
+          '
+
           corepack pnpm exec cf deploy --mode staging --prebuilt --provision=false \
+            --secrets-file "$BLOG_WEBSITE_SECRETS_FILE" \
             --tag "${COMMIT_SHA:0:12}" \
             --message "sha=$COMMIT_SHA run=$RUN_ID"
           echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Verify the website reaches the exact healthy blog API
+        env:
+          COMMIT_SHA: ${{ inputs.commit-sha }}
+        run: node scripts/check-website-blog.mjs
