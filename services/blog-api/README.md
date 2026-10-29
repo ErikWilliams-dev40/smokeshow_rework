@@ -42,7 +42,9 @@ browser caches for a year after withdrawal.
 - `GET /admin/articles/{slug}`: version, revision IDs, the draft and published
   revision content, and `revisionCount`. It never includes the whole history.
 - `GET /admin/articles/{slug}/revisions?page=1&pageSize=12`: paginated revision
-  metadata (ID, author, time, approvals) without content.
+  metadata without content, with at most 50 latest approvals per revision,
+  `approvalCount` and `approvalsTruncated`. Complete approvals are paginated at
+  `GET /admin/articles/{slug}/revisions/{id}/approvals?page=1&pageSize=12`.
 - `GET /admin/articles/{slug}/revisions/{id}`: one revision with its content.
 - Create, edit, approve and withdraw return only
   `{slug,version,draftRevisionId,publishedRevisionId}`, so responses stay small
@@ -54,7 +56,11 @@ browser caches for a year after withdrawal.
 - `POST /admin/articles/{slug}/withdraw`: owner only; `{expectedVersion}`.
 - `POST /admin/media`: raw JPEG, PNG, WebP or AVIF bytes and matching Content-Type;
   returns `{id,width,height,mime}`. Place only id/width/height plus alt in articles.
-- `PUT /admin/homepage`: owner only; slot names map to ordered slug arrays.
+- `GET /admin/media/{id}`: editor/owner-only draft or published image inspection;
+  never available to the website credential and never cached.
+- `GET /admin/homepage`: editor/owner readback of `{version,selections}`.
+- `PUT /admin/homepage`: owner only, `{expectedVersion,selections}`;
+  stale versions return 409. Slot names map to ordered slug arrays.
   Omitted slots reset to automatic selection. Unknown, duplicate, unpublished or
   category-ineligible selections are rejected; later withdrawal uses fallbacks.
 
@@ -70,10 +76,15 @@ existing state without another mutation. Approval may select any existing revisi
 of that article, enabling reviewed content rollback. The owner identity comes from
 the credential, not the request body. Audit events retain the credential ID.
 
-The JSON limit is 256,000 actual bytes. Media is limited to 5,000,000 bytes,
+JSON input has a 10-second deadline and a 256,000 actual-byte limit.
+Media input has a 30-second deadline; interrupted bodies return 400 and expired
+deadlines return 408. Each readiness dependency has a three-second deadline.
+Internal stored-data validation failures return 503, never a client-input error.
+503 responses include `Retry-After: 60`. Media is limited to 5,000,000 bytes,
 32,768 pixels per dimension and 100 million total pixels. Header inspection does
 not decode images. AVIF containers with ambiguous dimensions are rejected.
-Uploads are content-deduplicated; incomplete uploads are never public. Private
+Uploads are content-deduplicated; replay repairs a missing R2 object from matching
+bytes after checking registered metadata; incomplete uploads are never public. Private
 R2 access must remain disabled outside the Worker.
 
 Errors use `{error:{code,message,issues?}}`. Codes map to 400 invalid input,

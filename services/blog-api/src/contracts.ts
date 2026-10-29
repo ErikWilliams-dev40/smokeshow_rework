@@ -67,6 +67,10 @@ export const listQuery = z
     q: z.string().trim().max(200).default(''),
   })
   .strict()
+export const pageQuery = listQuery.pick({ page: true, pageSize: true })
+export const curateHomepage = z
+  .object({ expectedVersion, selections: curation })
+  .strict()
 export function mediaReferences(content: Draft) {
   return [
     ...(content.cover ? [content.cover] : []),

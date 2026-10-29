@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { createHash, randomBytes } from 'node:crypto'
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
@@ -78,7 +78,15 @@ try {
   const db = await mf.getD1Database('BLOG_DB', 'blog-api')
   // D1 exec treats newlines as statement boundaries. Keep complete statements,
   // including trigger bodies, on a single line for the runtime migration check.
-  const sql = (await readFile('services/blog-api/migrations/0001_blog.sql', 'utf8'))
+  const sql = (
+    await Promise.all(
+      (await readdir('services/blog-api/migrations'))
+        .filter((name) => name.endsWith('.sql'))
+        .sort()
+        .map((name) => readFile(`services/blog-api/migrations/${name}`, 'utf8')),
+    )
+  )
+    .join('\n')
     .replace(/--[^\n]*/g, '')
     .replace(/\s+/g, ' ')
   await db.exec(sql)

@@ -98,7 +98,8 @@ newest-first selection. Product and compliance slots enforce category eligibilit
 
 ```sh
 corepack pnpm blog curate ./articles/homepage.json --dry-run
-corepack pnpm blog curate ./articles/homepage.json
+corepack pnpm blog inspect-homepage
+corepack pnpm blog curate ./articles/homepage.json --version 1
 ```
 
 Withdrawn selections are skipped and replaced with eligible published articles.
@@ -123,3 +124,17 @@ the site's browser behavior. Unit tests cover the 300-second cache expiry.
 See `services/blog-api/README.md` for credential format, readiness, backup/restore,
 media limits and data-preserving rollback. No registered media or revision is
 deleted by v1 tools.
+
+## Bounded inspection
+
+`blog inspect` and `blog inspect SLUG --history` validate every pagination envelope
+and stop above 10,000 records. Use `--page N --page-size 50` to inspect a bounded
+page. Revision history includes the latest 50 approvals and a count; use
+`blog inspect SLUG --revision UUID --approvals` for the complete paginated approval
+list. A changed total, duplicate record or missing page fails explicitly.
+
+Imports validate distinct local image paths sequentially and keep hashes and paths,
+not image buffers. Files are rehashed before upload. The normalized request must
+fit the JSON limit before any upload; validation uses the conservative hash-sized
+image placeholders. Inspect again after a conflict; mutations are not retried
+automatically. `curate` requires the version returned by `inspect-homepage`.

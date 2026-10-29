@@ -5,6 +5,8 @@ import { sqliteD1 } from '../helpers/sqlite-d1'
 import worker, { type BlogEnv } from '../../services/blog-api/src/worker'
 import { digest } from '../../services/blog-api/src/auth'
 import { article, articlePage, blogHomepage } from '../../src/domain/article'
+import { Repository } from '../../services/blog-api/src/repository'
+import { boundedBody } from '../../services/blog-api/src/http'
 import { imageMetadata } from '../../services/blog-api/src/images'
 
 const readToken = 'read-'.padEnd(48, 'r'),
@@ -13,8 +15,8 @@ const readToken = 'read-'.padEnd(48, 'r'),
 const content = {
   title: 'Flower packaging',
   excerpt: 'A guide for wholesale teams.',
-  category: 'flower',
-  body: [{ type: 'paragraph', text: 'Approved text.' }],
+  category: 'flower' as const,
+  body: [{ type: 'paragraph' as const, text: 'Approved text.' }],
 }
 type State = {
   slug: string
@@ -34,6 +36,13 @@ const memoryMedia = () => ({
     objects.set(key, bytes)
     return Promise.resolve({})
   }),
+  head: vi.fn((key: string) =>
+    Promise.resolve(
+      objects.has(key)
+        ? { size: objects.get(key)!.length, httpMetadata: { contentType: 'image/png' } }
+        : null,
+    ),
+  ),
   get: vi.fn((key: string) =>
     Promise.resolve(
       objects.has(key)
@@ -240,14 +249,27 @@ describe('persistent blog API', () => {
       articlePage.parse(await (await call('/articles?category=vapes')).json()).total,
     ).toBe(0)
     expect(
-      (await call('/admin/homepage', 'PUT', { lead: ['aaa'] }, ownerToken)).status,
+      (
+        await call(
+          '/admin/homepage',
+          'PUT',
+          { expectedVersion: 1, selections: { lead: ['aaa'] } },
+          ownerToken,
+        )
+      ).status,
     ).toBe(200)
     expect(blogHomepage.parse(await (await call('/homepage')).json()).lead?.slug).toBe(
       'aaa',
     )
     expect(
-      (await call('/admin/homepage', 'PUT', { complianceRetail: ['aaa'] }, ownerToken))
-        .status,
+      (
+        await call(
+          '/admin/homepage',
+          'PUT',
+          { expectedVersion: 2, selections: { complianceRetail: ['aaa'] } },
+          ownerToken,
+        )
+      ).status,
     ).toBe(422)
   })
   it.each([
@@ -572,5 +594,256 @@ describe('persistent blog API', () => {
         )
       ).status,
     ).toBe(403)
+  })
+})
+
+describe('publishing hardening regressions', () => {
+  it.each(['create', 'edit', 'approve', 'withdraw'] as const)(
+    'returns the %s transaction state even when a later edit commits first',
+    async (operation) => {
+      const repo = new Repository(database.db)
+      const actor = { id: 'owner', name: 'Owner', role: 'owner' as const }
+      let initial: State | undefined
+      if (operation !== 'create') initial = await create('race')
+      if (operation === 'withdraw') initial = await state(await approve(initial!))
+      let entered!: () => void, release!: () => void
+      const committed = new Promise<void>((resolve) => {
+        entered = resolve
+      })
+      const hold = new Promise<void>((resolve) => {
+        release = resolve
+      })
+      const batch = database.db.batch.bind(database.db)
+      let first = true
+      vi.spyOn(database.db, 'batch').mockImplementation(async (statements) => {
+        const result = await batch(statements)
+        if (first) {
+          first = false
+          entered()
+          await hold
+        }
+        return result
+      })
+      const expected = operation === 'create' ? 1 : initial!.version + 1
+      const pending =
+        operation === 'create'
+          ? repo.create('race', content, actor)
+          : operation === 'edit'
+            ? repo.edit(
+                'race',
+                { ...content, title: 'First writer' },
+                initial!.version,
+                actor,
+              )
+            : operation === 'approve'
+              ? repo.approve('race', initial!.draftRevisionId, initial!.version, actor)
+              : repo.withdraw('race', initial!.version, actor)
+      await committed
+      const later = await repo.edit(
+        'race',
+        { ...content, title: 'Later writer' },
+        expected,
+        actor,
+      )
+      release()
+      const firstResponse = await pending
+      expect(firstResponse.version).toBe(expected)
+      expect(firstResponse.draftRevisionId).not.toBe(later.draftRevisionId)
+      expect(later.version).toBe(expected + 1)
+    },
+  )
+
+  it('reads curation and rejects concurrent or stale replacement without extra audit events', async () => {
+    for (const slug of ['one', 'two']) await approve(await create(slug))
+    expect(
+      await read(await call('/admin/homepage', 'GET', undefined, editorToken)),
+    ).toMatchObject({ version: 1, selections: { lead: [] } })
+    const results = await Promise.all(
+      ['one', 'two'].map((slug) =>
+        call(
+          '/admin/homepage',
+          'PUT',
+          { expectedVersion: 1, selections: { lead: [slug] } },
+          ownerToken,
+        ),
+      ),
+    )
+    expect(results.map((r) => r.status).sort()).toEqual([200, 409])
+    expect(
+      database.sqlite
+        .prepare("SELECT COUNT(*) AS n FROM audit_events WHERE action = 'curate'")
+        .get()?.n,
+    ).toBe(1)
+    expect((await call('/admin/homepage', 'GET')).status).toBe(403)
+    expect(
+      (await call('/admin/homepage', 'PUT', { lead: ['one'] }, ownerToken)).status,
+    ).toBe(400)
+  })
+
+  it('reports invalid stored data as unavailable and rejects ignored admin filters', async () => {
+    for (const query of ['category=flower', 'q=text', 'page=1&page=2'])
+      expect(
+        (await call(`/admin/articles?${query}`, 'GET', undefined, editorToken)).status,
+      ).toBe(400)
+    database.sqlite.exec(`UPDATE homepage SET selections = '{"unknown": []}'`)
+    const response = await call('/homepage')
+    expect(response.status).toBe(503)
+    expect(response.headers.get('Retry-After')).toBe('60')
+    expect(await response.text()).not.toContain('unknown')
+  })
+
+  it('keeps private media private and repairs a deduplicated missing object', async () => {
+    const media = await upload()
+    expect(
+      (await call(`/admin/media/${media.id}`, 'GET', undefined, editorToken)).status,
+    ).toBe(200)
+    expect((await call(`/admin/media/${media.id}`)).status).toBe(403)
+    expect((await call(`/media/${media.id}`)).status).toBe(404)
+    objects.clear()
+    const retry = await worker.fetch(
+      new Request('https://api.invalid/admin/media', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${editorToken}`,
+          'Content-Type': 'image/png',
+        },
+        body: readFileSync('public/brand/ss-logo.png'),
+      }),
+      env,
+    )
+    expect(retry.status).toBe(200)
+    expect(await retry.json()).toMatchObject({ id: media.id })
+    expect(objects.size).toBe(1)
+    bucket.head.mockRejectedValueOnce(new Error('private dependency detail'))
+    const failed = await worker.fetch(
+      new Request('https://api.invalid/admin/media', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${editorToken}`,
+          'Content-Type': 'image/png',
+        },
+        body: readFileSync('public/brand/ss-logo.png'),
+      }),
+      env,
+    )
+    expect(failed.status).toBe(503)
+    expect(await failed.text()).not.toContain('private dependency')
+  })
+
+  it('bounds nested approvals even for a 15,000-approval revision', async () => {
+    const s = await create('many-approvals')
+    const insert = database.sqlite.prepare(
+      'INSERT INTO approvals VALUES (?, ?, ?, ?, 1)',
+    )
+    database.sqlite.exec('BEGIN')
+    for (let i = 0; i < 15000; i++)
+      insert.run(
+        crypto.randomUUID(),
+        s.draftRevisionId,
+        'o'.repeat(120),
+        new Date(i).toISOString(),
+      )
+    database.sqlite.exec('COMMIT')
+    const response = await call(
+      '/admin/articles/many-approvals/revisions?pageSize=1',
+      'GET',
+      undefined,
+      editorToken,
+    )
+    const text = await response.text()
+    expect(Buffer.byteLength(text)).toBeLessThan(20_000)
+    const parsed = z
+      .object({
+        items: z.array(
+          z.object({
+            approvalCount: z.number(),
+            approvalsTruncated: z.boolean(),
+            approvals: z.array(z.unknown()),
+          }),
+        ),
+      })
+      .parse(JSON.parse(text))
+    expect(parsed.items[0]).toMatchObject({
+      approvalCount: 15000,
+      approvalsTruncated: true,
+    })
+    expect(parsed.items[0]!.approvals).toHaveLength(50)
+    const full = await read<{ items: unknown[]; total: number }>(
+      await call(
+        `/admin/articles/many-approvals/revisions/${s.draftRevisionId}/approvals?page=300&pageSize=50`,
+        'GET',
+        undefined,
+        editorToken,
+      ),
+    )
+    expect(full.items).toHaveLength(50)
+    expect(full.total).toBe(15000)
+    expect(
+      (
+        await call(
+          `/admin/articles/many-approvals/revisions/${s.draftRevisionId}/approvals`,
+        )
+      ).status,
+    ).toBe(403)
+  })
+
+  it('bounds stalled bodies and dependency probes, and cancels timed-out input', async () => {
+    vi.useFakeTimers()
+    try {
+      const cancel = vi.fn()
+      const input = new Request('https://api.invalid/', {
+        method: 'POST',
+        body: new ReadableStream({ cancel }),
+        duplex: 'half',
+      } as RequestInit)
+      const pending = boundedBody(input, 100).catch((error: unknown) => error)
+      await vi.advanceTimersByTimeAsync(10_000)
+      expect(await pending).toMatchObject({ status: 408 })
+      expect(cancel).toHaveBeenCalled()
+      bucket.list.mockImplementationOnce(() => new Promise(() => {}))
+      const health = call('/health')
+      await vi.advanceTimersByTimeAsync(3000)
+      expect((await health).status).toBe(503)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it.each([
+    [new Uint8Array([0xff]), 400],
+    [new TextEncoder().encode('{'), 400],
+  ] as const)('rejects malformed JSON bytes', async (bytes, status) => {
+    const response = await worker.fetch(
+      new Request('https://api.invalid/admin/articles', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${editorToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: bytes,
+      }),
+      env,
+    )
+    expect(response.status).toBe(status)
+  })
+
+  it('fails closed for malformed registries and reports broken request streams without internals', async () => {
+    env.BLOG_ADMIN_CREDENTIALS = '{bad'
+    expect((await call('/admin/articles', 'GET', undefined, ownerToken)).status).toBe(
+      503,
+    )
+    const request = new Request('https://api.invalid/', {
+      method: 'POST',
+      body: new ReadableStream({
+        start(c) {
+          c.error(new Error('private stream failure'))
+        },
+      }),
+      duplex: 'half',
+    } as RequestInit)
+    await expect(boundedBody(request, 100)).rejects.toMatchObject({
+      status: 400,
+      code: 'invalid_body',
+    })
   })
 })
