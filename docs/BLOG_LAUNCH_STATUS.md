@@ -1,8 +1,8 @@
 # Blog staging preparation — 2026-10-26
 
 Status (updated 2026-10-29): the staging blog API is deployed and the four
-pilot articles in `articles/pilot/` are published on staging, three of them with
-homepage curation; see [Staging publication](#staging-publication--2026-10-29). The
+pilot articles in `articles/pilot/` are published on staging with homepage
+curation; see [Staging publication](#staging-publication--2026-10-29). The
 sections below record the 2026-10-26 preparation as it stood then. No licensed
 images are included. Production work is deferred at the owner's request.
 
@@ -212,6 +212,11 @@ resolved or ticked as part of this step.
 | --- | --- | --- |
 | `how-to-read-a-hemp-lab-report` | `fd41aa5d-a075-4388-b8bb-73db634e2020` | 2 |
 
-It is not in `homepage.json`, and homepage curation stays at version 2. The
-article page returned 200 on staging. It appeared in the magazine homepage's
+The article page returned 200 on staging. It appeared in the magazine homepage's
 automatic Latest list, the Compliance section and the archive.
+
+The blog later moved to `/smokesignals` (#135), and staging was deployed at
+abbe0ce (run 40950846361). After that, the updated `articles/pilot/homepage.json`
+(#137) was applied with the operator owner credential as homepage version 3. The
+lab report article is now first in Compliance & Retail, third in the rail and
+fourth in Featured. The lead, feature and shelf slots are unchanged.
