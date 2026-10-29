@@ -7,7 +7,8 @@ export const leadSubmission = wholesaleSchema.extend({
 })
 export const leadAccess = z.object({ submissionId: submissionKey })
 export const verificationInput = z.object({ token: z.string().min(1).max(500) })
-export type LeadState = {
-  status: 'pending' | 'confirmed'
-  delivery: 'queued' | 'sent' | 'failed'
-}
+export const leadStateSchema = z.object({
+  status: z.enum(['pending', 'confirmed']),
+  delivery: z.enum(['queued', 'sent', 'failed']),
+})
+export type LeadState = z.infer<typeof leadStateSchema>

@@ -131,6 +131,11 @@ export function WholesaleSignup() {
           aria-busy={lead.busy}
         >
           {lead.error ? <p role="alert">{lead.error}</p> : null}
+          {lead.conflict ? (
+            <button type="button" onClick={edit}>
+              Start a new inquiry with these details
+            </button>
+          ) : null}
           <h2 className={styles.formHeading}>Just three details.</h2>
           <p className={styles.formDescription}>
             We’ll ask about your business when we follow up.

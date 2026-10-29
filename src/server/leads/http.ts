@@ -1,6 +1,6 @@
 import 'server-only'
 import { leadAccess, leadSubmission, verificationInput } from '@/domain/leads'
-import { getEnv } from '@/server/cloudflare/env'
+import { getEnv, scheduleBackground } from '@/server/cloudflare/env'
 import { leadConfig } from './config'
 import { hashAccess, readVerification } from './credentials'
 import { confirm, findLead, LeadError, leadState, resend, saveLead } from './repository'
@@ -16,37 +16,52 @@ function json(data: unknown, status = 200) {
     },
   })
 }
-async function readBody(request: Request) {
-  if (!request.headers.get('content-type')?.startsWith('application/json'))
+export async function readBody(request: Request) {
+  if (
+    request.headers.get('content-type')?.split(';', 1)[0]?.trim().toLowerCase() !==
+    'application/json'
+  )
     throw new LeadError(415, 'Send JSON.')
   const reader = request.body?.getReader()
   if (!reader) throw new LeadError(400, 'Missing submission.')
   const chunks: Uint8Array[] = []
   let size = 0
+  let timer: ReturnType<typeof setTimeout> | undefined
+  let abort: () => void = () => {}
+  const interrupted = new Promise<never>((_, reject) => {
+    abort = () => reject(new LeadError(400, 'Submission interrupted.'))
+    request.signal.addEventListener('abort', abort, { once: true })
+    if (request.signal.aborted) abort()
+    timer = setTimeout(
+      () => reject(new LeadError(408, 'Submission took too long.')),
+      10_000,
+    )
+  })
   try {
     for (;;) {
-      const { done, value } = await reader.read()
+      const { done, value } = await Promise.race([reader.read(), interrupted])
       if (done) break
       size += value.byteLength
-      if (size > 8192) {
-        await reader.cancel()
-        throw new LeadError(413, 'Submission is too large.')
-      }
+      if (size > 8192) throw new LeadError(413, 'Submission is too large.')
       chunks.push(value)
     }
-  } finally {
-    reader.releaseLock()
-  }
-  const bytes = new Uint8Array(size)
-  let offset = 0
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset)
-    offset += chunk.byteLength
-  }
-  try {
-    return JSON.parse(new TextDecoder().decode(bytes)) as unknown
-  } catch {
+    const bytes = new Uint8Array(size)
+    let offset = 0
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset)
+      offset += chunk.byteLength
+    }
+    return JSON.parse(
+      new TextDecoder('utf-8', { fatal: true }).decode(bytes),
+    ) as unknown
+  } catch (error) {
+    void reader.cancel().catch(() => {})
+    if (error instanceof LeadError) throw error
     throw new LeadError(400, 'Invalid submission.')
+  } finally {
+    clearTimeout(timer)
+    request.signal.removeEventListener('abort', abort)
+    reader.releaseLock()
   }
 }
 export async function leadRequest(
@@ -78,8 +93,9 @@ export async function leadRequest(
         : null
       if (!payload) throw new LeadError(400, 'This verification link is invalid.')
       const lead = await confirm(env.DB, payload.id, payload.version, payload.expires)
-      await deliverPending(lead.id)
-      return json(await leadState(env.DB, lead))
+      const state = await leadState(env.DB, lead)
+      scheduleBackground(deliverPending(lead.id))
+      return json(state)
     }
     if (action === 'submit') {
       const parsed = leadSubmission.safeParse(input)
@@ -99,8 +115,9 @@ export async function leadRequest(
       )
         throw new LeadError(429, 'Please wait a minute and try again.')
       const lead = await saveLead(env.DB, parsed.data)
-      await deliverPending(lead.id)
-      return json(await leadState(env.DB, lead), 202)
+      const state = await leadState(env.DB, lead)
+      scheduleBackground(deliverPending(lead.id))
+      return json(state, 202)
     }
     const parsed = leadAccess.safeParse(input)
     if (!parsed.success) throw new LeadError(400, 'Start a new inquiry.')
@@ -109,8 +126,9 @@ export async function leadRequest(
         ? await resend(env.DB, parsed.data.submissionId)
         : await findLead(env.DB, parsed.data.submissionId)
     if (!lead) throw new LeadError(404, 'Start a new inquiry.')
-    if (action === 'resend') await deliverPending(lead.id)
-    return json(await leadState(env.DB, lead))
+    const state = await leadState(env.DB, lead)
+    if (action === 'resend') scheduleBackground(deliverPending(lead.id))
+    return json(state)
   } catch (error) {
     if (error instanceof LeadError) return json({ error: error.message }, error.status)
     console.error('Lead request unavailable', { operation: action })

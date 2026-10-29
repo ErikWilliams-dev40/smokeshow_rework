@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { env } from 'cloudflare:workers'
+import { env, waitUntil } from 'cloudflare:workers'
 
 /**
  * The only module that knows how the app reaches its Cloudflare bindings.
@@ -10,4 +10,9 @@ import { env } from 'cloudflare:workers'
  */
 export function getEnv(): Env {
   return env
+}
+
+/** Durable persistence happens first; failures are recovered by the outbox cron. */
+export function scheduleBackground(work: Promise<unknown>): void {
+  waitUntil(work.catch(() => console.error('Background lead delivery unavailable')))
 }

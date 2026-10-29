@@ -1,4 +1,4 @@
-import { deliverPending } from './server/leads/delivery'
+import { deliverPending, reportDeliveryHealth } from './server/leads/delivery'
 import { indexingResponse, seoConfig } from './domain/seo'
 import handler from 'vinext/server/fetch-handler'
 import { blogResponse } from './server/blog/worker.server'
@@ -14,6 +14,7 @@ const worker: ExportedHandler<Env> = {
     if (env.LEADS_ENABLED !== 'true') return
     try {
       await deliverPending()
+      await reportDeliveryHealth()
     } catch {
       console.error('Lead delivery scheduler unavailable')
     }

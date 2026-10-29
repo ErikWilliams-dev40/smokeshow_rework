@@ -24,6 +24,7 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:leads": "node scripts/test-leads.mjs",
     "test:watch": "vitest",
     "cf:types": "cf workers types",
     "db:migrate:local": "cf d1 migrations apply 00000000-0000-4000-8000-000000000001 --local --dir migrations --persist-to .cloudflare/state",

@@ -1,7 +1,10 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { requestLead } from './lead-client'
 export function ConfirmEmail() {
+  const inFlight = useRef(false)
+  const savedToken = useRef('')
   const [token, setToken] = useState('')
   const [busy, setBusy] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
@@ -9,7 +12,8 @@ export function ConfirmEmail() {
     'Open the link in your verification email to continue.',
   )
   useEffect(() => {
-    const value = window.location.hash.slice(1)
+    savedToken.current ||= window.location.hash.slice(1)
+    const value = savedToken.current
     const frame = requestAnimationFrame(() => {
       if (value) {
         setToken(value)
@@ -20,26 +24,23 @@ export function ConfirmEmail() {
     return () => cancelAnimationFrame(frame)
   }, [])
   async function confirm() {
+    if (inFlight.current) return
+    inFlight.current = true
     setBusy(true)
     try {
-      const response = await fetch('/api/leads/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      })
-      if (!response.ok) {
-        const data = await response.json<{ error?: string }>()
-        setMessage(data.error ?? 'Unable to confirm. Please try again.')
-        return
-      }
+      await requestLead('/api/leads/verify', { token }, true)
+      savedToken.current = ''
       setConfirmed(true)
       setToken('')
       setMessage(
         'Your email is confirmed. Our team will follow up with current wholesale materials.',
       )
-    } catch {
-      setMessage('Unable to connect. Please try again.')
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : 'Unable to connect. Please try again.',
+      )
     } finally {
+      inFlight.current = false
       setBusy(false)
     }
   }

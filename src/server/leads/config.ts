@@ -16,6 +16,7 @@ export function leadConfig() {
   const allowed = env.LEAD_TEST_RECIPIENTS.split(',')
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean)
+  for (const address of allowed) z.email().parse(address)
   if (
     env.DEPLOYMENT_ENV === 'staging' &&
     (!allowed.length || !allowed.includes(sales.toLowerCase()))
