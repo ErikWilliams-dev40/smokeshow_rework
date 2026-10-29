@@ -59,8 +59,7 @@ src/styles/       tokens.css (both themes, lifted verbatim from the handoff),
 src/components/   layout/ primitives/ product/ hero/ compliance/
 src/content/      compliance.ts — the frozen compliance strings
 src/domain/       Zod schemas and the types inferred from them
-src/data/         typed fixtures, parsed by their schema
-src/server/       server-only code: pricing/, session/, blog/, cloudflare/
+src/server/       server-only code: session/, blog/, leads/, cloudflare/
 tests/            unit/ guards/ e2e/ (including browser screenshots)
 public/           fonts/, brand/, photography/ — all assets are local
 policies/         Company governance vendored from helix-engineering: the
@@ -75,11 +74,11 @@ design_handoff_wholesale_b2b/
 
 ### Things about this codebase that are load-bearing
 
-- **The volume discount table is server-owned.** It lives in
-  `src/server/pricing/discount.server.ts` behind `import 'server-only'` and must
-  never reach the browser. The client sends option IDs and a quantity and
-  receives computed numbers; it never applies the multiplier itself. All totals
-  are derived, never stored.
+- **Pricing is parked, not shipped.** The catalogue, quote builder and volume
+  discount prototype live on branch `chore/23-park-quote-pricing` (issue #7)
+  and are not on `main`. If it returns, the discount table stays server-owned
+  behind `import 'server-only'`: the client sends option IDs and a quantity
+  and receives computed numbers, and totals are derived, never stored.
 - **Compliance copy may be re-typeset but never reworded.** Six strings live in
   `src/content/compliance.ts` and are rendered only through `ComplianceText`. A
   test asserts them verbatim.

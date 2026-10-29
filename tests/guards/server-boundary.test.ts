@@ -26,7 +26,7 @@ describe('server boundaries', () => {
   it.each([
     "import { env } from 'cloudflare:workers'",
     "export { getEnv } from '@/server/cloudflare/env'",
-    "import '../../server/pricing/discount.server'",
+    "import '../../server/leads/http'",
     "const data = import('@/server/blog/client.server')",
     'const data = import(`@/server/blog/client.server`)',
     "const data = require('@/server/blog/client.server')",
