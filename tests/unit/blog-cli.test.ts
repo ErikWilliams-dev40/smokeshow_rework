@@ -138,3 +138,71 @@ describe('blog publishing tools', () => {
     vi.unstubAllEnvs()
   })
 })
+
+describe('bounded CLI inspection and imports', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.restoreAllMocks()
+  })
+  it.each(['total', 'duplicate', 'empty', 'page', 'limit'])(
+    'rejects inconsistent %s pagination',
+    async (fault) => {
+      vi.stubEnv('BLOG_ADMIN_URL', 'https://api.invalid')
+      vi.stubEnv('BLOG_ADMIN_TOKEN', 'x'.repeat(48))
+      const items = Array.from({ length: 50 }, (_, n) => ({ slug: `article-${n}` }))
+      const fetchMock = vi.fn((url: URL) => {
+        const page = Number(url.searchParams.get('page'))
+        return Promise.resolve(
+          Response.json({
+            items:
+              page === 1
+                ? items
+                : fault === 'empty'
+                  ? []
+                  : [{ slug: fault === 'duplicate' ? 'article-0' : 'last' }],
+            page: fault === 'page' ? 99 : page,
+            pageSize: 50,
+            total:
+              fault === 'limit' ? 10001 : fault === 'total' && page === 2 ? 52 : 51,
+          }),
+        )
+      })
+      vi.stubGlobal('fetch', fetchMock)
+      await expect(main(['inspect'])).rejects.toThrow()
+      expect(fetchMock.mock.calls.length).toBeLessThanOrEqual(2)
+    },
+  )
+  it('resolves repeated files once without retaining image buffers, and detects changed files before uploading', async () => {
+    const { folder, filename } = await manifest({
+      ...content,
+      body: Array.from({ length: 100 }, () => ({
+        type: 'image',
+        media: { file: 'logo.png', alt: 'Logo' },
+      })),
+    })
+    await cp('public/brand/ss-logo.png', path.join(folder, 'logo.png'))
+    const prepared = await prepareImport(filename)
+    expect(prepared.uploads.size).toBe(1)
+    expect([...prepared.uploads.values()][0]).toEqual({
+      filename: path.join(folder, 'logo.png'),
+      mime: 'image/png',
+    })
+    await writeFile(path.join(folder, 'logo.png'), 'changed')
+    const api = vi
+      .fn<ReturnType<typeof apiClient>>()
+      .mockRejectedValueOnce(new ApiError(404, 'not_found'))
+    await expect(importArticle(prepared, api, { update: false })).rejects.toThrow(
+      'changed since validation',
+    )
+    expect(api).toHaveBeenCalledTimes(1)
+  })
+  it('requires an inspected curation version before making a request', async () => {
+    const { folder } = await manifest(content)
+    const filename = path.join(folder, 'curation.json')
+    await writeFile(filename, '{}')
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    await expect(main(['curate', filename])).rejects.toThrow('--version')
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+})

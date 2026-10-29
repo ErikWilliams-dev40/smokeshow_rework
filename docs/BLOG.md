@@ -14,7 +14,9 @@ All runtime binding access goes through `src/server/cloudflare/env.ts`.
 
 - `BLOG_API_URL`: non-secret API base URL, supplied to the build environment;
   `cloudflare.config.ts` declares it as a text binding. A base path is supported.
-  Deployed URLs must use HTTPS, with no userinfo, query or fragment.
+  Deployed URLs must use HTTPS, with no userinfo, query or fragment. It is
+  required in staging and production; `scripts/check-deploy-config.mjs` rejects a
+  missing or non-HTTPS value and any value that reuses the website's own origin.
 - `BLOG_API_TOKEN`: Worker secret, never a public environment variable. Add its
   local value to ignored `.dev.vars`; use the installed `cf` CLI's secret
   commands for staging and production after inspecting their `--help`.
@@ -54,6 +56,12 @@ served after an API failure. Rendered blog HTML/RSC is `no-store`. Cache failure
 fall through to a fresh API read. No additional infrastructure is required.
 Media carries a one-year immutable public cache header. Change its ID when the
 bytes change; do not publish private images through the blog API.
+
+The sitemap reuses `listArticles`. When discovery fails and no cached discovery
+younger than a day is available, `/sitemap.xml` answers 503 with
+`Retry-After: 60` instead of publishing a sitemap that silently omits the
+archive; crawlers retry rather than treat the blog as removed. A previously
+successful discovery of up to 24 hours is served during an outage.
 
 ## Testing
 

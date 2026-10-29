@@ -36,7 +36,14 @@ export function validateDeployConfig(mode, env) {
   const origin = httpsUrl('DEPLOY_URL', true)
   if (mode === 'production' && origin !== 'https://smokeshowlabs.com')
     errors.push('DEPLOY_URL must match the configured production origin')
-  if (mode === 'production' || env.BLOG_API_URL) httpsUrl('BLOG_API_URL')
+  // The blog API is required in every deployed environment. Without it the built
+  // Worker answers "Articles are unavailable" and a 503 sitemap while every other
+  // deployment and health check still passes. It must not be the website's own
+  // origin: the API is a separate Worker reached by binding, so that would route
+  // public blog traffic back into the site.
+  const blogOrigin = httpsUrl('BLOG_API_URL')
+  if (blogOrigin && origin && blogOrigin === origin)
+    errors.push('BLOG_API_URL must not be the website origin')
   requireMatch('LEADS_ENABLED', /^(true|false)$/)
   if (env.LEADS_ENABLED === 'true') {
     const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

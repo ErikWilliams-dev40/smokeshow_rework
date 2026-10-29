@@ -1,5 +1,6 @@
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
+import path from 'node:path'
 
 /** Execute repository SQL against real SQLite, with D1's transactional batch semantics. */
 export function sqliteD1(
@@ -8,6 +9,11 @@ export function sqliteD1(
 ) {
   const sqlite = new DatabaseSync(filename)
   sqlite.exec(readFileSync(migration, 'utf8'))
+  if (migration === 'services/blog-api/migrations/0001_blog.sql')
+    for (const file of readdirSync(path.dirname(migration))
+      .filter((file) => file.endsWith('.sql') && file > '0001_blog.sql')
+      .sort())
+      sqlite.exec(readFileSync(path.join(path.dirname(migration), file), 'utf8'))
   const meta = (changes = 0) => ({
     changes,
     duration: 0,
@@ -28,12 +34,13 @@ export function sqliteD1(
           const row = statement.get(...values)
           return (column ? row?.[column] : row) ?? null
         }),
-      all: () =>
-        Promise.resolve({
-          results: statement.all(...values),
-          success: true,
-          meta: meta(),
-        }),
+      all: () => {
+        const results = statement.all(...values)
+        const changes = /^\s*(SELECT|WITH)\b/i.test(sql)
+          ? 0
+          : Number(sqlite.prepare('SELECT changes() AS n').get()?.n ?? 0)
+        return Promise.resolve({ results, success: true, meta: meta(changes) })
+      },
       run: () =>
         Promise.resolve({
           success: true,
@@ -55,7 +62,7 @@ export function sqliteD1(
       sqlite.exec('BEGIN')
       try {
         const results = []
-        for (const statement of statements) results.push(await statement.run())
+        for (const statement of statements) results.push(await statement.all())
         sqlite.exec('COMMIT')
         return results
       } catch (error) {

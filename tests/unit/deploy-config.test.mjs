@@ -31,6 +31,25 @@ describe('deployment preflight', () => {
       }),
     ).not.toEqual([])
   })
+  it('requires the deployed blog API in staging, not only production', () => {
+    const staging = { ...configured, LEAD_TEST_RECIPIENTS: 'sales@example.com' }
+    expect(validateDeployConfig('staging', staging)).toEqual([])
+    const withoutBlog = { ...staging }
+    delete withoutBlog.BLOG_API_URL
+    expect(validateDeployConfig('staging', withoutBlog)).toContain('BLOG_API_URL')
+    expect(
+      validateDeployConfig('staging', {
+        ...staging,
+        BLOG_API_URL: staging.DEPLOY_URL,
+      }),
+    ).toContain('BLOG_API_URL must not be the website origin')
+    expect(
+      validateDeployConfig('staging', {
+        ...staging,
+        BLOG_API_URL: 'http://blog.example.com',
+      }),
+    ).toContain('BLOG_API_URL')
+  })
   it('requires a controlled staging sales inbox and safe URLs', () => {
     expect(validateDeployConfig('staging', configured)).toContain(
       'LEAD_TEST_RECIPIENTS including SALES_INBOX',

@@ -121,3 +121,55 @@ production Environment yet; its reviewers, branch restrictions, resources,
 credentials, backup/restore checks, and editorial acceptance must be established
 before a later production rollout. Do not treat the personal repository's
 production reviewer configuration as protection for the organization repository.
+
+## Live-state verification — 2026-10-29
+
+Re-checked against the organization repository and the selected Cloudflare
+account (`8441…4658`). Nothing below changes the earlier code results; it records
+what is still unprovisioned. The API has never been deployed, so `/blog` on the
+deployed staging site has no upstream yet.
+
+| Check | Observed state |
+| --- | --- |
+| `main` | Merge commit of #117; the branch content examined here is merged |
+| GitHub Environments | `staging` and `copilot` only — **no `production`** |
+| Staging variables | `CLOUDFLARE_ACCOUNT_ID`, `BLOG_DB_ID`, `BLOG_BUCKET_NAME`, `BLOG_DEPLOY_URL`, `DB_ID_STAGING`, `DEPLOY_URL`; **`BLOG_API_URL` missing** |
+| Staging secrets | `CLOUDFLARE_API_TOKEN` only; **`BLOG_API_TOKEN` and `BLOG_ADMIN_CREDENTIALS` missing** |
+| `releases/` | Absent, so the **Deploy blog API** `record` gate cannot pass |
+| D1 | `smokeshow-blog-staging` (`d8115df7-a315-4b36-9c9c-52680d6af4e7`) exists; `0001_blog.sql` was **applied during this check** |
+| Workers | `pep-intel`, `sugarmenu-preview`, `smokeshow-web-staging`; **no `smokeshow-blog-api-staging`** |
+| R2 | Reachable (the earlier error 10042 is gone); `smokeshow-blog-media-staging` was **created during this check** with managed public access disabled and no custom domains |
+| Website secrets | `smokeshow-web-staging` already carries `BLOG_API_TOKEN` and `LEAD_TOKEN_SECRET`; the read token must be made to match the API's |
+| Workflow runs | **Deploy blog API** and **Deploy** have never run |
+| Local re-check | `tsc --noEmit` clean; `vitest run` 226 tests / 26 suites pass (host Node 24.22.2; CI and releases still require the pinned Node 22) |
+
+`scripts/check-deploy-config.mjs` now requires `BLOG_API_URL` in staging as well
+as production and rejects the website's own origin, so a staging deploy can no
+longer ship a Worker whose blog silently answers "unavailable". The sitemap keeps
+its deliberate 503 plus `Retry-After` behavior when discovery fails; that is
+documented in [BLOG.md](BLOG.md).
+
+Remaining order of work: provision the credentials, set `BLOG_API_URL` and the
+two API secrets, add the reviewed release record, dispatch **Deploy blog API**
+for staging, then publish and approve the pilot articles before the website
+rollout. The media bucket and blog schema are already in place.
+
+### Staging provisioning performed with this verification
+
+Read-only state checks were followed by the two provisioning steps the earlier
+resume list called for, in the documented account only:
+
+```sh
+cf r2 buckets create --name smokeshow-blog-media-staging
+cf r2 buckets domains managed list --bucket-name smokeshow-blog-media-staging   # enabled: false
+cf r2 buckets domains custom list  --bucket-name smokeshow-blog-media-staging   # domains: []
+cf d1 migrations apply d8115df7-a315-4b36-9c9c-52680d6af4e7 --mode staging \
+  --dir services/blog-api/migrations
+```
+
+Read back afterwards: 9 tables (`articles`, `revisions`, `approvals`,
+`publication`, `media`, `revision_media`, `homepage`, `audit_events`,
+`d1_migrations`), both triggers, a seeded `homepage` row (`{}`) and zero articles.
+The deploy workflow reapplies the same directory, so the migration step is
+idempotent. No credential, environment variable, Worker or release record was
+created, and the website still has no API origin.

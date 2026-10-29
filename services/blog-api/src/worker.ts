@@ -1,6 +1,6 @@
 import type { InferEnv, UnwrapConfig } from 'cf/config'
 import type config from '../cloudflare.config'
-import { z, ZodError } from 'zod'
+import { z } from 'zod'
 import { articleSlug, mediaId } from '../../../src/domain/article'
 import { authenticate, requireRole, digest, type Actor } from './auth'
 import {
@@ -8,15 +8,23 @@ import {
   createArticle,
   editArticle,
   withdrawArticle,
-  curation,
+  curateHomepage,
+  pageQuery,
   listQuery,
 } from './contracts'
-import { HttpError, json, boundedBody, readJson } from './http'
+import {
+  HttpError,
+  InputError,
+  parseInput,
+  deadline,
+  json,
+  boundedBody,
+  readJson,
+} from './http'
 import { imageMetadata } from './images'
 import { Repository } from './repository'
 
 export type BlogEnv = InferEnv<UnwrapConfig<typeof config>['worker']>
-const pageQuery = listQuery.pick({ page: true, pageSize: true })
 function query<T extends z.ZodType = typeof listQuery>(
   request: Request,
   schema: T = listQuery as unknown as T,
@@ -24,7 +32,7 @@ function query<T extends z.ZodType = typeof listQuery>(
   const params = new URL(request.url).searchParams
   if (new Set(params.keys()).size !== params.size)
     throw new HttpError(400, 'invalid_query', 'Duplicate query parameter')
-  return schema.parse(Object.fromEntries(params))
+  return parseInput(schema, Object.fromEntries(params))
 }
 function notFound(): never {
   throw new HttpError(404, 'not_found', 'Not found')
@@ -38,8 +46,11 @@ async function route(request: Request, env: BlogEnv, actor: Actor) {
   if (method === 'GET' && path === '/health') {
     const checks = { d1: false, r2: false }
     const results = await Promise.allSettled([
-      env.BLOG_DB.prepare('SELECT 1 FROM homepage WHERE id = 1').first(),
-      env.BLOG_MEDIA.list({ limit: 1 }),
+      deadline(
+        env.BLOG_DB.prepare('SELECT 1 FROM homepage WHERE id = 1').first(),
+        3000,
+      ),
+      deadline(env.BLOG_MEDIA.list({ limit: 1 }), 3000),
     ])
     checks.d1 = results[0].status === 'fulfilled' && results[0].value !== null
     checks.r2 = results[1].status === 'fulfilled'
@@ -60,10 +71,16 @@ async function route(request: Request, env: BlogEnv, actor: Actor) {
     if (!slug.success) notFound()
     return json(await repo.get(slug.data))
   }
-  if (method === 'GET' && path.startsWith('/media/')) {
-    const id = mediaId.safeParse(path.slice('/media/'.length))
+  if (
+    method === 'GET' &&
+    (path.startsWith('/media/') || path.startsWith('/admin/media/'))
+  ) {
+    const privateMedia = path.startsWith('/admin/media/')
+    const id = mediaId.safeParse(
+      path.slice(privateMedia ? '/admin/media/'.length : '/media/'.length),
+    )
     if (!id.success) notFound()
-    const item = await repo.publicMedia(id.data)
+    const item = await (privateMedia ? repo.media(id.data) : repo.publicMedia(id.data))
     if (!item) notFound()
     const object = await env.BLOG_MEDIA.get(item.object_key)
     if (!object) throw new HttpError(503, 'unavailable', 'Media unavailable')
@@ -77,11 +94,11 @@ async function route(request: Request, env: BlogEnv, actor: Actor) {
     })
   }
   if (method === 'GET' && path === '/admin/articles') {
-    const q = query(request)
+    const q = query(request, pageQuery)
     return json(await repo.adminList(q.page, q.pageSize))
   }
   if (method === 'POST' && path === '/admin/articles') {
-    const input = createArticle.parse(await readJson(request))
+    const input = parseInput(createArticle, await readJson(request))
     const response = json(await repo.create(input.slug, input.content, actor), 201)
     response.headers.set('Location', `/admin/articles/${input.slug}`)
     return response
@@ -91,17 +108,36 @@ async function route(request: Request, env: BlogEnv, actor: Actor) {
       request.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() ?? ''
     if (!['image/png', 'image/jpeg', 'image/webp', 'image/avif'].includes(mime))
       throw new HttpError(415, 'unsupported_type', 'Unsupported image type')
-    const bytes = await boundedBody(request, 5_000_000)
+    const bytes = await boundedBody(request, 5_000_000, 30_000)
     const metadata = imageMetadata(bytes, mime),
       hash = digest(bytes)
     const previous = await repo.mediaByDigest(hash)
-    if (previous)
+    if (previous) {
+      if (
+        previous.width !== metadata.width ||
+        previous.height !== metadata.height ||
+        previous.mime !== mime ||
+        previous.bytes !== bytes.length
+      )
+        throw new HttpError(503, 'unavailable', 'Media unavailable')
+      const object = await env.BLOG_MEDIA.head(previous.object_key)
+      if (
+        object &&
+        (object.size !== previous.bytes ||
+          object.httpMetadata?.contentType !== previous.mime)
+      )
+        throw new HttpError(503, 'unavailable', 'Media unavailable')
+      if (!object)
+        await env.BLOG_MEDIA.put(previous.object_key, bytes, {
+          httpMetadata: { contentType: mime },
+        })
       return json({
         id: previous.id,
         width: previous.width,
         height: previous.height,
         mime: previous.mime,
       })
+    }
     const id = crypto.randomUUID(),
       key = `images/${id}`
     await env.BLOG_MEDIA.put(key, bytes, { httpMetadata: { contentType: mime } })
@@ -130,9 +166,23 @@ async function route(request: Request, env: BlogEnv, actor: Actor) {
     }
     return json({ id, ...metadata }, 201)
   }
+  if (method === 'GET' && path === '/admin/homepage')
+    return json(await repo.inspectHomepage())
   if (method === 'PUT' && path === '/admin/homepage') {
     requireRole(actor, 'owner')
-    return json(await repo.curate(curation.parse(await readJson(request)), actor))
+    const input = parseInput(curateHomepage, await readJson(request))
+    return json(await repo.curate(input.selections, input.expectedVersion, actor))
+  }
+  const approvalHistory =
+    /^\/admin\/articles\/([^/]+)\/revisions\/([^/]+)\/approvals$/.exec(path)
+  if (approvalHistory && method === 'GET') {
+    const slug = articleSlug.safeParse(approvalHistory[1]),
+      revision = z.string().uuid().safeParse(approvalHistory[2])
+    if (!slug.success || !revision.success) notFound()
+    const q = query(request, pageQuery)
+    return json(
+      await repo.revisionApprovals(slug.data, revision.data, q.page, q.pageSize),
+    )
   }
   const history = /^\/admin\/articles\/([^/]+)\/revisions(?:\/([^/]+))?$/.exec(path)
   if (history && method === 'GET') {
@@ -152,21 +202,21 @@ async function route(request: Request, env: BlogEnv, actor: Actor) {
     if (!slug.success) notFound()
     if (!match[2] && method === 'GET') return json(await repo.inspect(slug.data))
     if (match[2] === 'draft' && method === 'PUT') {
-      const input = editArticle.parse(await readJson(request))
+      const input = parseInput(editArticle, await readJson(request))
       return json(
         await repo.edit(slug.data, input.content, input.expectedVersion, actor),
       )
     }
     if (match[2] === 'approve' && method === 'POST') {
       requireRole(actor, 'owner')
-      const input = approveArticle.parse(await readJson(request))
+      const input = parseInput(approveArticle, await readJson(request))
       return json(
         await repo.approve(slug.data, input.revisionId, input.expectedVersion, actor),
       )
     }
     if (match[2] === 'withdraw' && method === 'POST') {
       requireRole(actor, 'owner')
-      const input = withdrawArticle.parse(await readJson(request))
+      const input = parseInput(withdrawArticle, await readJson(request))
       return json(await repo.withdraw(slug.data, input.expectedVersion, actor))
     }
   }
@@ -178,11 +228,18 @@ export default {
     const requestId = crypto.randomUUID(),
       started = Date.now()
     let actor: Actor | undefined, response: Response
+    let errorCode: string | undefined
     try {
       actor = authenticate(request, env)
       response = await route(request, env, actor)
     } catch (error) {
-      if (error instanceof ZodError)
+      errorCode =
+        error instanceof InputError
+          ? 'invalid_input'
+          : error instanceof HttpError
+            ? error.code
+            : 'unavailable'
+      if (error instanceof InputError)
         response = json(
           {
             error: {
@@ -207,11 +264,14 @@ export default {
           503,
         )
     }
+    if (response.status === 503 || response.status === 429)
+      response.headers.set('Retry-After', '60')
     response.headers.set('X-Request-Id', requestId)
     console.log(
       JSON.stringify({
         requestId,
         actorId: actor?.id ?? null,
+        errorCode: errorCode ?? null,
         method: request.method,
         status: response.status,
         durationMs: Date.now() - started,

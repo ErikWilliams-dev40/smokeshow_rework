@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { createHash, randomBytes } from 'node:crypto'
-import { mkdtemp, readFile, writeFile, rm, cp } from 'node:fs/promises'
+import { mkdtemp, readFile, readdir, writeFile, rm, cp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { setTimeout } from 'node:timers/promises'
@@ -89,7 +89,15 @@ try {
   const apiUrl = (await mf.ready).toString()
   const db = await mf.getD1Database('BLOG_DB')
   await db.exec(
-    (await readFile('services/blog-api/migrations/0001_blog.sql', 'utf8'))
+    (
+      await Promise.all(
+        (await readdir('services/blog-api/migrations'))
+          .filter((name) => name.endsWith('.sql'))
+          .sort()
+          .map((name) => readFile(`services/blog-api/migrations/${name}`, 'utf8')),
+      )
+    )
+      .join('\n')
       .replace(/--[^\n]*/g, '')
       .replace(/\s+/g, ' '),
   )
