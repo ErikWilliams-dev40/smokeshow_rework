@@ -1,7 +1,8 @@
 # Recommended actions — documented, not installed
 
-This template uses exactly one GitHub Action: `actions/checkout`, published by
-GitHub, and it is **pinned to a full commit SHA**:
+This repository uses two GitHub Actions, `actions/checkout` and
+`actions/setup-node`, both published by GitHub and both **pinned to a full
+commit SHA**:
 
 ```yaml
 uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout v7.0.1

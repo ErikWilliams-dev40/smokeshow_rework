@@ -1,7 +1,7 @@
 # Workflows
 
-Eleven files: nine reusable workflows implementing the lifecycle stages, and two
-callers that wire them together.
+Fourteen files: ten reusable workflows implementing the lifecycle stages, three
+callers that wire them together, and the blog API integration check.
 
 ```
 pr-checks.yml  (on: pull_request, push)
@@ -9,6 +9,12 @@ pr-checks.yml  (on: pull_request, push)
   ├─ test.yml
   ├─ build.yml
   └─ security-check.yml
+
+blog-api-checks.yml (on: pull_request, workflow_dispatch)
+  └─ integration tests for services/blog-api against a local D1
+
+blog-api-deploy.yml (on: workflow_dispatch)
+  └─ blog-api-release.yml   ← deploys the API Worker on its own
 
 deploy.yml     (on: workflow_dispatch)
   ├─ validate                       ← inline pre-flight, no environment
@@ -27,23 +33,31 @@ rollback.yml   (on: workflow_dispatch — separate, by human decision)
 trigger is the point: it is the only lifecycle workflow a human runs on its own,
 and without it the workflow could not be triggered at all.
 
-| Workflow | Triggers | State | Job permissions |
+Every workflow is configured; none is a placeholder (as of 2026-10).
+
+| Workflow | Triggers | Does | Job permissions |
 | --- | --- | --- | --- |
-| `lint.yml` | call | Placeholder — fails | `contents: read` |
-| `test.yml` | call | Placeholder — fails | `contents: read` |
-| `build.yml` | call | Placeholder — fails | `contents: read` |
-| `security-check.yml` | call | Placeholder — fails | `contents: read` |
-| `staging-deploy.yml` | call | Placeholder — fails; SHA validation works | `contents: read` |
-| `staging-health-check.yml` | call | **Functional** | none |
-| `production-deploy.yml` | call | Placeholder — fails; approval check works | `contents: read` |
-| `production-health-check.yml` | call | **Functional** | none |
-| `rollback.yml` | **dispatch** + call | Placeholder — fails; safety checks work | `contents: read` |
-| `pr-checks.yml` | PR, push | Functional caller | `contents: read` |
-| `deploy.yml` | dispatch | Functional caller | `contents: read`; its `validate` job none |
+| `lint.yml` | call | `corepack pnpm lint` | `contents: read` |
+| `test.yml` | call | `corepack pnpm test` | `contents: read` |
+| `build.yml` | call | `corepack pnpm build` | `contents: read` |
+| `security-check.yml` | call | `pnpm audit --audit-level=high` and static checks | `contents: read` |
+| `blog-api-checks.yml` | PR, dispatch | blog API integration tests | `contents: read` |
+| `blog-api-release.yml` | call | builds and `cf deploy`s the blog API Worker | `contents: read` |
+| `staging-deploy.yml` | call | SHA validation, additive D1 migrations, `cf deploy --prebuilt` | `contents: read` |
+| `staging-health-check.yml` | call | probes `/api/health` | none |
+| `production-deploy.yml` | call | approval match, D1 migrations, `cf deploy --prebuilt` | `contents: read` |
+| `production-health-check.yml` | call | probes `/api/health` | none |
+| `rollback.yml` | **dispatch** + call | safety checks, redeploys an approved SHA | `contents: read` |
+| `pr-checks.yml` | PR, push | caller | `contents: read` |
+| `deploy.yml` | dispatch | caller | `contents: read`; its `validate` job none |
+| `blog-api-deploy.yml` | dispatch | caller for `blog-api-release.yml` | `contents: read` |
 
 ---
 
-## Why placeholders fail instead of passing
+## Why the template's placeholders failed instead of passing
+
+(Historical rationale, kept because it still governs how a new workflow should
+be written. The placeholders themselves were replaced in 2026-10.)
 
 A placeholder that exits `0` produces a green check for a lint run that never
 happened and a test suite that never ran. Branch protection would be satisfied,
@@ -60,14 +74,13 @@ that exits `0` without deploying would let `production-health-check` pass agains
 the *previously* deployed version, reporting a successful release of code that was
 never shipped.
 
-## What is functional as shipped
+## Guards that must survive any rewrite
 
 **The health checks.** An HTTP probe with retries does not depend on the
 language, framework, or host, so there is nothing to guess. Give them a URL and
 they work.
 
-**The guards inside the placeholder deploys**, even though the deploy step itself
-fails:
+**The guards inside the deploy workflows:**
 
 - `deploy.yml`'s `validate` job — rejects a malformed or mismatched SHA before
   anything is deployed. It exists because `production-deploy` binds the
@@ -155,9 +168,11 @@ runs — could read it.
 
 ## Third-party actions
 
-Only `actions/checkout`, published by GitHub, is used, and it is pinned to the
-full commit SHA `3d3c42e5aac5ba805825da76410c181273ba90b1` (`v7.0.1`) rather than
-the mutable `@v7` tag. Every action runs inside the job with access to that job's
+Two actions are used, both published by GitHub and both pinned to a full commit
+SHA rather than a mutable tag: `actions/checkout`
+(`3d3c42e5aac5ba805825da76410c181273ba90b1`, `v7.0.1`) and `actions/setup-node`
+(`820762786026740c76f36085b0efc47a31fe5020`, `v7.0.0`), which reads
+`node-version-file: .nvmrc`. Every action runs inside the job with access to that job's
 token and secrets, which makes each one a supply-chain dependency — and a tag can
 be repointed at different code without any change to this repository.
 

@@ -100,7 +100,12 @@ when building in staging or production mode. Set both secret bindings using cf's
 verified secret/deploy interface. Unconfigured database IDs deliberately fail.
 Never deploy local `.dev.vars` or test fixtures.
 
-The migration is additive: `database_migration: true`, `rollback_safe: true`.
+The four migrations are additive: `database_migration: true`,
+`rollback_safe: true`. 0002 adds the homepage `version` column and recreates
+the audit trigger; 0003 adds `articles.search_text`, which must be backfilled
+with `scripts/backfill-blog-search.mjs` before writes are enabled and rebuilt
+again after a rollback before upgrading; 0004 adds the `blog_control`
+maintenance guard. Older Workers ignore the added columns.
 Deploy the API before enabling the website's service binding. Run authenticated
 readiness, import/approval, concurrency and media-visibility tests before promotion.
 Follow repository staging, owner-review and business-approval gates.

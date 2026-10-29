@@ -6,9 +6,11 @@ Guidance for Claude Code working in this repository.
 
 ## Project
 
-- **What this is:** Smoke Show Labs — a B2B wholesale storefront through which
-  licensed cannabis operators specify and price white-label vape products
-  (hardware, terpenes, blending and filling, packaging).
+- **What this is:** Smoke Show Labs — a wholesale lead-capture site for
+  licensed cannabis operators (splash, wholesale signup with email
+  verification, policy pages) plus the Smoke Signals blog, served at
+  `/smokesignals` from a separate blog API Worker in `services/blog-api/`.
+  The catalogue and quote-pricing prototype is parked (issue #7), not shipped.
 - **Stack:** TypeScript on Next.js (App Router, server rendering), React, pnpm,
   Node 22 (`.nvmrc` pins the major, `engines` requires >=22.13). Styling is
   plain CSS with CSS Modules over a custom-property token system — deliberately
@@ -26,17 +28,22 @@ Guidance for Claude Code working in this repository.
 
 ## Commands
 
-These must match `.github/workflows/`. The workflows invoke the same package
-scripts, so there is one definition of each command rather than two.
+These must match `.github/workflows/`. The check workflows invoke these package
+scripts; the deploy workflows call `vite build` and `cf deploy --prebuilt`
+directly, so a change to a build or deploy command has to be made in both
+places.
 
 | Task | Command |
 | --- | --- |
 | Install | `pnpm install --frozen-lockfile` |
 | Lint | `pnpm lint` (`cf workers types`, `tsc --noEmit`, ESLint, Stylelint, Prettier `--check`) |
 | Test | `pnpm test` (Vitest) |
-| Build | `pnpm build` (`vite build`, the production Worker) |
+| Build | `pnpm build` (`vite build` for the production Worker, then the blog API Worker and CLI) |
+| Build for preview | `pnpm build:local` (`--mode local-preview`) |
 | Run locally | `pnpm dev`; `pnpm preview` serves the built Worker |
-| Local D1 | `pnpm db:migrate:local` |
+| Local D1 | `pnpm db:migrate:local`; `pnpm --dir services/blog-api db:migrate:local` for the blog API |
+| Remote D1 | `pnpm db:migrate:staging`, `pnpm db:migrate:prod` (the deploy workflows run these) |
+| Blog checks | `pnpm test:blog-api`, `test:blog-backend`, `test:blog-library` |
 | Audit | `pnpm audit --audit-level=high` |
 | Format | `pnpm format` |
 
@@ -52,8 +59,9 @@ which resolves the version pinned by `packageManager` in `package.json`.
 ## Layout
 
 ```
-src/app/          routes (App Router); api/ holds route handlers.
-                  README.md describes current launch routes.
+src/app/          routes (App Router): /, wholesale, smokesignals, policies,
+                  verify-email, robots and sitemap; api/ holds health and
+                  leads route handlers.
 src/styles/       tokens.css (both themes, lifted verbatim from the handoff),
                   base.css, motion.css, utilities.css (.sl only)
 src/components/   layout/ primitives/ product/ hero/ compliance/
@@ -113,7 +121,8 @@ These apply regardless of stack. Do not remove them.
 
 1. **Work starts from an issue.** No branch without a tracking issue.
 2. **Branch from the default branch.** Naming: `<type>/<issue-number>-<slug>`,
-   e.g. `feat/142-token-refresh`. Types: `feat`, `fix`, `chore`, `docs`, `refactor`.
+   e.g. `feat/142-token-refresh`. Types: `feat`, `fix`, `chore`, `docs`,
+   `refactor`, `test`, `ci`.
 3. **Never commit directly to the default branch.** Every change lands via pull
    request.
 4. **One PR, one concern.** If a PR needs two paragraphs to explain why it
@@ -146,7 +155,7 @@ A change reaches production only after all of these:
 
 | Gate | Who or what |
 | --- | --- |
-| Automated checks | `lint`, `test`, `build`, `security-check` |
+| Automated checks | `lint`, `test`, `build`, `security-check`; `blog-api-checks` when the API changes |
 | AI review | `.claude/agents/security-reviewer.md` |
 | Peer approval | a human owner (see `CODEOWNERS.example`; not yet operational) |
 | Staging verification | `staging-deploy` + `staging-health-check` |

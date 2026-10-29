@@ -7,6 +7,8 @@ rules; the first draft assumed a plain HTML site.
 
 Status: not started. Waits on the Friday 2026-10-16 meeting (see Open
 questions) and a tracking issue. Branch as `feat/<issue>-text-club-dialog`.
+The outcome of the 2026-10-16 meeting is not recorded here as of 2026-10-29;
+the open questions below still stand until it is.
 
 ## Plan
 

@@ -18,14 +18,15 @@ Branch from the default branch:
 <type>/<issue-number>-<short-slug>
 ```
 
-`type` is one of `feat`, `fix`, `chore`, `docs`, `refactor`. Example:
+`type` is one of `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`. Example:
 `fix/207-stale-session-cookie`.
 
 Direct commits to the default branch are not permitted.
 
 ## 3. Commit
 
-- Present tense, imperative subject: `Add token refresh on 401`.
+- Subject in the form `<type>(<scope>): <imperative summary> (#<issue>)`, lower
+  case, as the history does: `fix(blog): resolve the review items (#139)`.
 - Subject under ~72 characters, no trailing period.
 - Body explains *why*, not *what* — the diff already says what.
 - Reference the issue: `Refs #207`, or `Closes #207` if it fully resolves it.
@@ -122,7 +123,7 @@ pnpm dev                # http://localhost:3000
 ```sh
 pnpm lint               # cf workers types, tsc --noEmit, ESLint, Stylelint, Prettier
 pnpm test               # Vitest
-pnpm build              # vite build (the production Worker)
+pnpm build              # vite build (the production Worker), then the blog API Worker and CLI
 pnpm audit --audit-level=high
 ```
 
@@ -132,8 +133,9 @@ by hand, and a formatter that rewrites workflow YAML on every run would breach
 the rule against editing `.github/workflows/` as a side effect.
 
 **Verifying a screen against the design.** The specification is
-`design_handoff_wholesale_b2b/README.md`, and `screenshots/` holds one capture
-per screen. Two things to know before you compare:
+`design_handoff_wholesale_b2b/README.md`, and `screenshots/` holds the four
+launch captures (age gate, splash, homepage, signup) plus the client's mobile
+references. Two things to know before you compare:
 
 - Every capture is the light **Editorial** theme, while the shipping default is
   dark **Brand**. Force the Editorial root class when comparing.

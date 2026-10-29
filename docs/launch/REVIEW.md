@@ -32,5 +32,6 @@ Those checks remain in CONFIGURATION.md and RELEASE.md.
 The dependency audit passes the configured high-severity threshold with the
 repository's pre-existing GHSA-vfj7-8cjw-p6xm exception for build-time glob tooling;
 two moderate advisories remain. This change adds no runtime dependency and does not
-change audit exceptions. The existing compliance copy and private pricing modules
+change audit exceptions. (Update 2026-10-26: that exception was removed in
+b52df9b, #110; the audit now passes with no exceptions.) The existing compliance copy and private pricing modules
 are unchanged.

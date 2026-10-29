@@ -9,6 +9,7 @@ Implementation environment: Node 22.23.4, pnpm 12.3.4; checks completed 2026-10-
   The import-boundary PR excludes that reference directory from tooling.
 - The dependency audit exited successfully with one high advisory already
   ignored by the repository's existing `auditConfig`; no exception was added.
+  (That `auditConfig` exception was removed in b52df9b, #110, on 2026-10-26.)
 
 ## Final application checks
 

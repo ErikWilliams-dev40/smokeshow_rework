@@ -47,13 +47,13 @@ fixes land there rather than being backported.
 
 **In scope:** this repository, at the current `main`.
 
-**Out of scope, because it does not exist yet:** any deployed host or domain.
-Nothing is deployed. `staging` and `production` GitHub Environments are
-configured, but the deploy workflows are unconfigured placeholders that exit
-non-zero, so there is no running instance to test against. There is also no
-database, no session authentication, and no real licence verification — see
-"Known limitations" below, and please do not report their absence as a
-vulnerability.
+**In scope with care:** the staging Worker deployed by `staging-deploy.yml`
+from `main`, and its D1 database, which holds wholesale leads. Test against
+your own submissions only; do not probe other people's records. Production
+is deployed through the same workflow behind the `production` Environment
+reviewer. There is no account authentication and no real licence
+verification — see "Known limitations" below, and please do not report their
+absence as a vulnerability.
 
 **Out of scope:** third-party services, and the placeholder product photography
 whose source URLs are recorded in
@@ -125,13 +125,18 @@ channel above.
 Stated so nobody mistakes a documented gap for a finding, and so nobody mistakes
 this build for one that is safe to put in front of real operators:
 
-- **There is no authentication.** No sessions, no passwords, no accounts.
-- **The licence gate is not access control.** `/gate` is a consent interstitial
+- **There is no account authentication.** No passwords, no accounts. The only
+  credentials are the blog API's admin secret and the signed lead-verification
+  links, both server-side.
+- **The age gate is not access control.** The consent interstitial on `/` is
   backed by a cookie any visitor can set. Nothing behind it is protected by it,
   and it must never be treated as authorization.
-- **There is no database.** Screens render from typed fixtures, and the account
-  dashboard shows synthetic records, not anyone's real orders.
-- **Nothing is deployed.** See Scope.
+- **The database holds leads, not orders.** D1 stores wholesale signups and
+  their verification state; the blog API has its own D1 database and R2
+  bucket. There is no customer, order or payment data.
+- **Deployed.** Staging deploys from `main`; production needs the Environment
+  reviewer. See Scope. (Until 2026-10 this file said nothing was deployed and
+  there was no database; both changed with the leads and blog work.)
 
 Reports that authentication is missing are not vulnerabilities. Reports that
 something *depends* on the gate cookie for authorization are, and are welcome.
