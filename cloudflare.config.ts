@@ -80,6 +80,11 @@ export default defineConfig((ctx) => {
         // Non-secret URL is supplied at build time; runtime access uses getEnv().
         BLOG_API_URL: bindings.text(process.env.BLOG_API_URL ?? ''),
         BLOG_API_TOKEN: bindings.secret(),
+        BLOG_RATE: bindings.rateLimit({
+          namespace:
+            mode === 'production' ? '1102' : mode === 'staging' ? '1101' : '1105',
+          simple: { limit: 120, period: 60 },
+        }),
         ...(mode === 'local'
           ? {}
           : {

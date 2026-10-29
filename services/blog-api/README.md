@@ -120,3 +120,22 @@ and must exclude every registered media object; v1 never deletes registered medi
 Monitor authenticated readiness, error rates and latency using structured Worker
 logs/traces. Request IDs correlate API failures without logging query strings or
 content. The site's existing request-amplification follow-up (#73) remains relevant.
+
+## Query and traffic bounds
+
+Public filtering/counting/pagination run in D1. `search_text` is a derived Unicode
+lowercase title/excerpt projection updated atomically on approval. Migration 0003
+adds it; while editorial writes are paused, run `scripts/backfill-blog-search.mjs`
+with `BLOG_DB_ID`, `BLOG_MODE`, and `BLOG_WRITES_PAUSED=true`. The script processes
+100 rows at a time, checks the publication identity on update, and is safe to rerun.
+Rebuild before upgrading after an older Worker has handled writes during rollback.
+Homepage selection reads bounded recent/category candidates plus curated IDs.
+
+The API limits administrative requests to 60/minute per authenticated actor, before
+D1 or R2 access. The website limits blog/media/sitemap requests to 120/minute per
+Cloudflare-provided client IP (hashed before passing to the limiter). Denials are
+429 with `Retry-After: 60`; limiter failures fail closed. Limits are approximate
+and apply separately per Cloudflare location, not a global billing ceiling.
+Local website preview skips IP limiting; deployed staging and production enforce it.
+Namespaces 1100/1103/1104 serve local/staging/production API administration;
+1105/1101/1102 serve the respective website environments and do not reuse lead limits.

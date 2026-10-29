@@ -21,6 +21,9 @@ const options = {
   compatibilityDate: '2026-10-07',
   compatibilityFlags: ['nodejs_compat'],
   d1Databases: ['BLOG_DB'],
+  ratelimits: {
+    BLOG_ADMIN_RATE: { namespace_id: '1100', simple: { limit: 60, period: 60 } },
+  },
   r2Buckets: ['BLOG_MEDIA'],
   resourcePersistencePath: state,
   bindings: {
