@@ -59,6 +59,12 @@ Production is attempted only when explicitly selected, staging health has passed
 and the production Environment reviewer approves. Deploy the API before the matching
 website release. Neither this runbook nor an open PR triggers a deployment.
 
+The website's **Deploy** workflow does that ordering itself: before each website
+environment it releases the API at the same SHA through the same guarded release
+job, because website readiness requires the API to report that SHA. Its staging
+API release needs no per-commit record; its production API release checks the
+production record above first. **Deploy blog API** remains for API-only releases.
+
 ## Credentials, rollback and recovery
 
 The workflow writes only the two Worker secrets to a mode-0600 temporary file for

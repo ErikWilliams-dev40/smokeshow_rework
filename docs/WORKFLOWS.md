@@ -12,8 +12,11 @@ pr-checks.yml  (on: pull_request, push)
 
 deploy.yml     (on: workflow_dispatch)
   ├─ validate                       ← inline pre-flight, no environment
+  ├─ blog-api-release.yml (staging) ← website readiness needs the API at the same SHA
   ├─ staging-deploy.yml
   ├─ staging-health-check.yml
+  ├─ blog-api-production-record     ← inline reviewed-record check
+  ├─ blog-api-release.yml (production)
   ├─ production-deploy.yml          ← Environment gate = business approval
   └─ production-health-check.yml
 
