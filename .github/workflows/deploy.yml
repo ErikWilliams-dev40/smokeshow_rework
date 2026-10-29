@@ -85,9 +85,33 @@ jobs:
 
           echo "Release input valid: $COMMIT_SHA"
 
+  # The website's deploy refuses to finish until its blog API reports the same
+  # commit (scripts/check-website-blog.mjs), so each environment's API release
+  # runs first, at the dispatched SHA. Staging needs no per-commit record, like
+  # the website's own staging deploy. The group matches blog-api-deploy.yml so
+  # an API-only release and this one never overlap.
+  blog-api-staging:
+    name: Blog API staging release
+    needs: validate
+    uses: ./.github/workflows/blog-api-release.yml
+    permissions:
+      contents: read
+    concurrency:
+      group: blog-api-release
+      cancel-in-progress: false
+    with:
+      commit-sha: ${{ inputs.commit-sha }}
+      approved-sha: ${{ inputs.approved-sha }}
+      environment: staging
+    # Passed by name for the reason given on staging-deploy below.
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      BLOG_API_TOKEN: ${{ secrets.BLOG_API_TOKEN }}
+      BLOG_ADMIN_CREDENTIALS: ${{ secrets.BLOG_ADMIN_CREDENTIALS }}
+
   staging-deploy:
     name: Staging deploy
-    needs: validate
+    needs: blog-api-staging
     uses: ./.github/workflows/staging-deploy.yml
     permissions:
       contents: read
@@ -126,6 +150,55 @@ jobs:
       path: /api/health
       expected-commit: ${{ inputs.commit-sha }}
 
+  # Production keeps blog-api-deploy.yml's reviewed release-record check. It runs
+  # before the API's production Environment gate so a missing record fails fast.
+  blog-api-production-record:
+    name: Blog API production record
+    needs: staging-health-check
+    if: inputs.deploy-production
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Read release metadata from main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - name: Verify merged SHA and production release record
+        env:
+          COMMIT_SHA: ${{ inputs.commit-sha }}
+          APPROVED_SHA: ${{ inputs.approved-sha }}
+          BLOG_MODE: production
+        run: |
+          set -euo pipefail
+          test "$(node -p 'process.versions.node.split(".")[0]')" = "$(cat .nvmrc)"
+          git merge-base --is-ancestor "$COMMIT_SHA" origin/main
+          node scripts/check-blog-release.mjs record
+
+  blog-api-production:
+    name: Blog API production release
+    needs: blog-api-production-record
+    uses: ./.github/workflows/blog-api-release.yml
+    permissions:
+      contents: read
+    concurrency:
+      group: blog-api-release
+      cancel-in-progress: false
+    with:
+      commit-sha: ${{ inputs.commit-sha }}
+      approved-sha: ${{ inputs.approved-sha }}
+      environment: production
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      BLOG_API_TOKEN: ${{ secrets.BLOG_API_TOKEN }}
+      BLOG_ADMIN_CREDENTIALS: ${{ secrets.BLOG_ADMIN_CREDENTIALS }}
+
   # Business approval happens here, and it is enforced by GitHub rather than by
   # this file: production-deploy binds to the `production` Environment, and the
   # required reviewers configured on that Environment hold the run until someone
@@ -135,7 +208,7 @@ jobs:
   # healthy, so nothing reaches the approval gate untested.
   production-deploy:
     name: Production deploy
-    needs: staging-health-check
+    needs: blog-api-production
     # `inputs.deploy-production` is a real boolean because the input is declared
     # `type: boolean`. Do NOT rewrite this as `github.event.inputs.*` — that
     # context returns strings, and the string "false" is truthy, so the guard
