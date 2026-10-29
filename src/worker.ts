@@ -2,6 +2,7 @@ import { deliverPending } from './server/leads/delivery'
 import { indexingResponse, seoConfig } from './domain/seo'
 import handler from 'vinext/server/fetch-handler'
 import { blogResponse } from './server/blog/worker.server'
+import { blogTrafficResponse } from './server/blog/traffic.server'
 
 // Preserve adapter exports if vinext introduces additional entrypoints.
 export * from 'vinext/server/fetch-handler'
@@ -18,6 +19,12 @@ const worker: ExportedHandler<Env> = {
     }
   },
   async fetch(request, env, ctx) {
+    const denied = await blogTrafficResponse(request, env)
+    if (denied)
+      return indexingResponse(
+        denied,
+        seoConfig(env.SITE_URL, env.DEPLOYMENT_ENV).indexable,
+      )
     const response = await blogResponse(request, () =>
       delegate.fetch(request, env, ctx),
     )
