@@ -29,6 +29,23 @@ remaining release gates are still required.
    rejected and private media must return 404. If the upstream cannot enforce
    that boundary, a reviewed authorization contract is required first.
 
+   **Disposition (2026-10-29): implemented, deployed demonstration outstanding.**
+   The previously unavailable upstream is now in this repository
+   (`services/blog-api`). `Repository.publicMedia` in
+   `services/blog-api/src/repository.ts` returns a media row only when the ID is
+   referenced by `revision_media` for the article's current `published_revision`
+   *and* an `approvals` row matches that same revision. Withdrawal deletes the
+   `publication` row, so the same media ID immediately stops resolving (already
+   fetched bytes remain in browser caches for the documented one-year immutable
+   window). Objects live in a private R2 bucket that the Worker reaches through
+   its binding; the release runbook requires public access and custom domains to
+   stay disabled. `tests/unit/blog-api-backend.test.ts` ("only exposes media
+   referenced by a currently published revision, including shared references")
+   and `scripts/test-blog-backend.mjs` cover 404 before approval, 404 after
+   withdrawal and shared references. This records the implemented boundary; #74
+   still requires the same check against the deployed API with the website's
+   read credential during staging acceptance.
+
 ## Examined boundaries
 
 The reviewer inspected token storage and binding access, URL/path validation,
