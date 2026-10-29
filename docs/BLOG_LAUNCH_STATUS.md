@@ -1,8 +1,8 @@
 # Blog staging preparation — 2026-10-26
 
-Status (updated 2026-10-29): the staging blog API is deployed and the three
-pilot articles in `articles/pilot/` are published on staging with homepage
-curation; see [Staging publication](#staging-publication--2026-10-29). The
+Status (updated 2026-10-29): the staging blog API is deployed and the four
+pilot articles in `articles/pilot/` are published on staging, three of them with
+homepage curation; see [Staging publication](#staging-publication--2026-10-29). The
 sections below record the 2026-10-26 preparation as it stood then. No licensed
 images are included. Production work is deferred at the owner's request.
 
@@ -198,3 +198,20 @@ of this step.
 three article pages return 200 on `https://smokeshow-web-staging.dev40.workers.dev`
 and list the curated stories. The CLI ran on Node 24.22.2 because Node 22 was not
 installed on the publishing host.
+
+### Lab report article (#133)
+
+Later on 2026-10-29, at the operator's instruction, `how-to-read-a-hemp-lab-report`
+was imported on its own with the operator editor credential and approved with
+`--checklist` using the operator owner credential. The CLI was built from 85336f9
+and ran on Node 24.22.2. Its review items in `articles/pilot/REVIEW.md`, covering
+audience, the federal-law timeline, the facility claim and source links, were not
+resolved or ticked as part of this step.
+
+| Slug | Draft and published revision | Article version |
+| --- | --- | --- |
+| `how-to-read-a-hemp-lab-report` | `fd41aa5d-a075-4388-b8bb-73db634e2020` | 2 |
+
+It is not in `homepage.json`, and homepage curation stays at version 2. The
+article page returned 200 on staging. It appeared in the magazine homepage's
+automatic Latest list, the Compliance section and the archive.

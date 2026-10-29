@@ -55,8 +55,9 @@ Manifest: `wholesale-shipment-receiving-checklist.json`
 ### How to read a hemp product lab report
 
 Manifest: `how-to-read-a-hemp-lab-report.json`. Converted from the owner's draft,
-last fact-checked 2026-10-29. Not imported. The three original pilots are
-already on staging, so import this manifest on its own and leave out `--update`.
+last fact-checked 2026-10-29. Imported and approved on staging on 2026-10-29
+(revision `fd41aa5d-a075-4388-b8bb-73db634e2020`) at the operator's instruction,
+before the items below were resolved. Any edit needs a fresh approval.
 
 - [ ] Audience: the draft was written for a general consumer audience ("shoppers",
       "before you buy", "from us or anyone else"). The compliance checklist
