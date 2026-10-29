@@ -105,13 +105,21 @@ jobs:
             corepack pnpm exec cf workers secrets update BLOG_ADMIN_CREDENTIALS \
               --worker "$worker" --type secret_text --text '[]'
           fi
-          # The next deploy restores the intended registry. Failure deliberately
-          # leaves writes paused until an operator investigates and resumes.
+          # Stop new authentication while the database barrier drains earlier writes.
 
       - name: Apply additive blog migrations
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: corepack pnpm --dir services/blog-api exec cf d1 migrations apply "$BLOG_DB_ID" --mode "$BLOG_MODE" --dir migrations
+      - name: Drain and suspend editorial commits at the database
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          # This serialized write completes after earlier transactions. The trigger
+          # rejects all later audited mutation batches, including authenticated ones.
+          corepack pnpm exec cf d1 query "$BLOG_DB_ID" --mode "$BLOG_MODE" \
+            --sql 'UPDATE blog_control SET maintenance = 1 WHERE id = 1'
       - name: Rebuild and verify the Unicode search projection
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -135,3 +143,11 @@ jobs:
         env:
           BLOG_API_TOKEN: ${{ secrets.BLOG_API_TOKEN }}
         run: node .release-tools/scripts/check-blog-release.mjs health
+      - name: Resume editorial commits only after verified readiness
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          # No always()/failure() cleanup: unsuccessful deployments stay paused.
+          corepack pnpm exec cf d1 query "$BLOG_DB_ID" --mode "$BLOG_MODE" \
+            --sql 'UPDATE blog_control SET maintenance = 0 WHERE id = 1'
