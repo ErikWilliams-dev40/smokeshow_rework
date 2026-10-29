@@ -82,7 +82,9 @@ export class InputError extends Error {
 export function parseInput<T extends z.ZodType>(schema: T, value: unknown): z.infer<T> {
   const result = schema.safeParse(value)
   if (!result.success)
-    throw new InputError(result.error.issues.map(({ path, code }) => ({ path, code })))
+    throw new InputError(
+      result.error.issues.slice(0, 50).map(({ path, code }) => ({ path, code })),
+    )
   return result.data
 }
 export async function deadline<T>(work: Promise<T>, milliseconds: number): Promise<T> {
