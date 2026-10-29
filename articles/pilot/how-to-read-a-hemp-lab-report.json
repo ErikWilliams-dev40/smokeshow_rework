@@ -1,0 +1,330 @@
+{
+  "slug": "how-to-read-a-hemp-lab-report",
+  "content": {
+    "title": "How to read a hemp product lab report (and why it matters more than ever in 2026)",
+    "excerpt": "What a Certificate of Analysis shows, how to read one in about five minutes, and what the upcoming federal hemp changes mean for the numbers on it.",
+    "category": "compliance",
+    "author": "Smoke Signals",
+    "body": [
+      {
+        "type": "paragraph",
+        "text": "Every hemp vape, gummy, or tincture worth buying should come with a small, unglamorous document called a Certificate of Analysis, or COA. Most shoppers never open it. That’s a mistake — especially right now."
+      },
+      {
+        "type": "paragraph",
+        "text": "Federal rules for hemp products are changing in the next few weeks, and the COA is the single best tool you have to know what’s actually inside the product in your hand. This guide walks through what a COA is, how to read one in about five minutes, and what the upcoming federal changes mean for the numbers you’ll see."
+      },
+      {
+        "type": "paragraph",
+        "text": "This article is for general education only. It is not legal or medical advice. Hemp-derived products are intended for adults 21 and over, and state laws vary."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Why labels alone aren’t enough"
+      },
+      {
+        "type": "paragraph",
+        "text": "It’s easy to assume the number on the front of the package is accurate. Independent testing says otherwise."
+      },
+      {
+        "type": "paragraph",
+        "text": "When the FDA tested 102 CBD products that listed a specific CBD amount, 18% contained significantly less than advertised and 37% contained significantly more, and nearly half of the products tested for cannabinoids contained some THC. A Johns Hopkins study of 105 topical CBD products found that only 24% were accurately labeled, and four products labeled “THC free” contained THC."
+      },
+      {
+        "type": "paragraph",
+        "text": "Potency isn’t the only concern. A study of 202 CBD products — tinctures, gummies, vapes, and topicals — found that 74% deviated from their label claim by at least 10%, and heavy metals turned up 52 times across 44 products, with lead the most common."
+      },
+      {
+        "type": "paragraph",
+        "text": "The takeaway isn’t that every product is bad. It’s that a trustworthy brand can show you its work, and the COA is how it does that."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "What a COA is"
+      },
+      {
+        "type": "paragraph",
+        "text": "A COA is a report from a testing laboratory showing results for a specific batch of product. According to ACS Laboratory, you can usually find it by scanning the QR code on the label or visiting the brand’s website."
+      },
+      {
+        "type": "paragraph",
+        "text": "A good COA covers two broad areas:"
+      },
+      {
+        "type": "list",
+        "ordered": true,
+        "items": [
+          "Potency (cannabinoid profile): How much CBD, THC, and other cannabinoids the product contains.",
+          "Safety (contaminant panels): Whether the product picked up anything harmful during growing, extraction, or manufacturing."
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "A potency-only report is not a full picture. As one consumer guide notes, a cannabinoid potency report does not automatically mean the product was tested for pesticides, heavy metals, residual solvents, or other contaminants."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "How to read a COA in five minutes"
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Step 1: Match the batch number"
+      },
+      {
+        "type": "paragraph",
+        "text": "Find the batch or lot number on your package — often printed on the bottom of the box, the side of a bottle, or the cartridge packaging. Then confirm it matches the batch number on the COA. A report for a different batch tells you nothing about the product you bought. ACS Laboratory lists this as one of the core verification steps."
+      },
+      {
+        "type": "paragraph",
+        "text": "Also check that the product description on the report (gummy, vape oil, tincture) matches what you purchased."
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Step 2: Check the date"
+      },
+      {
+        "type": "paragraph",
+        "text": "A COA should be recent and tied to the current batch. A general rule of thumb from LegalClarity is that a report for a current batch should be less than 12 months old."
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Step 3: Look at who did the testing"
+      },
+      {
+        "type": "paragraph",
+        "text": "The report should name an independent, third-party lab — not the brand itself. Look for ISO/IEC 17025 accreditation, the international standard for testing labs. ACS Laboratory recommends finding the accreditation number on the COA and looking it up in the accrediting organization’s database to confirm it’s current. One directory you can search is the ANSI National Accreditation Board (ANAB)."
+      },
+      {
+        "type": "paragraph",
+        "text": "Worth knowing: the USDA does not require hemp labs to be ISO accredited, though it strongly encourages it. So accreditation is a quality signal you have to check for yourself."
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Step 4: Read the potency section"
+      },
+      {
+        "type": "paragraph",
+        "text": "This is the table listing cannabinoids such as CBD, CBDA, delta-9 THC, THCA, CBG, and others. Results are usually shown as a percentage, in milligrams per gram (mg/g), or in milligrams per unit or serving."
+      },
+      {
+        "type": "paragraph",
+        "text": "A few terms to know:"
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          "ND (Not Detected): The amount was below what the lab’s equipment can measure. As LegalClarity points out, ND doesn’t necessarily mean zero — check the limit of quantitation (LOQ) listed on the report.",
+          "LOQ / LOD: The lowest amount the lab can reliably measure or detect.",
+          "Percent vs. milligrams: A percentage describes concentration. Milligrams per serving or per package tells you the actual amount. With the new federal rules, the milligram-per-package number is becoming the one that matters most."
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "Then compare the results with the label. If a gummy says 25 mg CBD per piece, the COA should land close to that."
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Step 5: Understand “Total THC”"
+      },
+      {
+        "type": "paragraph",
+        "text": "This is the number most people misread. Raw hemp contains THCA, a precursor that converts to THC when heated. Labs account for this with a standard formula used by the USDA’s hemp regulations and state regulators such as Connecticut:"
+      },
+      {
+        "type": "paragraph",
+        "text": "Total THC = (THCA × 0.877) + delta-9 THC"
+      },
+      {
+        "type": "paragraph",
+        "text": "The 0.877 factor comes from chemistry: when THCA converts to THC it loses a carbon dioxide group, so one gram of THCA can only become about 0.877 grams of THC."
+      },
+      {
+        "type": "paragraph",
+        "text": "Quick example: A COA shows 20% THCA and 0.2% delta-9 THC. (20 × 0.877) + 0.2 = 17.74% total THC."
+      },
+      {
+        "type": "paragraph",
+        "text": "That product might be described as having “less than 0.3% delta-9 THC,” but its total THC is far higher. If you only look at the delta-9 line, you’ll miss the full picture."
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Step 6: Review the safety panels"
+      },
+      {
+        "type": "paragraph",
+        "text": "A complete COA typically includes five contaminant panels. ACS Laboratory lists them as:"
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          "Pesticides: Chemical residues from farming.",
+          "Heavy metals: Lead, arsenic, cadmium, mercury.",
+          "Residual solvents: Leftover chemicals from extraction.",
+          "Microbials: Bacteria, yeast, and mold.",
+          "Mycotoxins: Toxins produced by certain molds."
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "Each panel should show a pass or fail against a set limit — and every one should pass. If a panel is missing entirely, treat the report as incomplete."
+      },
+      {
+        "type": "paragraph",
+        "text": "For vape users, heavy metals deserve special attention. Heavy metals can enter a product not only from the plant but also from hardware. Testing coverage from Business Insider noted reports that some imported vape hardware showed lead leaching into the oil. Quality cartridges and careful hardware sourcing matter, and a heavy-metals panel on the finished product is the way to confirm it."
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Step 7: Verify the report is real"
+      },
+      {
+        "type": "paragraph",
+        "text": "Unfortunately, COAs can be edited. A few checks:"
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          "The QR code should ideally lead to the report on the lab’s own website, not just a page on the brand’s site (LegalClarity).",
+          "Watch for mismatched fonts, misaligned columns, or signs of editing.",
+          "Do the math. If the report lists CBDA and CBD, the “Total CBD” figure should equal (CBDA × 0.877) + CBD — the same formula used for THC.",
+          "When in doubt, contact the lab directly with the batch number."
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "One more reason to look closely: a Johns Hopkins-led study of hemp products found that label accuracy did not differ significantly between products that claimed third-party testing and those that didn’t. A “lab tested” badge isn’t the same as a lab report you’ve actually read."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "What the 2026 federal hemp changes mean for you"
+      },
+      {
+        "type": "paragraph",
+        "text": "In November 2025, Congress changed the federal definition of hemp as part of a spending bill. The changes were originally set to take effect November 12, 2026, but a later funding bill (Public Law 119-103) delayed most of them."
+      },
+      {
+        "type": "paragraph",
+        "text": "Here’s the current timeline, based on the Congressional Research Service and legal analysis from Fox Rothschild:"
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          "November 12, 2026: Products containing cannabinoids that are “not capable of being naturally produced” by the cannabis plant (certain synthetic cannabinoids) are no longer considered hemp and are classified as marijuana under federal law.",
+          "December 11, 2026: Most other changes take effect, including a total THC standard (counting THCA) and a cap of 0.4 milligrams of total THC per container for finished hemp products."
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "The Congressional Research Service defines “container” as the innermost packaging in direct contact with the product for retail sale. Note that legal commentators describe slightly different groupings for lab-converted cannabinoids such as delta-8, so check current guidance for specific products."
+      },
+      {
+        "type": "paragraph",
+        "text": "To put 0.4 mg in perspective: a single hemp gummy with 5 mg of delta-9 THC would exceed the cap more than twelve times over in one piece. Leafwell notes that most delta-8 products, hemp delta-9 gummies, and THC drinks would fall above the limit once the change takes effect."
+      },
+      {
+        "type": "paragraph",
+        "text": "The date could still move. December 11 is also the next federal funding deadline, and according to DPS Law, bills to delay, replace, or repeal the new definition have been introduced, though as of October 19, 2026, none had advanced past committee. Some states also set their own, stricter rules — Minnesota’s Office of Cannabis Management, for example, has published guidance on how the federal change affects products there."
+      },
+      {
+        "type": "paragraph",
+        "text": "What this means for reading COAs:"
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          "Look for total THC, not just delta-9 THC. Under the new definition, THCA counts.",
+          "Look for milligrams per package, not just percentages. A low percentage can still add up to more than 0.4 mg across a full container.",
+          "Expect labels and product lines to change. Brands may reformulate, and older inventory may not reflect current rules. A current, batch-matched COA is your best way to know what you’re buying."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "A quick shopper’s checklist"
+      },
+      {
+        "type": "paragraph",
+        "text": "Before you buy, confirm:"
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "items": [
+          "The product has a QR code or a clear link to its COA.",
+          "The batch number on the package matches the COA.",
+          "The report is recent (generally under 12 months).",
+          "An independent, ISO/IEC 17025-accredited lab did the testing.",
+          "Cannabinoid results match the label within a reasonable range.",
+          "Total THC is listed (or you can calculate it).",
+          "All five safety panels are present and passing.",
+          "The report links back to the lab’s own site, or you can verify it with the lab."
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "If a brand can’t or won’t provide a COA, that tells you something too."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "The bottom line"
+      },
+      {
+        "type": "paragraph",
+        "text": "A COA turns a product from a promise into something you can check. With federal definitions shifting on November 12 and December 11, the details on that report — total THC, milligrams per package, and complete safety testing — matter more than ever."
+      },
+      {
+        "type": "paragraph",
+        "text": "At Smoke Show Labs, our hemp-derived products are made in an FDA-registered facility in Los Angeles. If you’re shopping for any hemp product, from us or anyone else, ask for the lab report and take five minutes to read it. Good brands are glad you asked."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Sources"
+      },
+      {
+        "type": "list",
+        "ordered": true,
+        "items": [
+          "Food Dive, FDA study finds some CBD products are mislabeled: https://www.fooddive.com/news/fda-study-finds-some-cbd-products-are-mislabeled/581281/",
+          "Johns Hopkins Medicine, study shows widespread mislabeling of CBD content in over-the-counter products (2022): https://www.hopkinsmedicine.org/news/newsroom/news-releases/2022/07/study-shows-widespread-mislabeling-of-cbd-content-occurs-for-over-the-counter-products",
+          "Label accuracy and contaminants in 202 CBD products (PubMed Central): https://pmc.ncbi.nlm.nih.gov/articles/PMC10982813/",
+          "ACS Laboratory, how to verify third-party lab tests for hemp products: https://www.acslab.com/testing/how-to-verify-third-party-lab-tests-for-hemp-products",
+          "Consumer guide on potency and contaminant testing (Yahoo Finance): https://finance.yahoo.com/healthcare/articles/rare-cannabinoid-company-shares-guide-090500702.html",
+          "LegalClarity, CBD certificate of analysis: how to read and verify one: https://legalclarity.org/cbd-certificate-of-analysis-how-to-read-and-verify-one/",
+          "USDA Agricultural Marketing Service, hemp laboratory testing guidelines: https://www.ams.usda.gov/rules-regulations/hemp/information-laboratories/lab-testing-guidelines",
+          "Cova Software, THCA ban 2026: https://www.covasoftware.com/blog/thca-ban-2026-is-thca-flower-still-legal-to-sell",
+          "Connecticut cannabis knowledge base, how total THC is calculated: https://portal.ct.gov/cannabis/knowledge-base/articles/how-is-total-thc-calculated",
+          "Botan, total THC glossary: https://www.botancbd.com/glossary/total-thc",
+          "THD Wholesale, CBD certificate of analysis: https://thdwholesale.com/blogs/cbd-certificate-of-analysis/",
+          "Business Insider, study on mislabeled CBD products (2019): https://www.businessinsider.com/study-cbd-products-are-mislabeled-and-contain-dangerous-chemicals-2019-4",
+          "Johns Hopkins-led study of hemp product label accuracy (PubMed): https://pubmed.ncbi.nlm.nih.gov/39029473/",
+          "Congressional Research Service, IF13136: https://www.congress.gov/crs-product/IF13136",
+          "Fox Rothschild, House passes resolution delaying most federal hemp definition restrictions by one month: https://cannabislaw.foxrothschild.com/2026/09/house-passes-resolution-delaying-most-federal-hemp-definition-restrictions-by-one-month/",
+          "Leafwell, federal hemp THC ban: https://leafwell.com/blog/federal-hemp-thc-ban",
+          "DPS Law, federal hemp redefinition, November 12 and December 11, 2026: https://dpslaw.com/insights/federal-hemp-redefinition-november-12-december-11-2026",
+          "Minnesota Office of Cannabis Management, federal hemp changes: https://mn.gov/ocm/businesses/resources/hemp/federal-hemp-changes.jsp"
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "Disclaimer: This article is for informational purposes only and does not constitute legal or medical advice. Federal and state hemp laws are changing; check current regulations in your state. Hemp-derived products are intended for adults 21+. These statements have not been evaluated by the Food and Drug Administration."
+      }
+    ]
+  }
+}
