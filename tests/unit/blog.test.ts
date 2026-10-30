@@ -51,6 +51,27 @@ afterEach(() => {
 })
 
 describe('blog client', () => {
+  it.each([
+    'application/json',
+    'Application/JSON',
+    'application/json; charset=utf-8',
+    ' Application/JSON ; charset=utf-8 ',
+  ])('accepts JSON media type %s', async (type) => {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(list()), { headers: { 'Content-Type': type } }),
+    )
+    expect((await listArticles()).total).toBe(1)
+  })
+  it.each([null, '', 'text/html', 'application/jsonp', 'application/problem+json'])(
+    'rejects unrelated or missing JSON media type %s',
+    async (type) => {
+      const response = new Response(JSON.stringify(list()))
+      if (type === null) response.headers.delete('Content-Type')
+      else response.headers.set('Content-Type', type)
+      fetchMock.mockResolvedValue(response)
+      await expect(listArticles()).rejects.toThrow('Invalid JSON content type')
+    },
+  )
   it('uses the service binding with bearer auth and never falls back after failure', async () => {
     const serviceFetch = vi.fn<typeof fetch>().mockResolvedValue(Response.json(list()))
     env.BLOG_API = { fetch: serviceFetch }

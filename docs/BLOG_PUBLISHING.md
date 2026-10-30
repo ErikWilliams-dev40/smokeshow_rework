@@ -105,6 +105,12 @@ corepack pnpm blog curate ./articles/homepage.json --version 1
 Withdrawn selections are skipped and replaced with eligible published articles.
 The Latest lists remain automatic and preserve the website's existing contract.
 
+Repetition between homepage sections is intentional; duplicates are rejected
+within each curated slot. Automatic fills may also repeat stories across slots.
+Draft writes are parsed through the API schema before hashing, so reordering
+JSON object keys, including nested block and media keys, preserves exact replay
+behavior without creating another revision.
+
 ## Configuration and verification
 
 The website keeps `BLOG_API_URL` as its cache namespace and `BLOG_API_TOKEN` as

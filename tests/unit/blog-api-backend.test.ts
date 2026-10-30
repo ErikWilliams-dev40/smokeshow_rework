@@ -323,6 +323,42 @@ describe('persistent blog API', () => {
     expect((await state(await approve(retry))).version).toBe(publication.version)
     expect((await approve(s)).status).toBe(409)
   })
+  it('replays edits with reordered draft and nested keys without a new revision', async () => {
+    const initial = await create()
+    const edited = await state(
+      await call(
+        '/admin/articles/flower-guide/draft',
+        'PUT',
+        { expectedVersion: initial.version, content: { ...content, title: 'Edited' } },
+        editorToken,
+      ),
+    )
+    const replay = await state(
+      await call(
+        '/admin/articles/flower-guide/draft',
+        'PUT',
+        {
+          content: {
+            body: [{ text: 'Approved text.', type: 'paragraph' }],
+            category: 'flower',
+            excerpt: content.excerpt,
+            title: 'Edited',
+          },
+          expectedVersion: initial.version,
+        },
+        editorToken,
+      ),
+    )
+    expect(replay).toEqual(edited)
+    expect(
+      database.sqlite.prepare('SELECT COUNT(*) AS n FROM revisions').get()?.n,
+    ).toBe(2)
+    expect(
+      database.sqlite
+        .prepare("SELECT COUNT(*) AS n FROM audit_events WHERE action = 'edit'")
+        .get()?.n,
+    ).toBe(1)
+  })
   it('rolls back publication and approval if the final write fails', async () => {
     const s = await create()
     database.sqlite.exec(

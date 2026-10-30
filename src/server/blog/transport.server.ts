@@ -132,7 +132,8 @@ export async function upstream<T>(
 export async function upstreamJson(path: string): Promise<unknown> {
   return upstream(path, async (response, signal) => {
     if (
-      response.headers.get('content-type')?.split(';')[0]?.trim() !== 'application/json'
+      response.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase() !==
+      'application/json'
     )
       throw new BlogUnavailableError('Invalid JSON content type')
     const bytes = await readBounded(response, JSON_MAX_BYTES, signal)
