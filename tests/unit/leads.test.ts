@@ -153,6 +153,185 @@ describe('lead persistence and verification', () => {
     expect(await findLead(store.db, data.submissionId)).not.toBeNull()
   })
 })
+describe('failed verification recovery', () => {
+  const snapshot = () => ({
+    leads: store.sqlite.prepare('SELECT * FROM leads ORDER BY id').all(),
+    deliveries: store.sqlite.prepare('SELECT * FROM lead_deliveries ORDER BY id').all(),
+  })
+  async function failedLead() {
+    const data = { ...input(), interest: 'Vapes' as const }
+    const lead = await saveLead(store.db, data, 1000)
+    store.sqlite.exec('UPDATE lead_deliveries SET failed_at = 2000, attempts = 5')
+    return { data, lead }
+  }
+  it('recovers at the exact cooldown boundary and retains failed history', async () => {
+    const { data, lead } = await failedLead()
+    const failed = snapshot()
+    const early = await saveLead(store.db, data, 60_999)
+    expect((await leadState(store.db, early)).delivery).toBe('failed')
+    expect(snapshot()).toEqual(failed)
+    const recovered = await saveLead(
+      store.db,
+      { ...data, email: ' BUYER@EXAMPLE.TEST ' },
+      61_000,
+    )
+    expect(recovered).toEqual({
+      ...lead,
+      verification_version: 2,
+      verification_expires_at: 61_000 + DAY,
+      resend_at: 61_000,
+    })
+    expect(await leadState(store.db, recovered)).toEqual({
+      status: 'pending',
+      delivery: 'queued',
+    })
+    const deliveries = store.sqlite
+      .prepare('SELECT * FROM lead_deliveries ORDER BY version')
+      .all()
+    expect(deliveries[0]).toEqual(failed.deliveries[0])
+    expect(deliveries[1]).toMatchObject({
+      id: `${lead.id}:verification:2`,
+      version: 2,
+      attempts: 0,
+      due_at: 61_000,
+      failed_at: null,
+      delivered_at: null,
+      lease_until: 0,
+    })
+    await saveLead(store.db, data, 121_000)
+    expect(
+      store.sqlite.prepare('SELECT COUNT(*) AS n FROM lead_deliveries').get()?.n,
+    ).toBe(2)
+  })
+  it.each([
+    ['queued', 'failed_at = NULL, attempts = 0'],
+    ['sent', 'failed_at = NULL, delivered_at = 2000'],
+    ['leased', 'lease_until = 61001'],
+    ['already accepted', 'delivered_at = 2000'],
+  ])('preserves %s deliveries without rotating credentials', async (_state, update) => {
+    const { data, lead } = await failedLead()
+    store.sqlite.exec(`UPDATE lead_deliveries SET ${update}`)
+    const before = snapshot()
+    expect(await saveLead(store.db, data, 61_000)).toEqual(lead)
+    expect(snapshot()).toEqual(before)
+  })
+  it('preserves confirmed leads even when the verification job is marked failed', async () => {
+    const { data, lead } = await failedLead()
+    await confirm(store.db, lead.id, 1, lead.verification_expires_at, 3000)
+    const before = snapshot()
+    const replay = await saveLead(store.db, data, 61_000)
+    expect(replay.verified_at).toBe(3000)
+    expect(replay.verification_version).toBe(1)
+    expect(snapshot()).toEqual(before)
+  })
+  it.each([
+    { email: 'other@example.test' },
+    { name: 'Other' },
+    { phone: '5557654321' },
+    { interest: 'Flower' as const },
+    { interest: undefined },
+  ])('rejects conflicting replay %j without any writes', async (changed) => {
+    const { data } = await failedLead()
+    const before = snapshot()
+    await expect(
+      saveLead(store.db, { ...data, ...changed }, 61_000),
+    ).rejects.toMatchObject({ status: 409 })
+    expect(snapshot()).toEqual(before)
+    // A conflicting replay must not repair a missing outbox row either.
+    store.sqlite.exec('DELETE FROM lead_deliveries')
+    const missing = snapshot()
+    await expect(
+      saveLead(store.db, { ...data, ...changed }, 61_000),
+    ).rejects.toMatchObject({ status: 409 })
+    expect(snapshot()).toEqual(missing)
+  })
+  it('serializes concurrent recovery into one new version and delivery', async () => {
+    const { data } = await failedLead()
+    const results = await Promise.all(
+      Array.from({ length: 10 }, () => saveLead(store.db, data, 61_000)),
+    )
+    expect(results.every((lead) => lead.verification_version === 2)).toBe(true)
+    expect(
+      store.sqlite
+        .prepare('SELECT version FROM lead_deliveries ORDER BY version')
+        .all(),
+    ).toEqual([{ version: 1 }, { version: 2 }])
+    // A newly failed recovery still shares the cooldown with subsequent submits.
+    store.sqlite.exec('UPDATE lead_deliveries SET failed_at = 62000 WHERE version = 2')
+    const before = snapshot()
+    await saveLead(store.db, data, 62_000)
+    expect(snapshot()).toEqual(before)
+  })
+  it('rolls back credential rotation when replacement outbox insertion fails', async () => {
+    const { data } = await failedLead()
+    const before = snapshot()
+    store.sqlite.exec(`CREATE TRIGGER fail_recovery BEFORE INSERT ON lead_deliveries
+      WHEN NEW.version = 2 BEGIN SELECT RAISE(ABORT, 'injected recovery failure'); END`)
+    await expect(saveLead(store.db, data, 61_000)).rejects.toThrow(
+      'injected recovery failure',
+    )
+    expect(snapshot()).toEqual(before)
+  })
+  it('shares credential rotation and cooldown with explicit resend', async () => {
+    const { data, lead } = await failedLead()
+    const recovered = await saveLead(store.db, data, 61_000)
+    await expect(
+      confirm(store.db, lead.id, 1, lead.verification_expires_at, 62_000),
+    ).rejects.toMatchObject({ status: 410 })
+    await expect(resend(store.db, data.submissionId, 120_999)).rejects.toMatchObject({
+      status: 429,
+    })
+    const resent = await resend(store.db, data.submissionId, 121_000)
+    expect(resent.verification_version).toBe(3)
+    await expect(
+      confirm(store.db, lead.id, 2, recovered.verification_expires_at, 122_000),
+    ).rejects.toMatchObject({ status: 410 })
+    await confirm(store.db, lead.id, 3, resent.verification_expires_at, 122_000)
+    expect(
+      (await leadState(store.db, (await findLead(store.db, data.submissionId))!))
+        .status,
+    ).toBe('confirmed')
+  })
+  it('confirms the new recovery credential and leaves notifications unique', async () => {
+    const { data } = await failedLead()
+    const recovered = await saveLead(store.db, data, 61_000)
+    const secret = environment.current.LEAD_TOKEN_SECRET
+    const token = await signVerification(
+      { id: recovered.id, version: 2, expires: recovered.verification_expires_at },
+      secret,
+    )
+    const payload = (await readVerification(token, secret))!
+    await confirm(store.db, payload.id, payload.version, payload.expires, 62_000)
+    await confirm(store.db, payload.id, payload.version, payload.expires, 63_000)
+    expect(
+      store.sqlite
+        .prepare(
+          'SELECT kind, COUNT(*) AS n FROM lead_deliveries GROUP BY kind ORDER BY kind',
+        )
+        .all(),
+    ).toEqual([
+      { kind: 'acknowledgment', n: 1 },
+      { kind: 'sales', n: 1 },
+      { kind: 'verification', n: 2 },
+    ])
+  })
+  it('serializes a racing explicit resend and form recovery into one version', async () => {
+    const { data } = await failedLead()
+    const results = await Promise.allSettled([
+      saveLead(store.db, data, 61_000),
+      resend(store.db, data.submissionId, 61_000),
+    ])
+    for (const result of results) {
+      if (result.status === 'fulfilled')
+        expect(result.value.verification_version).toBe(2)
+      else expect(result.reason).toMatchObject({ status: 429 })
+    }
+    expect((await findLead(store.db, data.submissionId))?.verification_version).toBe(2)
+    expect(
+      store.sqlite.prepare('SELECT COUNT(*) AS n FROM lead_deliveries').get()?.n,
+    ).toBe(2)
+  })
+})
 describe('durable delivery', () => {
   it.each([
     'E_RECIPIENT_SUPPRESSED',
@@ -286,6 +465,21 @@ describe('HTTP boundary', () => {
       headers: { origin, 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     })
+  it('returns 202 with failed state during recovery cooldown and queued state after it', async () => {
+    const now = Date.now()
+    vi.useFakeTimers({ toFake: ['Date'] }).setSystemTime(now)
+    const data = input()
+    await saveLead(store.db, data, now)
+    store.sqlite.exec('UPDATE lead_deliveries SET failed_at = 1')
+    const early = await leadRequest(request(data), 'submit')
+    expect(early.status).toBe(202)
+    expect(await early.json()).toEqual({ status: 'pending', delivery: 'failed' })
+    await Promise.all(environment.background.splice(0))
+    vi.setSystemTime(now + 60_000)
+    const recovered = await leadRequest(request(data), 'submit')
+    expect(recovered.status).toBe(202)
+    expect(await recovered.json()).toEqual({ status: 'pending', delivery: 'queued' })
+  })
   it('rejects cross-origin requests before persistence', async () => {
     expect(
       (await leadRequest(request(input(), 'https://other.test'), 'submit')).status,

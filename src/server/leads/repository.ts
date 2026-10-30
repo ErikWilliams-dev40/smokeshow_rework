@@ -38,27 +38,44 @@ export async function saveLead(
   const hash = await hashAccess(input.submissionId)
   const id = crypto.randomUUID()
   const email = input.email.trim().toLowerCase()
+  const interest = input.interest ?? null
   await db.batch([
     db
       .prepare(
         'INSERT INTO leads (id, submission_hash, email, name, phone, interest, created_at, verification_expires_at, resend_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(submission_hash) DO NOTHING',
       )
+      .bind(id, hash, email, input.name, input.phone, interest, now, now + DAY, now),
+    db
+      // Recovery and enqueue share a transaction. Match the payload before any
+      // mutation so a conflicting replay cannot rotate credentials or send mail.
+      .prepare(
+        `UPDATE leads
+         SET verification_version = verification_version + 1,
+             verification_expires_at = ?, resend_at = ?
+         WHERE submission_hash = ? AND email = ? AND name = ? AND phone = ?
+           AND interest IS ? AND verified_at IS NULL AND resend_at <= ?
+           AND EXISTS (
+             SELECT 1 FROM lead_deliveries
+             WHERE id = leads.id || ':verification:' || leads.verification_version
+               AND failed_at IS NOT NULL AND delivered_at IS NULL AND lease_until <= ?
+           )`,
+      )
       .bind(
-        id,
+        now + DAY,
+        now,
         hash,
         email,
         input.name,
         input.phone,
-        input.interest ?? null,
-        now,
-        now + DAY,
+        interest,
+        now - 60_000,
         now,
       ),
     db
       .prepare(
-        "INSERT OR IGNORE INTO lead_deliveries (id, lead_id, kind, version, due_at) SELECT id || ':verification:' || verification_version, id, 'verification', verification_version, ? FROM leads WHERE submission_hash = ? AND verified_at IS NULL",
+        "INSERT OR IGNORE INTO lead_deliveries (id, lead_id, kind, version, due_at) SELECT id || ':verification:' || verification_version, id, 'verification', verification_version, ? FROM leads WHERE submission_hash = ? AND email = ? AND name = ? AND phone = ? AND interest IS ? AND verified_at IS NULL",
       )
-      .bind(now, hash),
+      .bind(now, hash, email, input.name, input.phone, interest),
   ])
   const lead = await findLead(db, input.submissionId)
   if (!lead) throw new Error('Lead persistence failed')
@@ -66,7 +83,7 @@ export async function saveLead(
     lead.email !== email ||
     lead.name !== input.name ||
     lead.phone !== input.phone ||
-    lead.interest !== (input.interest ?? null)
+    lead.interest !== interest
   )
     throw new LeadError(409, 'Details changed. Start a new inquiry to submit them.')
   return lead

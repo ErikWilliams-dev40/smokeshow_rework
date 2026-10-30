@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { createHmac, randomUUID } from 'node:crypto'
+import { createHash, createHmac, randomUUID } from 'node:crypto'
 import { createRequire } from 'node:module'
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -183,8 +183,79 @@ try {
 
   assert.equal((await call('/api/leads', signup())).status, 202)
   assert.equal(await db.prepare('SELECT COUNT(*) FROM leads').first('COUNT(*)'), 2)
+
+  // Seed a terminal verification failure after local simulated delivery settles.
+  // Recovery uses the public submit route and real D1 transactions, without a
+  // minute-long sleep or an outbound provider request.
+  const recoveryData = signup()
+  assert.equal((await call('/api/leads', recoveryData)).status, 202)
+  await until(
+    async () =>
+      (await call('/api/leads/status', recoveryData)).body.delivery === 'sent',
+  )
+  const submissionHash = createHash('sha256')
+    .update(recoveryData.submissionId)
+    .digest('base64url')
+  const failedLead = await db
+    .prepare('SELECT * FROM leads WHERE submission_hash = ?')
+    .bind(submissionHash)
+    .first()
+  assert.ok(failedLead)
+  const failedAt = Date.now()
+  await db.batch([
+    db
+      .prepare('UPDATE leads SET resend_at = ? WHERE id = ?')
+      .bind(failedAt - 60_000, failedLead.id),
+    db
+      .prepare(
+        "UPDATE lead_deliveries SET delivered_at = NULL, failed_at = ?, attempts = 5, lease_until = 0 WHERE lead_id = ? AND kind = 'verification'",
+      )
+      .bind(failedAt, failedLead.id),
+  ])
+  const recoveryResults = await Promise.all(
+    Array.from({ length: 10 }, () => call('/api/leads', recoveryData)),
+  )
+  assert.ok(recoveryResults.every((result) => result.status === 202))
+  const currentLead = await db
+    .prepare('SELECT * FROM leads WHERE id = ?')
+    .bind(failedLead.id)
+    .first()
+  assert.equal(currentLead.verification_version, 2)
+  assert.ok(currentLead.verification_expires_at >= failedAt + 24 * 60 * 60 * 1000)
+  const versions = await db
+    .prepare(
+      'SELECT version, failed_at FROM lead_deliveries WHERE lead_id = ? ORDER BY version',
+    )
+    .bind(failedLead.id)
+    .all()
+  assert.deepEqual(versions.results, [
+    { version: 1, failed_at: failedAt },
+    { version: 2, failed_at: null },
+  ])
+  await until(
+    async () =>
+      (await call('/api/leads/status', recoveryData)).body.delivery === 'sent',
+  )
+  const oldPayload = Buffer.from(
+    JSON.stringify({
+      id: failedLead.id,
+      version: 1,
+      expires: failedLead.verification_expires_at,
+    }),
+  ).toString('base64url')
+  const oldSignature = createHmac(
+    'sha256',
+    'local-only-lead-signing-key-not-for-deployment',
+  )
+    .update(oldPayload)
+    .digest('base64url')
+  assert.equal(
+    (await call('/api/leads/verify', { token: `${oldPayload}.${oldSignature}` }))
+      .status,
+    410,
+  )
   console.log(
-    'Lead runtime integration passed: real D1 transactions, concurrent retries, persistent restart, signed confirmation, leases and cron recovery. No outbound email.',
+    'Lead runtime integration passed: real D1 transactions, concurrent retries, persistent restart, signed confirmation, leases, cron and failed verification recovery. No outbound email.',
   )
 } finally {
   await mf?.dispose()

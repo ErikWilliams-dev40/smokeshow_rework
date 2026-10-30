@@ -16,6 +16,16 @@ A link has a 24-hour signed credential in its fragment, not its query string.
 `/verify-email` removes the fragment from browser history and requires an explicit
 POST to confirm. Resending rotates the credential and is limited to once a minute.
 
+An identical form resubmission can also recover the current failed verification
+delivery once that same one-minute cooldown has elapsed. Recovery requires an
+unverified lead and a failed, undelivered job with no active lease. It atomically
+rotates the verification version, renews the 24-hour expiration and queues one
+new delivery, retaining the failed job for investigation. Concurrent retries
+create only one replacement. During the cooldown, submission still returns 202
+with the failed delivery state; existing request rate limits can return 429.
+Queued, sent and confirmed submissions retain their existing idempotent behavior.
+Changed details return 409 without modifying the lead or its deliveries.
+
 The response follows the durable lead/outbox transaction, without awaiting email.
 The server-only Cloudflare adapter schedules immediate delivery with `waitUntil`.
 The outbox claims jobs with two-minute leases and retries on a five-minute cron
