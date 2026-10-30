@@ -72,4 +72,8 @@ dist/
 *~
 Desktop.ini
 
+# Local design and developer handoff references
+/design_handoff_smoke_signals_blog/
+/smokeshow-dev-handoff/
+
 # Original local planning scratchpad; launch scope is summarized in README
