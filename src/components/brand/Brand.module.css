@@ -6,6 +6,10 @@
   vertical-align: middle;
 }
 
+.small {
+  width: 120px;
+}
+
 .large {
   width: clamp(240px, 35vw, 440px);
 }

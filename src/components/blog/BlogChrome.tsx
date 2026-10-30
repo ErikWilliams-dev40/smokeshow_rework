@@ -6,6 +6,7 @@ import { useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import type { ArticleSummary } from '@/domain/article'
 import { blogHref, sectionLabels, sections, type BlogQuery } from '@/domain/blog'
 import { salesContact } from '@/content/splash'
+import { Wordmark } from '@/components/brand/Wordmark'
 import { useMotion } from '@/components/motion/MotionSettings'
 import styles from './Blog.module.css'
 
@@ -136,7 +137,9 @@ export function BlogChrome({
       </div>
       <div className={styles.utility}>
         <div>
-          <Link href="/">SMOKE SHOW LABS</Link>
+          <Link href="/" aria-label="Smoke Show Labs home">
+            <Wordmark small />
+          </Link>
           <span>Licensed businesses, 21+</span>
           <Link href="/#how-it-works">How it works</Link>
           <a href={salesContact.phone.href}>Talk to Sales</a>
